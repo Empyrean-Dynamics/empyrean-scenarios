@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  # Lint pass — guards every Python file in the repo against ruff's
+  # default rule set + the project's pyproject configuration. Runs on
+  # the scaffolding commit even when there are zero scripts (ruff is a
+  # no-op then), and stays useful as scenarios get added in follow-up
+  # commits.
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install ruff
+        run: pip install ruff
+
+      - name: ruff format --check
+        run: ruff format --check .
+
+      - name: ruff check
+        run: ruff check .
+
+  # Smoke-test pass — once each scenario script exists, this job will
+  # exercise it end-to-end against the live empyrean wheel. Until then
+  # it just verifies the package installs.
+  smoke:
+    name: Smoke
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install package
+        run: pip install -e .
