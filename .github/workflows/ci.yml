@@ -7,44 +7,79 @@ on:
     branches: [ "main" ]
 
 jobs:
-  # Lint pass — guards every Python file in the repo against ruff's
-  # default rule set + the project's pyproject configuration. Runs on
-  # the scaffolding commit even when there are zero scripts (ruff is a
-  # no-op then), and stays useful as scenarios get added in follow-up
-  # commits.
-  lint:
-    name: Lint
+  # Python lint — ruff format + check across every .py in the repo.
+  lint-python:
+    name: Lint (Python)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-
       - name: Install ruff
         run: pip install ruff
-
       - name: ruff format --check
         run: ruff format --check .
-
       - name: ruff check
         run: ruff check .
 
-  # Smoke-test pass — once each scenario script exists, this job will
-  # exercise it end-to-end against the live empyrean wheel. Until then
-  # it just verifies the package installs.
+  # Rust lint + build — `cargo fmt --check` and `cargo build` for the
+  # full workspace (every scenario binary). Doesn't run the binaries
+  # because they need network + SPICE kernels; the smoke job below
+  # handles end-to-end verification once the kernel cache is wired
+  # into CI.
+  lint-rust:
+    name: Lint + Build (Rust)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Rust toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          components: rustfmt, clippy
+          rustflags: ""
+      - name: cargo fmt --check
+        run: cargo fmt --all -- --check
+      - name: cargo build
+        run: cargo build --workspace --all-targets
+      - name: cargo clippy
+        run: cargo clippy --workspace --all-targets -- -D warnings
+
+  # Smoke-test pass — verifies the Python package installs cleanly,
+  # and that every scenario's `main.py` is syntactically valid +
+  # imports resolve. Full end-to-end execution waits on SPICE kernel
+  # caching being wired into CI; once that lands, this job will also
+  # run each script against a fixed reference epoch.
+  #
+  # The `spielberg:snippet:start/end` regions in these scripts feed
+  # the explore-mode "Reproduce in Python" panel directly via
+  # spielberg's snippet extractor (single source of truth). Catching
+  # syntax / import breakage here is the minimum bar for that panel
+  # to remain runnable.
   smoke:
     name: Smoke
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-
       - name: Install package
         run: pip install -e .
+      - name: py_compile all scenario scripts
+        run: |
+          set -e
+          for f in 99942_Apophis 101955_Bennu 2008_TC3 2020_CD3 2024_YR4 67P_Churyumov-Gerasimenko; do
+            echo "py_compile: $f/main.py"
+            python -m py_compile "$f/main.py"
+          done
+
+      - name: py_compile all install-page reference scripts
+        run: |
+          set -e
+          for f in install-page/*.py; do
+            echo "py_compile: $f"
+            python -m py_compile "$f"
+          done

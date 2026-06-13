@@ -1,0 +1,110 @@
+[package]
+name = "empyrean-scenarios"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.90.0"
+authors = ["Joachim Moeyens <moeyensj@gmail.com>"]
+description = "Runnable Rust + Python walkthroughs of the explore-mode planetary-science scenarios on empyrean-dynamics.com."
+repository = "https://github.com/Empyrean-Dynamics/empyrean-scenarios"
+license = "BSD-3-Clause"
+publish = false
+include = [
+    "99942_Apophis/**/*",
+    "101955_Bennu/**/*",
+    "2008_TC3/**/*",
+    "2020_CD3/**/*",
+    "2024_YR4/**/*",
+    "67P_Churyumov-Gerasimenko/**/*",
+    "install-page/**/*",
+    "Cargo.toml",
+    "README.md",
+    "LICENSE",
+]
+
+# One Rust binary per scenario, named to match the corresponding
+# Python script. Each scenario lives in its own per-object directory
+# advertising the object's full canonical name (number + name, or the
+# provisional designation when no name has been assigned). `cargo run
+# --release --bin apophis` produces the same headline numbers as
+# `python 99942_Apophis/apophis.py` against the same MPC / SBDB
+# inputs. The bin names stay short so they're cheap to type at the
+# CLI.
+[[bin]]
+name = "apophis"
+path = "99942_Apophis/main.rs"
+
+[[bin]]
+name = "bennu"
+path = "101955_Bennu/main.rs"
+
+[[bin]]
+name = "yr4"
+path = "2024_YR4/main.rs"
+
+[[bin]]
+name = "tc3"
+path = "2008_TC3/main.rs"
+
+[[bin]]
+name = "cd3"
+path = "2020_CD3/main.rs"
+
+[[bin]]
+name = "comet67p"
+path = "67P_Churyumov-Gerasimenko/main.rs"
+
+# install-page/ — one runnable Rust example per section of the
+# https://empyrean-dynamics.com/install reference page. Each script
+# exists primarily as the source-of-truth for the spielberg snippet
+# extractor (the marked region between `spielberg:snippet:start` and
+# `spielberg:snippet:end` is what the install page renders), but also
+# stands alone as a working `cargo run --release --bin install-<name>`
+# demo. CI runs `cargo build --workspace --all-targets` over all of
+# them.
+
+[[bin]]
+name = "install-initialize"
+path = "install-page/initialize.rs"
+
+[[bin]]
+name = "install-query-jpl"
+path = "install-page/query_jpl.rs"
+
+[[bin]]
+name = "install-propagate"
+path = "install-page/propagate.rs"
+
+[[bin]]
+name = "install-ephemeris"
+path = "install-page/ephemeris.rs"
+
+[[bin]]
+name = "install-determine"
+path = "install-page/determine.rs"
+
+[[bin]]
+name = "install-transform"
+path = "install-page/transform.rs"
+
+[[bin]]
+name = "install-body-states"
+path = "install-page/body_states.rs"
+
+[[bin]]
+name = "install-observer-states"
+path = "install-page/observer_states.rs"
+
+[[bin]]
+name = "install-epochs"
+path = "install-page/epochs.rs"
+
+[dependencies]
+# Sole physics dep — every scenario script imports only from the
+# public `empyrean` crate surface (no nolan / villeneuve / scott
+# direct imports).
+empyrean = "0.7"
+
+# Until empyrean publishes to crates.io, point at the local sibling
+# checkout. Drop this section once `empyrean = "0.7"` resolves.
+[patch.crates-io]
+empyrean = { path = "../empyrean/empyrean" }

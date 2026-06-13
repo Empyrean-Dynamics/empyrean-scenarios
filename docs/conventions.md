@@ -85,12 +85,21 @@ if __name__ == "__main__":
 
 1. Mirror the spielberg `src/data/scenarios/<id>.ts` fixture — the
    numbers should match what the explore-mode panel shows.
-2. Build the script following the layout above.
-3. Add an entry to `README.md`'s Scripts table with both the script
-   link and a `docs/scenarios/<id>.md` link.
-4. Write `docs/scenarios/<id>.md` covering: scientific background,
-   data sources, expected output, comparison to authoritative
-   reference values.
+2. Create a per-object directory at the repo root, named for the
+   object's full canonical designation: `<number>_<Name>` for named
+   asteroids and comets (e.g. `99942_Apophis`,
+   `67P_Churyumov-Gerasimenko`), or the provisional designation
+   alone for unnamed objects (e.g. `2024_YR4`). Put three files
+   inside:
+   - `<dirname>/main.py` — Python implementation
+   - `<dirname>/main.rs` — Rust twin
+   - `<dirname>/README.md` — scientific background, data sources,
+     expected output, comparison to authoritative reference values
+3. Add a `[[bin]]` entry in the top-level `Cargo.toml` pointing at
+   `<dirname>/main.rs` with a short, CLI-friendly `name` (e.g.
+   `apophis`, `yr4`).
+4. Add the new directory to the top-level `Cargo.toml`'s `include`
+   list and to the top-level `README.md`'s Scripts table.
 5. Open a PR.
 
 ## Reference values: where they come from
