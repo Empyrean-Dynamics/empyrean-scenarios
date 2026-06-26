@@ -15,6 +15,6 @@ keywords = ["astrodynamics", "planetary-science", "near-earth-objects", "example
 # collection of `python <script>.py` runnable demos. Each script
 # imports only from the public `empyrean` API surface.
 dependencies = [
-    "empyrean>=0.7.0",
+    "empyrean==0.7.0rc4",
     "numpy>=1.21",
 ]

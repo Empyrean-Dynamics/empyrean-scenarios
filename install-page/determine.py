@@ -19,11 +19,14 @@ def main() -> None:
     empyrean.initialize()
 
     # spielberg:snippet:start
-    # Read ADES PSV observations (file path or PSV string)
-    obs = empyrean.read_ades(PSV)
+    # Read ADES PSV observations (file path or PSV string). ADES models
+    # radar as its own top-level table, so read_ades returns both —
+    # unpack the (optical, radar) tuple.
+    obs, radar = empyrean.read_ades(PSV)
 
-    # Full pipeline: IOD + differential correction + outlier rejection
-    fit = empyrean.determine(obs)
+    # Full pipeline: IOD + differential correction + outlier rejection.
+    # Fold in radar when the file carries a <radar> block.
+    fit = empyrean.determine(obs, radar=radar if len(radar) else None)
     print(
         f"converged={fit.converged}  "
         f'RMS RA·cos(d) {fit.summary.rms_ra_arcsec:.2f}" '

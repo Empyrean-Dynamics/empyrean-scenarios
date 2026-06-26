@@ -69,13 +69,14 @@ def main() -> None:
     # altitude). ────────────────────────────────────────────────────
     print("\nPredicted atmospheric entry (Empyrean):")
     ae = prop.events.atmospheric_entries
+    au_per_day_to_km_per_s = 149_597_870.7 / 86_400.0
     for i in range(len(ae)):
         epoch = ae.epoch.to_numpy(zero_copy_only=False)[i]
-        lat = ae.latitude_deg.to_numpy(zero_copy_only=False)[i]
-        lon = ae.longitude_deg.to_numpy(zero_copy_only=False)[i]
+        v_rel = ae.relative_velocity_au_day.to_numpy(zero_copy_only=False)[i]
         alt = ae.altitude_km.to_numpy(zero_copy_only=False)[i]
         print(
-            f"  MJD {epoch:.5f}  lat {lat:>6.2f}°  lon {lon:>6.2f}°  alt {alt:.0f} km"
+            f"  MJD {epoch:.5f}  v_rel = {v_rel * au_per_day_to_km_per_s:.2f} km/s  "
+            f"alt = {alt:.0f} km"
         )
     print("Reference (Borovička+ 2010):")
     print(

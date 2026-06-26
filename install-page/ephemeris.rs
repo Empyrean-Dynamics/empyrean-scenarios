@@ -23,7 +23,7 @@ fn main() -> empyrean::Result<()> {
 
     let eph = ctx.generate_ephemeris(&[orbit], &observers, &EphemerisConfig::default())?;
 
-    for row in eph.iter() {
+    for row in eph.entries.iter() {
         println!(
             "RA = {:.6}\u{00B0}  Dec = {:.6}\u{00B0}  range = {:.6} AU",
             row.ra_deg, row.dec_deg, row.rho_au
@@ -31,7 +31,7 @@ fn main() -> empyrean::Result<()> {
     }
 
     // Photometry — V-band magnitude with 1-sigma uncertainty
-    for row in eph.iter() {
+    for row in eph.entries.iter() {
         let (m, s) = (row.mag, row.mag_sigma);
         println!("V = {m:.2} \u{00B1} {s:.2}");
     }

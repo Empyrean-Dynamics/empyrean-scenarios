@@ -8,7 +8,9 @@ Run:
     python 99942_Apophis/main.py
 
 What it does:
-    1. Pulls every available MPC astrometric observation of Apophis.
+    1. Pulls every available MPC optical observation of Apophis plus the
+       JPL Goldstone/Arecibo radar delay/Doppler astrometry, and folds
+       both ADES tables into one fit.
     2. Runs `empyrean.determine` with the 9-parameter (state + Marsden
        A1/A2/A3) solve_for so the converged orbit carries the same
        non-gravitational coefficients JPL fits jointly with the state.
@@ -41,18 +43,21 @@ from empyrean import Epochs, ODConfig, SolveForParams, TimeScale, UncertaintyMet
 def main() -> None:
     empyrean.initialize()  # downloads SPICE kernels on first run
 
-    # ── 1. Astrometric observations from MPC ────────────────────────
-    # ~9,500 observations from 2004 onward, including Goldstone radar
-    # delay/Doppler and Gaia-grade CCD measurements.
+    # ── 1. Optical astrometry (MPC) + radar astrometry (JPL) ────────
+    # ~9,500 optical observations from 2004 onward (Gaia-grade CCD), plus
+    # Apophis's extensive Goldstone/Arecibo radar delay/Doppler record set.
+    # The MPC carries optical only; asteroid radar is a JPL SSD product,
+    # queried separately and folded into the same fit.
     obs = empyrean.query_observations(["99942"])
-    print(f"{len(obs)} observations from MPC")
+    radar = empyrean.query_radar(["99942"])
+    print(f"{len(obs)} optical + {len(radar)} radar (delay/Doppler)")
 
     # ── 2. 9-parameter OD with non-grav ─────────────────────────────
     # Forces the (state + A1, A2, A3) solve. The hyperdual integrator
     # computes the (O-C) Jacobian against all 9 parameters analytically
     # — no finite differencing of the 21-year arc.
     cfg = ODConfig(solve_for=SolveForParams.STATE_AND_NONGRAV)
-    result = empyrean.determine(obs, config=cfg)
+    result = empyrean.determine(obs, radar=radar if len(radar) else None, config=cfg)
     s = result.summary
     print(f"Converged:  {result.converged}")
     print(f"chi2/dof:   {s.reduced_chi2:.3f}")

@@ -9,7 +9,9 @@
 //! ```
 //!
 //! What it does:
-//! 1. Pulls every available MPC astrometric observation of Apophis.
+//! 1. Pulls every available MPC optical observation of Apophis plus the
+//!    JPL Goldstone/Arecibo radar delay/Doppler astrometry, and folds
+//!    both ADES tables into one fit.
 //! 2. Runs the full IOD → DC pipeline with the 9-parameter
 //!    `STATE_AND_NONGRAV` solve so the converged orbit carries the
 //!    same Marsden A1/A2/A3 non-gravitational coefficients JPL fits
@@ -33,8 +35,8 @@
 
 // spielberg:snippet:start
 use empyrean::{
-    Context, Epoch, EventConfig, ODConfig, Origin, PropagationConfig, SolveForParams,
-    UncertaintyMethod, query_observations,
+    Context, Epoch, EventConfig, ODConfig, Observations, Origin, PropagationConfig, SolveForParams,
+    UncertaintyMethod, query_observations, query_radar,
 };
 
 fn main() -> empyrean::Result<()> {
@@ -43,9 +45,21 @@ fn main() -> empyrean::Result<()> {
     // the platform's XDG data directory on first run.
     let ctx = Context::from_data_dir(None)?;
 
-    // ── 1. Astrometric observations from MPC ────────────────────────
-    let observations = query_observations(&["99942"], None)?;
-    println!("{} observations from MPC", observations.len());
+    // ── 1. Optical astrometry (MPC) + radar astrometry (JPL) ────────
+    // The MPC carries optical only; asteroid radar delay/Doppler is a
+    // JPL SSD product, queried separately and folded into the same fit.
+    // Apophis has an extensive Goldstone/Arecibo radar record set.
+    let optical = query_observations(&["99942"], None)?;
+    let radar = query_radar(&["99942"], None)?;
+    println!(
+        "{} optical + {} radar (delay/Doppler)",
+        optical.len(),
+        radar.len()
+    );
+
+    // Fold both ADES tables into a single observation set. When the
+    // radar query comes back empty the fit is optical-only.
+    let observations = Observations::from_arrays(&optical.iter().collect::<Vec<_>>(), &radar)?;
 
     // ── 2. 9-parameter OD with non-grav ─────────────────────────────
     // Forces the (state + A1, A2, A3) solve. The hyperdual integrator

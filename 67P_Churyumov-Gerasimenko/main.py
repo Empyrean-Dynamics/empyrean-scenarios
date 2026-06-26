@@ -10,10 +10,11 @@ Run:
 What it does:
     1. Queries JPL SBDB for 67P. The SBDB solution ships the standard
        Marsden water-sublimation A1/A2/A3 coefficients for the comet's
-       outgassing-driven non-gravitational acceleration.
-    2. Propagates 2012–2028 at 10-day cadence — covers both the
-       Rosetta-era (2015) and 2021 perihelia, plus the upcoming 2028
-       return.
+       outgassing-driven non-gravitational acceleration, the water-ice
+       g(r) exponents, and a +46 d outgassing time delay.
+    2. Propagates a 16-year, 10-day-cadence window starting at the
+       orbit epoch — covers both the Rosetta-era (2015) and 2021
+       perihelia, plus the upcoming 2028 return.
     3. Compares with a control run that drops the non-grav term, and
        prints the cumulative along-track displacement.
 
@@ -33,6 +34,7 @@ import empyrean
 from empyrean import (
     CometaryOrbits,
     Epochs,
+    NonGravParams,
     TimeScale,
     UncertaintyMethod,
 )
@@ -47,18 +49,42 @@ def main() -> None:
 
     # ── 1. SBDB query — non-grav coefficients included ──────────────
     orbits = empyrean.query_sbdb(["67P"])
+    ng = orbits.non_grav
     print("non-grav coefficients (SBDB):")
-    print(f"  A1 = {orbits.non_grav.a1.to_numpy()[0]:.3e} AU/d^2")
-    print(f"  A2 = {orbits.non_grav.a2.to_numpy()[0]:.3e} AU/d^2")
-    print(f"  A3 = {orbits.non_grav.a3.to_numpy()[0]:.3e} AU/d^2")
+    print(f"  A1 = {ng.a1.to_numpy()[0]:.3e} AU/d^2")
+    print(f"  A2 = {ng.a2.to_numpy()[0]:.3e} AU/d^2")
+    print(f"  A3 = {ng.a3.to_numpy()[0]:.3e} AU/d^2")
 
-    # ── 2. Propagate 16 years at 10-day cadence ─────────────────────
+    # SBDB ships 67P's full Marsden-Sekanina solution: the water-ice
+    # g(r) exponents (alpha, r0, m, n, k) and a +46 d outgassing time
+    # delay. Re-attach them explicitly so the full run propagates the
+    # comet g(r) — not the asteroid inverse-square default.
+    full_orbit = CometaryOrbits.from_kwargs(
+        orbit_id=orbits.orbit_id.to_pylist(),
+        object_id=orbits.object_id.to_pylist(),
+        coordinates=orbits.coordinates,
+        non_grav=NonGravParams.from_kwargs(
+            a1=ng.a1.to_pylist(),
+            a2=ng.a2.to_pylist(),
+            a3=ng.a3.to_pylist(),
+            model=["marsden"],
+            alpha=[0.1113],
+            r0=[2.808],
+            m=[2.15],
+            n=[5.093],
+            k=[4.6142],
+            dt=[45.68888251286532],
+        ),
+    )
+
+    # ── 2. Propagate 16 years at 10-day cadence from the orbit epoch ─
+    base = orbits.coordinates.epoch.to_numpy()[0]
     epochs = Epochs.from_kwargs(
-        mjd=[56000.0 + 10.0 * i for i in range(601)],
+        mjd=[base + 10.0 * i for i in range(601)],
         scale=TimeScale.TDB.value,
     )
     full = empyrean.propagate(
-        orbits,
+        full_orbit,
         epochs,
         uncertainty_method=UncertaintyMethod.SECOND_ORDER,
     )

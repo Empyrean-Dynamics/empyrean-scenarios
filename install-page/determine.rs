@@ -18,10 +18,13 @@ fn main() -> empyrean::Result<()> {
 
     let cfg = ODConfig::default();
 
-    // Read ADES PSV observations (file path or PSV string)
+    // Read ADES PSV observations (file path or PSV string). The returned
+    // set carries both ADES tables (optical + radar); the Python twin
+    // unpacks the (optical, radar) tuple and folds the radar back in.
     let obs = ctx.read_ades(&psv)?;
 
-    // Full pipeline: IOD + differential correction + outlier rejection
+    // Full pipeline: IOD + differential correction + outlier rejection.
+    // Any <radar> block read above rides along inside `obs`.
     let fit = ctx.determine(&obs, None, &cfg)?;
     let s = &fit.summary;
     println!(

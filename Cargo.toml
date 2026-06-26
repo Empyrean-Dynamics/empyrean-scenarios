@@ -101,10 +101,5 @@ path = "install-page/epochs.rs"
 [dependencies]
 # Sole physics dep — every scenario script imports only from the
 # public `empyrean` crate surface (no nolan / villeneuve / scott
-# direct imports).
-empyrean = "0.7"
-
-# Until empyrean publishes to crates.io, point at the local sibling
-# checkout. Drop this section once `empyrean = "0.7"` resolves.
-[patch.crates-io]
-empyrean = { path = "../empyrean/empyrean" }
+# direct imports). Resolved from the published crate on crates.io.
+empyrean = "0.7.0-rc.4"

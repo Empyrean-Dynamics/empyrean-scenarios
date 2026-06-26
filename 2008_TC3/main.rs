@@ -66,11 +66,14 @@ fn main() -> empyrean::Result<()> {
         .iter()
         .filter(|e| e.event_type == "atmospheric_entry")
     {
+        // `impact_altitude_km` is the true altitude above the reference
+        // ellipsoid from the planetodetic ground track (~100 km Karman
+        // line); `distance_km` is the body-CENTER crossing distance.
         println!(
             "  MJD {:.5}  v_rel = {:.2} km/s  alt = {:.0} km",
             ev.epoch.mjd(),
             ev.relative_velocity_au_day * 149_597_870.7 / 86_400.0,
-            ev.distance_km,
+            ev.impact_altitude_km,
         );
     }
     println!("Reference (Borovička+ 2010):");

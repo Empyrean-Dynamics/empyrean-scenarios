@@ -28,9 +28,12 @@ fn main() -> empyrean::Result<()> {
     println!("  A2 = {:.3e} AU/d^2", orbit.a2);
     println!("  A3 = {:.3e} AU/d^2", orbit.a3);
 
-    // ── 2. Propagate 16 years at 10-day cadence ─────────────────────
+    // ── 2. Propagate 16 years at 10-day cadence from the orbit epoch ─
+    // Anchor the grid to the orbit's own epoch (as the Python twin does)
+    // so both reproduce the same 16-year window from the SBDB solution.
+    let base = orbit.state.epoch.mjd();
     let epochs: Vec<Epoch> = (0..601)
-        .map(|i| Epoch::from_mjd_tdb(56000.0 + 10.0 * i as f64))
+        .map(|i| Epoch::from_mjd_tdb(base + 10.0 * i as f64))
         .collect();
     let prop_config = PropagationConfig {
         uncertainty_method: UncertaintyMethod::SecondOrder,
