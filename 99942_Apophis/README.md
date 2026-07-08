@@ -87,8 +87,7 @@ Reference (JPL CAD):
 (B-plane uncertainty input to any downstream resonant-return analysis.)
 ```
 
-(Exact numbers will drift with new astrometry; CI pins to the
-spielberg fixture.)
+(Exact numbers will drift with new astrometry.)
 
 ## See also
 

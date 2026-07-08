@@ -26,17 +26,6 @@ No hosted endpoint, no proprietary data — just `cargo add empyrean`
 or `pip install empyrean` against the publicly-available astrometry
 catalogues.
 
-## Built on
-
-<a href="https://github.com/Empyrean-Dynamics/nolan"><img src="docs/nolan.png" width="220" alt="nolan"></a> <a href="https://github.com/Empyrean-Dynamics/villeneuve"><img src="docs/villeneuve.png" width="220" alt="villeneuve"></a> <a href="https://github.com/Empyrean-Dynamics/scott"><img src="docs/scott.png" width="220" alt="scott"></a>
-
-| Component | Role |
-|---|---|
-| [`empyrean`](https://github.com/Empyrean-Dynamics/empyrean) | Public Python wrapper — the `pip install empyrean` distribution every script imports |
-| [`nolan`](https://github.com/Empyrean-Dynamics/nolan) | Hyperdual automatic differentiation (Jet1, Jet2) — what the second-order STT propagation and the OD partials are built on |
-| [`villeneuve`](https://github.com/Empyrean-Dynamics/villeneuve) | Orbital propagation, uncertainty propagation, event detection — close approaches, B-plane geometry, capture/escape, atmospheric entry |
-| [`scott`](https://github.com/Empyrean-Dynamics/scott) | Orbit determination from optical astrometry — IOD + differential correction, with optional Marsden A1/A2/A3 non-grav solve (Yarkovsky-form for asteroids, water-ice for comets) |
-
 ## Layout
 
 Each scenario lives in its own per-object directory at the top level,

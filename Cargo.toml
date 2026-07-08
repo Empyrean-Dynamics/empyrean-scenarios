@@ -102,4 +102,4 @@ path = "install-page/epochs.rs"
 # Sole physics dep — every scenario script imports only from the
 # public `empyrean` crate surface (no nolan / villeneuve / scott
 # direct imports). Resolved from the published crate on crates.io.
-empyrean = "0.7.0-rc.4"
+empyrean = "0.8.0-rc.1"

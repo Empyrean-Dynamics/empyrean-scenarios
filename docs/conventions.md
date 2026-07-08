@@ -64,7 +64,7 @@ if __name__ == "__main__":
    final-section `print(...)` lines double as the manual test:
    eyeball the close-approach distance, IP, B-plane geometry against
    the inline `Reference (...)` lines. CI will eventually pin these
-   to the spielberg fixtures (see issue empyrean-c368).
+   to golden fixtures.
 
 5. **Reference values cited inline.** Every quantitative reference
    value appears next to the corresponding script output, prefixed by
@@ -83,8 +83,9 @@ if __name__ == "__main__":
 
 ## Adding a new scenario
 
-1. Mirror the spielberg `src/data/scenarios/<id>.ts` fixture — the
-   numbers should match what the explore-mode panel shows.
+1. Match the corresponding explore-mode scenario on
+   empyrean-dynamics.com — the numbers should agree with what the
+   panel shows.
 2. Create a per-object directory at the repo root, named for the
    object's full canonical designation: `<number>_<Name>` for named
    asteroids and comets (e.g. `99942_Apophis`,

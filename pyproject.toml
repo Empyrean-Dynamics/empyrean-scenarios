@@ -15,6 +15,13 @@ keywords = ["astrodynamics", "planetary-science", "near-earth-objects", "example
 # collection of `python <script>.py` runnable demos. Each script
 # imports only from the public `empyrean` API surface.
 dependencies = [
-    "empyrean==0.7.0rc4",
+    "empyrean==0.8.0rc1",
     "numpy>=1.21",
 ]
+
+# Not an importable package — installing this project just provisions
+# the dependency set above. Without this, setuptools' flat-layout
+# auto-discovery trips over local run artifacts (target/, downloaded
+# ephemeris directories) and refuses to build.
+[tool.setuptools]
+packages = []

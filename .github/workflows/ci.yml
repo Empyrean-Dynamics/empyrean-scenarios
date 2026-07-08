@@ -58,14 +58,24 @@ jobs:
   # syntax / import breakage here is the minimum bar for that panel
   # to remain runnable.
   smoke:
-    name: Smoke
+    name: Smoke (py${{ matrix.python }})
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      # Scenarios target requires-python >= 3.10, so validate the runnable
+      # walkthroughs across the supported range — a 3.10-incompatible construct
+      # in a scenario script would otherwise pass a single-version smoke.
+      # `pip install -e .` pulls the published empyrean wheel, which covers 3.10+
+      # via its abi3 build; this matrix is fully green once empyrean ships abi3
+      # wheels (before that, only 3.12 has an installable wheel).
+      matrix:
+        python: ["3.10", "3.12", "3.13"]
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: ${{ matrix.python }}
       - name: Install package
         run: pip install -e .
       - name: py_compile all scenario scripts
