@@ -113,3 +113,21 @@ if __name__ == "__main__":
 | **JPL SBDB** | Orbital elements + 6×6 covariance + non-grav | Source of truth for propagation initial conditions |
 | **MPC** | Astrometric observations | Source of truth for orbit-determination input |
 | **Published papers** | Yarkovsky coefficients, capture-episode bounds, atmospheric-entry timing | Cited inline in the script's docstring + alongside corresponding `print(...)` |
+
+## Version pinning
+
+Both manifests pin the published `empyrean` release **exactly** —
+`empyrean==X.Y.Z` in `pyproject.toml` and `empyrean = "=X.Y.Z"` in
+`Cargo.toml` (cargo's bare `"X.Y.Z"` is a caret range and would float
+across patch releases).
+
+The pin, every scenario's "Expected output (rough)" block, and any
+version-coupled numbers in the READMEs form one atomic artifact:
+they are updated together, in a single commit, per release. Bumping
+the pin means re-running every scenario in both languages against the
+new release and regenerating the blocks — that re-run is the upgrade
+validation, and diffs in the blocks are the changelog of what the
+release changed for these objects. Never bump the pin without
+refreshing the blocks, and never use a version range: a fresh clone
+must print the committed numbers (modulo live-astrometry drift, which
+the blocks are marked "rough" for).
