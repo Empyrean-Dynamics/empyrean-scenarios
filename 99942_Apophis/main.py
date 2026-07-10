@@ -104,7 +104,6 @@ def main() -> None:
     earth = [i for i in range(len(p)) if bodies[i] == "Earth"]
     if earth:
         ca_mjd = epochs_p[earth[0]]
-        grid_mjd = epochs.mjd.to_numpy(zero_copy_only=False)
         # Output rows are NOT request-ordered (encounter episodes are
         # grouped by origin), so look every table up by ITS OWN epoch
         # column — never by request-grid position.
