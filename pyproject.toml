@@ -17,6 +17,8 @@ keywords = ["astrodynamics", "planetary-science", "near-earth-objects", "example
 dependencies = [
     "empyrean==0.8.1",
     "numpy>=1.21",
+    # The install-page Epochs walkthrough demonstrates Astropy interop.
+    "astropy>=6",
 ]
 
 # Not an importable package — installing this project just provisions
