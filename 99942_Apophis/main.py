@@ -105,18 +105,25 @@ def main() -> None:
     if earth:
         ca_mjd = epochs_p[earth[0]]
         grid_mjd = epochs.mjd.to_numpy(zero_copy_only=False)
-        k = int(np.argmin(np.abs(grid_mjd - ca_mjd)))
+        # Output rows are NOT request-ordered (encounter episodes are
+        # grouped by origin), so look every table up by ITS OWN epoch
+        # column — never by request-grid position.
+        out_mjd = prop.states.coordinates.epoch.to_numpy(zero_copy_only=False)
+        k_state = int(np.argmin(np.abs(out_mjd - ca_mjd)))
 
         # σ_pos = sqrt(trace of the 3×3 position block), AU → km.
         def pos_sigma_km(cov6x6: np.ndarray) -> float:
             return float(np.sqrt(cov6x6[:3, :3].trace())) * au_km
 
-        print(f"\nFlyby covariance readback (Empyrean, grid MJD {grid_mjd[k]:.3f}):")
-        linear = prop.states.coordinates.covariance.to_matrix()[k]
+        print(
+            f"\nFlyby covariance readback (Empyrean, grid MJD {out_mjd[k_state]:.3f}):"
+        )
+        linear = prop.states.coordinates.covariance.to_matrix()[k_state]
         print(f"  bare linear        sigma_pos = {pos_sigma_km(linear):>10.0f} km")
 
         series = prop.tagged_covariance_series(0)
-        resolved = series[k]
+        series_mjd = np.array([tc.epoch_mjd_tdb for tc in series])
+        resolved = series[int(np.argmin(np.abs(series_mjd - ca_mjd)))]
         print(
             f"  resolved {resolved.kind.value:<12s} sigma_pos = "
             f"{pos_sigma_km(np.asarray(resolved.matrix)):>10.0f} km"

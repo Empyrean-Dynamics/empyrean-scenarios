@@ -1,6 +1,7 @@
 # 2008 TC3: 19-hour discovery arc → predicted Earth impact → meteorites
 
-Scripts: [`main.py`](./main.py) (Python) · [`main.rs`](./main.rs) (Rust)
+[![Python](https://img.shields.io/badge/Python-main.py-3776AB?logo=python&logoColor=white&style=flat-square)](./main.py)
+[![Rust](https://img.shields.io/badge/Rust-main.rs-B7410E?logo=rust&logoColor=white&style=flat-square)](./main.rs)
 
 ## The story
 
@@ -53,12 +54,13 @@ fireball-recovered fragments.
 
 ```
 883 observations spanning the discovery arc
-chi2/dof:    0.812  (879/883 obs selected)
+chi2/dof:    0.582  (819/883 obs selected)
+RMS:         RA·cos(d) 1.108"  Dec 0.590"
 
-Predicted impact (Empyrean):
-  lat  20.79 deg  lon  32.19 deg  @ MJD 54746.11546  v = 12.41 km/s
+Predicted atmospheric entry (Empyrean):
+  MJD 54746.11569  v_rel = 12.79 km/s  alt = 100 km
 Reference (Borovička+ 2010):
-  lat 20.74 deg N  lon 32.16 deg E  @ MJD 54746.115 (2008-10-07 02:45:40 UT)  v = 12.4 km/s
+  MJD 54746.115 (2008-10-07 02:45:40 UT) over 20.74°N 32.16°E  v = 12.4 km/s
 ```
 
 A few-hundred-meter difference in predicted impact location is

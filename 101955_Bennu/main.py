@@ -118,9 +118,12 @@ def main() -> None:
                 f"  MJD {bp_epochs[i]:.3f}  |B| = {bmag[i]:>10.0f} km  "
                 f"3-sigma semi-major = {sm[i]:>8.1f} km"
             )
-    print(
-        "(2060 B-plane uncertainty input to any downstream resonant-return analysis; 440x covariance amplification at 2080.)"
-    )
+    earth_sm = [sm[i] for i in range(len(b_planes)) if body[i] == "Earth"]
+    if len(earth_sm) >= 2:
+        print(
+            f"(2060 B-plane uncertainty input to any downstream resonant-return analysis; "
+            f"{earth_sm[1] / earth_sm[0]:.0f}x covariance amplification at 2080.)"
+        )
 
 
 # spielberg:snippet:end

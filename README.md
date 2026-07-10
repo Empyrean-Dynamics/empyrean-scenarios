@@ -26,6 +26,17 @@ No hosted endpoint, no proprietary data — just `cargo add empyrean`
 or `pip install empyrean` against the publicly-available astrometry
 catalogues.
 
+## Scenarios
+
+| Scenario | What it shows | Scripts |
+|---|---|---|
+| [99942 Apophis](99942_Apophis/) | Optical + radar orbit determination with non-gravitational parameters, the 2029 Earth flyby, provenance-tagged covariance readback, and B-plane geometry | [![py](https://img.shields.io/badge/py-3776AB?logo=python&logoColor=white&style=flat-square)](99942_Apophis/main.py) [![rs](https://img.shields.io/badge/rs-B7410E?logo=rust&logoColor=white&style=flat-square)](99942_Apophis/main.rs) |
+| [2024 YR4](2024_YR4/) | Discovery-arc vs full-arc fits and how the 2032 impact probability collapses as astrometry accumulates | [![py](https://img.shields.io/badge/py-3776AB?logo=python&logoColor=white&style=flat-square)](2024_YR4/main.py) [![rs](https://img.shields.io/badge/rs-B7410E?logo=rust&logoColor=white&style=flat-square)](2024_YR4/main.rs) |
+| [101955 Bennu](101955_Bennu/) | Yarkovsky-driven 125-year propagation, the 2060 encounter, and covariance amplification between close approaches | [![py](https://img.shields.io/badge/py-3776AB?logo=python&logoColor=white&style=flat-square)](101955_Bennu/main.py) [![rs](https://img.shields.io/badge/rs-B7410E?logo=rust&logoColor=white&style=flat-square)](101955_Bennu/main.rs) |
+| [2008 TC3](2008_TC3/) | A 19-hour discovery arc fit forward to the observed atmospheric entry over Sudan | [![py](https://img.shields.io/badge/py-3776AB?logo=python&logoColor=white&style=flat-square)](2008_TC3/main.py) [![rs](https://img.shields.io/badge/rs-B7410E?logo=rust&logoColor=white&style=flat-square)](2008_TC3/main.rs) |
+| [2020 CD3](2020_CD3/) | Temporary lunar-distance capture ("mini-moon") event detection, with and without non-gravitational forces | [![py](https://img.shields.io/badge/py-3776AB?logo=python&logoColor=white&style=flat-square)](2020_CD3/main.py) [![rs](https://img.shields.io/badge/rs-B7410E?logo=rust&logoColor=white&style=flat-square)](2020_CD3/main.rs) |
+| [67P/Churyumov–Gerasimenko](67P_Churyumov-Gerasimenko/) | Cometary water-sublimation outgassing and its cumulative along-track displacement | [![py](https://img.shields.io/badge/py-3776AB?logo=python&logoColor=white&style=flat-square)](67P_Churyumov-Gerasimenko/main.py) [![rs](https://img.shields.io/badge/rs-B7410E?logo=rust&logoColor=white&style=flat-square)](67P_Churyumov-Gerasimenko/main.rs) |
+
 ## Layout
 
 Each scenario lives in its own per-object directory at the top level,

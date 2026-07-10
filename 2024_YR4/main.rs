@@ -138,7 +138,20 @@ fn main() -> empyrean::Result<()> {
     let resolved = &series[k];
     let resolved_sigma = pos_sigma_km(&resolved.matrix);
     // The bare linear covariance lives on the propagated state itself.
-    let linear_sigma = prop.states[k]
+    // States are NOT request-ordered (encounter episodes are grouped by
+    // origin), so find the row by its own epoch.
+    let k_state = prop
+        .states
+        .iter()
+        .enumerate()
+        .min_by(|(_, a), (_, b)| {
+            (a.epoch.mjd() - ca_mjd)
+                .abs()
+                .total_cmp(&(b.epoch.mjd() - ca_mjd).abs())
+        })
+        .map(|(i, _)| i)
+        .expect("non-empty states");
+    let linear_sigma = prop.states[k_state]
         .covariance
         .as_ref()
         .map(pos_sigma_km)

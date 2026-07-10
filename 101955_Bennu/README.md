@@ -1,6 +1,7 @@
 # Bennu: textbook transverse non-grav A2 (≈ Yarkovsky) + 2060 Earth encounter
 
-Scripts: [`main.py`](./main.py) (Python) · [`main.rs`](./main.rs) (Rust)
+[![Python](https://img.shields.io/badge/Python-main.py-3776AB?logo=python&logoColor=white&style=flat-square)](./main.py)
+[![Rust](https://img.shields.io/badge/Rust-main.rs-B7410E?logo=rust&logoColor=white&style=flat-square)](./main.rs)
 
 ## The story
 
@@ -47,9 +48,10 @@ constrained to better than 1-in-1750 cumulative probability.
    visible.
 
 4. **Reads close approaches + per-encounter B-plane geometry.** The
-   headline number is the 21 km 3σ semi-major of the projected
-   uncertainty ellipse at the 2060 encounter — the precision result
-   Farnocchia 2021 published.
+   headline number is the ~21 km 3σ semi-major of the projected
+   uncertainty ellipse at the 2060 encounter — the same order of
+   precision Farnocchia 2021 published from the OSIRIS-REx-era
+   solution.
 
 ## Reference values
 
@@ -66,36 +68,36 @@ constrained to better than 1-in-1750 cumulative probability.
 ## Expected output (rough)
 
 ```
-Object: 101955
+Object: 101955 Bennu (1999 RQ36)
 Epoch MJD TDB: 55562.0
 Marsden A2 (≈ Yarkovsky): -4.618e-14 AU/d^2
 Reference                 -4.6178e-14    (Farnocchia 2021)
 
 Close approaches (Empyrean):
-  Earth   MJD 73725.103      750576 km
-  Moon    MJD 73725.555      662245 km
-  Earth   MJD 81029.211     1738122 km
+  Earth   MJD 73725.025        749045 km
+  Earth   MJD 81028.981       2396400 km
 Reference (JPL CAD nominal):
   Earth   MJD 73725 (2060-09-23)   ~750,000 km
 
 Earth B-plane geometry (Empyrean):
-  MJD 73725.103  |B| =     750576 km  3-sigma semi-major =     21.0 km
-  MJD 81029.211  |B| =    1738122 km  3-sigma semi-major =   9263.4 km
-(2060 B-plane uncertainty input to any downstream resonant-return analysis; 440x covariance amplification at 2080.)
+  MJD 73725.025  |B| =     749045 km  3-sigma semi-major =     20.5 km
+  MJD 81028.981  |B| =    2396400 km  3-sigma semi-major =   9306.7 km
+(2060 B-plane uncertainty input to any downstream resonant-return analysis; 453x covariance amplification at 2080.)
 ```
 
-## The 21 km result, in context
+## The ~21 km result, in context
 
-A 21 km 3σ semi-major at a 750,000 km close approach is a
+A 20.5 km 3σ semi-major at a 750,000 km close approach is a
 positional knowledge of ~3 parts in 10⁵. To put it differently: Bennu
 is a 490 m object that we know the position of, 35 years from now, to
 within a ~40-Bennu-radius ellipse. That precision comes from including
 the measured transverse non-grav A2 in the OD; without it, the same
 propagation produces an uncertainty ellipse hundreds of km wide.
 
-The 9,263 km B-plane uncertainty at the 2080 follow-up is gravitational
-covariance amplification at close approach made quantitative — a 440×
-covariance inflation produced by the 2060 close pass. Where Bennu
+The ~9,300 km B-plane uncertainty at the 2080 follow-up is
+gravitational covariance amplification at close approach made
+quantitative — a ~450× covariance inflation produced by the 2060 close
+pass (the script prints the exact ratio). Where Bennu
 actually threads the 2060 B-plane controls almost everything about its
 22nd-century trajectory.
 

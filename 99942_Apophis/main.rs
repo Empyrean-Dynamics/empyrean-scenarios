@@ -140,14 +140,17 @@ fn main() -> empyrean::Result<()> {
         .find(|e| e.event_type == "periapsis" && e.body == Some(Origin::Earth))
         .map(|e| e.epoch.mjd());
     if let Some(ca_mjd) = ca_mjd {
-        // Grid epoch (orbit 0, orbit-major ⇒ states[k]) nearest the flyby.
-        let k = epochs
+        // Output rows are NOT request-ordered (encounter episodes are
+        // grouped by origin), so find the state row by ITS OWN epoch —
+        // never by request-grid position.
+        let k = prop
+            .states
             .iter()
             .enumerate()
             .min_by(|(_, a), (_, b)| {
-                (a.mjd() - ca_mjd)
+                (a.epoch.mjd() - ca_mjd)
                     .abs()
-                    .total_cmp(&(b.mjd() - ca_mjd).abs())
+                    .total_cmp(&(b.epoch.mjd() - ca_mjd).abs())
             })
             .map(|(i, _)| i)
             .unwrap();
@@ -157,12 +160,20 @@ fn main() -> empyrean::Result<()> {
         let pos_sigma_km =
             |cov: &[[f64; 6]; 6]| -> f64 { (cov[0][0] + cov[1][1] + cov[2][2]).sqrt() * au_km };
 
+        // The series is chain-ordered — look it up by its own epoch too.
         let series = prop.covariance_series_cartesian(0)?;
-        let resolved = &series[k];
+        let resolved = series
+            .iter()
+            .min_by(|a, b| {
+                (a.epoch.mjd_tdb().unwrap() - ca_mjd)
+                    .abs()
+                    .total_cmp(&(b.epoch.mjd_tdb().unwrap() - ca_mjd).abs())
+            })
+            .expect("non-empty covariance series");
 
         println!(
             "\nFlyby covariance readback (Empyrean, grid MJD {:.3}):",
-            epochs[k].mjd()
+            prop.states[k].epoch.mjd()
         );
         if let Some(linear) = prop.states[k].covariance {
             println!(

@@ -1,6 +1,7 @@
 # 2024 YR4: dual-fit OD — early-arc IP vs full-arc ruled-out
 
-Scripts: [`main.py`](./main.py) (Python) · [`main.rs`](./main.rs) (Rust)
+[![Python](https://img.shields.io/badge/Python-main.py-3776AB?logo=python&logoColor=white&style=flat-square)](./main.py)
+[![Rust](https://img.shields.io/badge/Rust-main.rs-B7410E?logo=rust&logoColor=white&style=flat-square)](./main.rs)
 
 ## The story
 
@@ -50,14 +51,19 @@ resolution is what this script demonstrates.
 
 ```
 512 observations from MPC (full arc)
-112 observations in the discovery arc (~10 days)
-Discovery arc:   chi2/dof = 0.945  (108/112 obs)
-Full arc:        chi2/dof = 0.972  (497/512 obs)
+171 observations in the discovery arc (~10 days)
+Discovery arc: chi2/dof = 0.053  RMS RA·cos(d) 0.183" Dec 0.232"  (170/171 obs)
+Full arc     : chi2/dof = 0.055  RMS RA·cos(d) 0.176" Dec 0.202"  (511/512 obs)
 
 2032 encounter — impact probability + miss geometry:
-  early arc  Earth   IP_linear =   1.433%  miss =   612000.0 km  sigma_d =   918000.0 km
-  full arc   Earth   IP_linear =   0.000%  miss =   278000.0 km  sigma_d =     2902.0 km
-  full arc   Moon    IP_linear =   0.000%  miss =    23000.0 km  sigma_d =     1850.0 km
+  early arc  Earth   IP_linear =  0.138%  miss =  1130503.6 km  sigma_d =  4633148.4 km
+  full arc   Earth   IP_linear =  0.000%  miss =   272293.4 km  sigma_d =    16648.0 km
+  full arc   Moon    IP_linear =  5.145%  miss =    16484.1 km  sigma_d =    17784.7 km
+
+Tagged-covariance readback at 2032 Earth perigee (MJD 63588.3539 TDB):
+  resolved kind        = CovarianceKind.SECOND_ORDER
+  resolved pos sigma   =    30784.5 km  (second-order ellipsoid)
+  linear   pos sigma   =    28932.8 km  (bare Phi Sigma0 Phi^T)
 
 Reference (JPL CAD, full-arc nominal):
   Earth   ~278,000 km   IP = 0

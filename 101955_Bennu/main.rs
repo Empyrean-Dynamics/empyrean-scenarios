@@ -88,12 +88,24 @@ fn main() -> empyrean::Result<()> {
         &[Origin::Earth],
     )?;
     println!("\nEarth B-plane geometry (Empyrean):");
-    for bp in b_planes.iter().filter(|b| b.body == Origin::Earth) {
-        println!(
-            "  MJD {:.3}  |B| = {:>10.0} km  3-sigma semi-major = {:>8.1} km",
-            bp.epoch.mjd(),
-            bp.b_mag_km,
+    let earth_sm: Vec<f64> = b_planes
+        .iter()
+        .filter(|b| b.body == Origin::Earth)
+        .map(|bp| {
+            println!(
+                "  MJD {:.3}  |B| = {:>10.0} km  3-sigma semi-major = {:>8.1} km",
+                bp.epoch.mjd(),
+                bp.b_mag_km,
+                bp.semi_major_3sig_km
+            );
             bp.semi_major_3sig_km
+        })
+        .collect();
+    if earth_sm.len() >= 2 {
+        println!(
+            "(2060 B-plane uncertainty input to any downstream resonant-return analysis; \
+             {:.0}x covariance amplification at 2080.)",
+            earth_sm[1] / earth_sm[0]
         );
     }
 
