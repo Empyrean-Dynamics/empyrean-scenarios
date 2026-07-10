@@ -13,13 +13,13 @@ What it does:
     2. Runs `empyrean.determine` to fit the orbit live.
     3. Propagates the determined orbit forward through the predicted
        atmospheric entry on 2008-10-07.
-    4. Reports the predicted impact location + epoch — and compares
+    4. Reports the predicted atmospheric-entry epoch + velocity and compares
        to the actual recovered-meteorites entry of 02:45:40 UT.
 
 Authoritative cross-checks (printed inline):
     - Actual atmospheric entry: 2008-10-07 02:45:40 UT (Borovička 2010)
     - Energy: ~1 kt TNT-equivalent                     (Borovička 2010)
-    - Impact lat/lon: ~20.7° N, 32.1° E (Nubian Desert)
+    - Observed entry: over ~20.7° N, 32.1° E (Nubian Desert)
     - 600+ meteorite fragments recovered (ureilite class)
 """
 

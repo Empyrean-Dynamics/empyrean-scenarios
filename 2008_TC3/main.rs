@@ -57,7 +57,7 @@ fn main() -> empyrean::Result<()> {
 
     // ── 4. Predicted entry — atmospheric_entry is the ~100 km Karman-
     //       line crossing, the apples-to-apples comparator for the
-    //       Borovička+ 2010 fireball lat/lon (the surface-impact event
+    //       Borovička+ 2010 fireball timing (the surface-impact event
     //       lands ~150 km downrange because the fireball exploded at
     //       ~37 km altitude). ─────────────────────────────────────────
     println!("\nPredicted atmospheric entry (Empyrean):");

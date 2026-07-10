@@ -34,10 +34,13 @@ fireball-recovered fragments.
    detector picks up the entry as an `Impact` event with surface
    coordinates and velocity at the entry interface.
 
-4. **Reports the predicted impact lat/lon/epoch and compares.** The
-   recovered-meteorites entry was 20.74° N, 32.16° E at 02:45:40 UT
-   (Borovička et al. 2010); the script's predicted entry should agree
-   to within the residual-driven covariance.
+4. **Reports the predicted atmospheric-entry epoch and velocity and
+   compares.** The observed entry was over 20.74° N, 32.16° E at
+   02:45:40 UT (Borovička et al. 2010); the script's predicted entry
+   epoch and relative velocity should agree to within the
+   residual-driven covariance. (The printed comparison is
+   epoch + velocity; the entry ground track is left to the reader's
+   downstream tooling.)
 
 ## Reference values
 
@@ -63,9 +66,8 @@ Reference (Borovička+ 2010):
   MJD 54746.115 (2008-10-07 02:45:40 UT) over 20.74°N 32.16°E  v = 12.4 km/s
 ```
 
-A few-hundred-meter difference in predicted impact location is
-consistent with the propagated covariance for a 19-hour arc, and is
-genuinely impressive — it's the level of precision that lets a
+Sub-minute agreement in the entry epoch from a 19-hour discovery arc
+is genuinely impressive — it's the level of precision that lets a
 meteorite-recovery expedition find fragments on the desert floor.
 
 ## See also

@@ -43,7 +43,7 @@ Yarkovsky-on-asteroids).
 
 4. **Differences the two trajectories.** The L2 separation between
    the non-grav and gravity-only states grows secularly, accumulating
-   into a multi-thousand-km along-track displacement over the 16-year
+   into a ~180,000 km along-track displacement over the 16-year
    propagation window. That accumulated separation is the
    integrated effect of outgassing — the quantity every cometary
    ephemeris pipeline has to model in order to recover the orbit.
@@ -73,7 +73,7 @@ Max separation (non-grav vs gravity-only) over 16 years: 181,095 km
 
 The exact separation depends on the SBDB epoch and the latest
 non-grav fit, which is updated as new astrometry arrives. The
-qualitative result — millions of km of cumulative displacement — is
+qualitative result — some 180,000 km of cumulative displacement — is
 robust across plausible solutions.
 
 ## A note on Marsden vs Yarkovsky

@@ -34,7 +34,11 @@ risk list on 2021-02-21.
    non-gravitational coefficients. For Apophis the transverse A2 is
    consistent with Yarkovsky thermal recoil and is fit empirically with
    inverse-square g(r); a real first-principles Vokrouhlický thermal
-   model is on the engine roadmap. The hyperdual integrator computes
+   model is on the engine roadmap. (The radial A1 is weakly
+   constrained by astrometry and drifts with the arc — expect it to
+   disagree with SBDB's value by tens of percent; the transverse A2,
+   which carries the Yarkovsky signal, is the one that should and
+   does match.) The hyperdual integrator computes
    the (O−C) Jacobian against all 9 parameters analytically — no
    finite-differencing of the 21-year arc.
 

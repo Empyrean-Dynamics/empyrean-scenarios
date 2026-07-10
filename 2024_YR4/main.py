@@ -12,8 +12,9 @@ What it does:
     2. Filters to the discovery arc (≤ ~2025-01-05) and runs a
        short-arc OD; second pass uses the full arc.
     3. Propagates both fits to the 2032 Earth encounter and reads
-       impact probabilities. Early arc surfaces ~1.4% Earth IP; full
-       arc collapses it to zero. Sentry's published peak was 3.1%
+       impact probabilities. Early arc surfaces ~0.14% Earth IP with a
+       ~12-lunar-distance miss sigma; the full arc collapses it to
+       zero. Sentry's published peak was 3.1%
        on 2025-02-18 — different arc cuts give different IPs, all
        legitimately within published uncertainty bounds.
 

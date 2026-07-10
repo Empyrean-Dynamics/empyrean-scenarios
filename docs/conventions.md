@@ -131,3 +131,7 @@ release changed for these objects. Never bump the pin without
 refreshing the blocks, and never use a version range: a fresh clone
 must print the committed numbers (modulo live-astrometry drift, which
 the blocks are marked "rough" for).
+
+The `empyrean X.Y.Z` badge in the top-level README is part of the same
+atomic artifact — it displays the pinned version the committed outputs
+were generated with, and is updated in the same pin-bump commit.

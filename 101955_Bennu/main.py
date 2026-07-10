@@ -16,7 +16,7 @@ What it does:
        asteroid solutions. Empyrean fits the Marsden A1/A2/A3 form with
        inverse-square g(r); a real first-principles Vokrouhlický thermal
        model is on the engine roadmap.
-    3. Propagates 125 years at 5-day cadence through the 2060 Earth
+    3. Propagates ~72 years (2011-2083) at 5-day cadence through the 2060 Earth
        encounter and the 2080 follow-up.
     4. Reads out the close-approach geometry and the projected B-plane
        3σ uncertainty at each Earth flyby.
@@ -73,7 +73,7 @@ def main() -> None:
     print(f"Marsden A2 (≈ Yarkovsky): {a2_now:.3e} AU/d^2")
     print("Reference                 -4.6178e-14    (Farnocchia 2021)")
 
-    # ── 3. Propagate 125 years at 5-day cadence ─────────────────────
+    # ── 3. Propagate ~72 years (2011 → 2083) at 5-day cadence ───────
     # 5-day cadence renders smoothly at planet-radius zoom; coarser
     # cadences give piecewise-linear trajectory artifacts at Earth
     # close approach.
@@ -122,7 +122,7 @@ def main() -> None:
     if len(earth_sm) >= 2:
         print(
             f"(2060 B-plane uncertainty input to any downstream resonant-return analysis; "
-            f"{earth_sm[1] / earth_sm[0]:.0f}x covariance amplification at 2080.)"
+            f"3-sigma ellipse grows {earth_sm[1] / earth_sm[0]:.0f}x by 2080.)"
         )
 
 

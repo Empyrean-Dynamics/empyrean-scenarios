@@ -43,7 +43,7 @@ fn main() -> empyrean::Result<()> {
     println!("Marsden A2 (≈ Yarkovsky): {:.3e} AU/d^2", orbit.a2);
     println!("Reference                 -4.6178e-14    (Farnocchia 2021)");
 
-    // ── 3. Propagate 125 years at 5-day cadence ─────────────────────
+    // ── 3. Propagate ~72 years (2011 → 2083) at 5-day cadence ───────
     let epochs: Vec<Epoch> = (0..5289)
         .map(|i| Epoch::from_mjd_tdb(55562.0 + 5.0 * i as f64))
         .collect();
@@ -53,7 +53,7 @@ fn main() -> empyrean::Result<()> {
     // Edgeworth IP corrections, which the bennu scenario doesn't
     // exercise.
     let prop_config = PropagationConfig {
-        uncertainty_method: UncertaintyMethod::FirstOrder,
+        uncertainty_method: UncertaintyMethod::SecondOrder,
         events: EventConfig {
             close_approaches: true,
             ..Default::default()
@@ -104,7 +104,7 @@ fn main() -> empyrean::Result<()> {
     if earth_sm.len() >= 2 {
         println!(
             "(2060 B-plane uncertainty input to any downstream resonant-return analysis; \
-             {:.0}x covariance amplification at 2080.)",
+             3-sigma ellipse grows {:.0}x by 2080.)",
             earth_sm[1] / earth_sm[0]
         );
     }

@@ -24,19 +24,21 @@ resolution is what this script demonstrates.
    spanning the discovery arc through the eventual full arc.
 
 2. **Slices the observations to the discovery arc** (≤ ~2025-01-05,
-   roughly 10 days of data). This is the data on which the 1.4% IP
-   was first reported by Empyrean — Sentry's 3.1% peak came from a
-   55-day arc around 2025-02-18, a different cut.
+   roughly 10 days of data) — the early, wide-open state of knowledge.
+   Sentry's published 3.1% peak came from a ~55-day arc around
+   2025-02-18, a different cut.
 
 3. **Runs `empyrean.determine` twice** — once on the discovery arc,
    once on the full arc. Both converge with sub-arcsecond residuals;
    the difference is the *width* of the converged covariance.
 
-4. **Propagates both fits to 2032 and reads possible_impacts.** The
-   early-arc fit surfaces an Earth IP_linear ≈ 1.4% with a 918,000 km
-   B-plane 3σ semi-major (~2.4 lunar distances). The full-arc fit
-   collapses both to zero IP and a 2,900 km B-plane 3σ — a 316×
-   covariance shrinkage from the additional weeks of astrometry.
+4. **Propagates both fits to 2032 and reads the impact
+   probabilities.** The early-arc fit surfaces a nonzero Earth
+   IP_linear ≈ 0.14% with a miss-distance σ of ~4.6 million km
+   (~12 lunar distances, 1σ) — the encounter is barely constrained at
+   all. The full-arc fit collapses the Earth IP to zero and the
+   miss-distance σ to ~17,000 km — a ~280× shrinkage from the
+   additional weeks of astrometry.
 
 ## Reference values
 
@@ -72,13 +74,26 @@ Reference (Sentry, peak):
   Earth   55-day arc, 2025-02-18 published    IP = 3.1%
 ```
 
-## Why the early-arc IP is 1.4% and not 3.1%
+## The full-arc Moon number
+
+The full-arc run prints a Moon IP_linear of ~5% — next to a JPL
+reference of "Moon IP = 0". That is a linear-Gaussian bookkeeping
+artifact, not a lunar-impact forecast: the nominal lunar miss
+(~16,500 km) sits inside one σ of the full-arc miss-distance
+uncertainty (~17,800 km), and the linear estimator converts "the Moon
+is within one sigma of the corridor" into a few-percent tail
+probability. The second-order and Monte Carlo estimators, and the
+narrowing arc, are the tools that resolve it.
+
+## Why the early-arc IP is 0.14% and not 3.1%
 
 The two are not in conflict. The 3.1% peak Sentry published was the
 maximum IP across a *family* of observation cuts in the weeks after
 discovery — the precise arc cut that yielded that maximum was
-mid-February 2025, ~55 days into the observation window. The 1.4% in
-this script is what a ~10-day discovery arc gives. Both are
+mid-February 2025, ~55 days into the observation window. The 0.14% in
+this script is what a ~10-day discovery arc gives — a much wider
+uncertainty (σ ≈ 12 lunar distances) diluting the probability over a
+much larger region. Both are
 legitimately within the propagated uncertainty bounds for their
 respective arcs; what matters scientifically is the rate at which the
 covariance shrinks once additional astrometry is added.

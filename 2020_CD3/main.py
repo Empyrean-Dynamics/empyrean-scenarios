@@ -45,7 +45,7 @@ def main() -> None:
     )
 
     # ── 2. Propagate through the capture episode ────────────────────
-    # 1-day cadence covers the full 8-year span. The propagator
+    # 1-day cadence covers the full ~19-year span. The propagator
     # inserts fine encounter samples around each capture pass
     # automatically via dense-output triggers.
     epochs = Epochs.from_kwargs(
