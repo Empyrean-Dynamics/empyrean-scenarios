@@ -5,6 +5,7 @@ Runnable Rust + Python walkthroughs of the explore-mode scenarios on empyrean-dy
 
 <a href="https://github.com/Empyrean-Dynamics/empyrean-scenarios/actions/workflows/ci.yml"><img src="https://github.com/Empyrean-Dynamics/empyrean-scenarios/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
 <a href="https://pypi.org/project/empyrean/"><img src="https://img.shields.io/badge/empyrean-0.8.1-1a1a2e?style=flat-square" alt="empyrean version"></a>
+<a href="https://zenodo.org/badge/latestdoi/1228940802"><img src="https://zenodo.org/badge/1228940802.svg" alt="DOI"></a>
 <a href="https://opensource.org/licenses/BSD-3-Clause"><img src="https://img.shields.io/badge/License-BSD--3--Clause-blue.svg?style=flat-square" alt="License"></a>
 <a href="https://claude.ai"><img src="https://img.shields.io/badge/Built%20with-Claude%20Code-D97757?logo=anthropic&logoColor=white&style=flat-square" alt="Built with Claude Code"></a>
 <br>
@@ -91,7 +92,7 @@ data directory; later runs reuse the cache.
 Each scenario ships **two implementations** — `<dirname>/main.py`
 (Python) and `<dirname>/main.rs` (Rust) — and each implementation:
 
-- Imports only from the public `empyrean` package / crate surface (no nolan / villeneuve / scott direct imports).
+- Imports only from the public `empyrean` package / crate surface.
 - Initializes once at the top (`empyrean.initialize()` in Python, `Context::default_data_dir()?` in Rust).
 - Pulls inputs from authoritative public sources — JPL SBDB, MPC, JPL CAD.
 - Prints a small banner of headline numbers (close-approach distances, IP, B-plane geometry) so the binary doubles as a smoke test.

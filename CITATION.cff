@@ -1,0 +1,21 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "empyrean-scenarios: runnable planetary-science walkthroughs for the empyrean astrodynamics toolkit"
+authors:
+  - family-names: Moeyens
+    given-names: Joachim
+    orcid: "https://orcid.org/0000-0001-5820-3925"
+version: 0.8.1
+date-released: 2026-07-11
+url: "https://github.com/Empyrean-Dynamics/empyrean-scenarios"
+repository-code: "https://github.com/Empyrean-Dynamics/empyrean-scenarios"
+license: BSD-3-Clause
+keywords:
+  - astrodynamics
+  - orbital propagation
+  - orbit determination
+  - close approaches
+  - impact probability
+  - solar system
+  - asteroids
+  - comets
