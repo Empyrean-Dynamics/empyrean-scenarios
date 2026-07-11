@@ -12,7 +12,7 @@
 //!   - 2060-09-23, geocentric ~750,000 km                (JPL CAD)
 //!   - A2 = -4.62e-14 AU/d² (~284 m/orbit)               (Farnocchia 2021)
 
-// spielberg:snippet:start
+// empyrean:snippet:start
 use empyrean::{
     Context, Epoch, EventConfig, Origin, PropagationConfig, UncertaintyMethod, query_sbdb,
 };
@@ -43,7 +43,7 @@ fn main() -> empyrean::Result<()> {
     println!("Marsden A2 (≈ Yarkovsky): {:.3e} AU/d^2", orbit.a2);
     println!("Reference                 -4.6178e-14    (Farnocchia 2021)");
 
-    // ── 3. Propagate 125 years at 5-day cadence ─────────────────────
+    // ── 3. Propagate ~72 years (2011 → 2083) at 5-day cadence ───────
     let epochs: Vec<Epoch> = (0..5289)
         .map(|i| Epoch::from_mjd_tdb(55562.0 + 5.0 * i as f64))
         .collect();
@@ -53,7 +53,7 @@ fn main() -> empyrean::Result<()> {
     // Edgeworth IP corrections, which the bennu scenario doesn't
     // exercise.
     let prop_config = PropagationConfig {
-        uncertainty_method: UncertaintyMethod::FirstOrder,
+        uncertainty_method: UncertaintyMethod::SecondOrder,
         events: EventConfig {
             close_approaches: true,
             ..Default::default()
@@ -88,15 +88,27 @@ fn main() -> empyrean::Result<()> {
         &[Origin::Earth],
     )?;
     println!("\nEarth B-plane geometry (Empyrean):");
-    for bp in b_planes.iter().filter(|b| b.body == Origin::Earth) {
-        println!(
-            "  MJD {:.3}  |B| = {:>10.0} km  3-sigma semi-major = {:>8.1} km",
-            bp.epoch.mjd(),
-            bp.b_mag_km,
+    let earth_sm: Vec<f64> = b_planes
+        .iter()
+        .filter(|b| b.body == Origin::Earth)
+        .map(|bp| {
+            println!(
+                "  MJD {:.3}  |B| = {:>10.0} km  3-sigma semi-major = {:>8.1} km",
+                bp.epoch.mjd(),
+                bp.b_mag_km,
+                bp.semi_major_3sig_km
+            );
             bp.semi_major_3sig_km
+        })
+        .collect();
+    if earth_sm.len() >= 2 {
+        println!(
+            "(2060 B-plane uncertainty input to any downstream resonant-return analysis; \
+             3-sigma ellipse grows {:.0}x by 2080.)",
+            earth_sm[1] / earth_sm[0]
         );
     }
 
     Ok(())
 }
-// spielberg:snippet:end
+// empyrean:snippet:end

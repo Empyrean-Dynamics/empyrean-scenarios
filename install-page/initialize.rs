@@ -11,13 +11,13 @@
 //! ```
 
 fn main() -> empyrean::Result<()> {
-    // spielberg:snippet:start
+    // empyrean:snippet:start
     use empyrean::{Context, Epoch, Frame, Origin};
 
     // Loads / downloads kernels on first run; reads cached files thereafter.
     // Override the data directory with the EMPYREAN_DATA_DIR env var.
     let ctx = Context::from_data_dir(None)?;
-    // spielberg:snippet:end
+    // empyrean:snippet:end
     let _ = (&ctx, Epoch::from_mjd_tdb(60000.0), Frame::ICRF, Origin::SSB);
     println!("empyrean Context initialized OK");
     Ok(())

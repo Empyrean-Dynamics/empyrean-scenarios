@@ -13,15 +13,18 @@ fn main() -> empyrean::Result<()> {
     let psv_path = concat!(env!("CARGO_MANIFEST_DIR"), "/install-page/observations.psv");
     let psv = std::fs::read_to_string(psv_path).expect("sample observations.psv not found");
 
-    // spielberg:snippet:start
+    // empyrean:snippet:start
     use empyrean::ODConfig;
 
     let cfg = ODConfig::default();
 
-    // Read ADES PSV observations (file path or PSV string)
+    // Read ADES PSV observations (file path or PSV string). The returned
+    // set carries both ADES tables (optical + radar); the Python twin
+    // unpacks the (optical, radar) tuple and folds the radar back in.
     let obs = ctx.read_ades(&psv)?;
 
-    // Full pipeline: IOD + differential correction + outlier rejection
+    // Full pipeline: IOD + differential correction + outlier rejection.
+    // Any <radar> block read above rides along inside `obs`.
     let fit = ctx.determine(&obs, None, &cfg)?;
     let s = &fit.summary;
     println!(
@@ -38,7 +41,7 @@ fn main() -> empyrean::Result<()> {
     // prior). The refined result is itself re-feedable into the next refine.
     let refined = ctx.refine(&fit.orbit, &obs, &cfg)?;
     println!("refined: converged={}", refined.converged);
-    // spielberg:snippet:end
+    // empyrean:snippet:end
     let _ = refined;
     Ok(())
 }

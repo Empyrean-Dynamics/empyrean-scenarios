@@ -13,19 +13,19 @@ What it does:
     2. Runs `empyrean.determine` to fit the orbit live.
     3. Propagates the determined orbit forward through the predicted
        atmospheric entry on 2008-10-07.
-    4. Reports the predicted impact location + epoch — and compares
+    4. Reports the predicted atmospheric-entry epoch + velocity and compares
        to the actual recovered-meteorites entry of 02:45:40 UT.
 
 Authoritative cross-checks (printed inline):
     - Actual atmospheric entry: 2008-10-07 02:45:40 UT (Borovička 2010)
     - Energy: ~1 kt TNT-equivalent                     (Borovička 2010)
-    - Impact lat/lon: ~20.7° N, 32.1° E (Nubian Desert)
+    - Observed entry: over ~20.7° N, 32.1° E (Nubian Desert)
     - 600+ meteorite fragments recovered (ureilite class)
 """
 
 from __future__ import annotations
 
-# spielberg:snippet:start
+# empyrean:snippet:start
 import empyrean
 from empyrean import Epochs, TimeScale, UncertaintyMethod
 
@@ -69,13 +69,14 @@ def main() -> None:
     # altitude). ────────────────────────────────────────────────────
     print("\nPredicted atmospheric entry (Empyrean):")
     ae = prop.events.atmospheric_entries
+    au_per_day_to_km_per_s = 149_597_870.7 / 86_400.0
     for i in range(len(ae)):
         epoch = ae.epoch.to_numpy(zero_copy_only=False)[i]
-        lat = ae.latitude_deg.to_numpy(zero_copy_only=False)[i]
-        lon = ae.longitude_deg.to_numpy(zero_copy_only=False)[i]
+        v_rel = ae.relative_velocity_au_day.to_numpy(zero_copy_only=False)[i]
         alt = ae.altitude_km.to_numpy(zero_copy_only=False)[i]
         print(
-            f"  MJD {epoch:.5f}  lat {lat:>6.2f}°  lon {lon:>6.2f}°  alt {alt:.0f} km"
+            f"  MJD {epoch:.5f}  v_rel = {v_rel * au_per_day_to_km_per_s:.2f} km/s  "
+            f"alt = {alt:.0f} km"
         )
     print("Reference (Borovička+ 2010):")
     print(
@@ -83,7 +84,7 @@ def main() -> None:
     )
 
 
-# spielberg:snippet:end
+# empyrean:snippet:end
 
 
 if __name__ == "__main__":

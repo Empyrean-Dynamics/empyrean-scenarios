@@ -5,6 +5,11 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+  schedule:
+    # Weekly end-to-end walkthrough run (Mondays 08:00 UTC) — catches
+    # upstream data drift (MPC / JPL / SBDB) between code changes.
+    - cron: "0 8 * * 1"
+  workflow_dispatch:
 
 jobs:
   # Python lint — ruff format + check across every .py in the repo.
@@ -52,20 +57,30 @@ jobs:
   # caching being wired into CI; once that lands, this job will also
   # run each script against a fixed reference epoch.
   #
-  # The `spielberg:snippet:start/end` regions in these scripts feed
+  # The `empyrean:snippet:start/end` regions in these scripts feed
   # the explore-mode "Reproduce in Python" panel directly via
-  # spielberg's snippet extractor (single source of truth). Catching
+  # the app's snippet extractor (single source of truth). Catching
   # syntax / import breakage here is the minimum bar for that panel
   # to remain runnable.
   smoke:
-    name: Smoke
+    name: Smoke (py${{ matrix.python }})
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      # Scenarios target requires-python >= 3.10, so validate the runnable
+      # walkthroughs across the supported range — a 3.10-incompatible construct
+      # in a scenario script would otherwise pass a single-version smoke.
+      # `pip install -e .` pulls the published empyrean wheel, which covers 3.10+
+      # via its abi3 build; this matrix is fully green once empyrean ships abi3
+      # wheels (before that, only 3.12 has an installable wheel).
+      matrix:
+        python: ["3.10", "3.12", "3.13"]
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: ${{ matrix.python }}
       - name: Install package
         run: pip install -e .
       - name: py_compile all scenario scripts
@@ -82,4 +97,69 @@ jobs:
           for f in install-page/*.py; do
             echo "py_compile: $f"
             python -m py_compile "$f"
+          done
+
+  # End-to-end execution — every install-page snippet and every scenario
+  # walkthrough actually RUNS against the pinned release, in both
+  # languages, with the kernel set cached between runs. Needs live
+  # MPC / JPL / SBDB network access and ~40 minutes of propagation + OD,
+  # so it runs on main pushes, a weekly schedule, and manual dispatch —
+  # not on every pull request (PRs keep the lint / build / import gates).
+  run-walkthroughs:
+    name: Run (walkthroughs, end-to-end)
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install Rust toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          rustflags: ""
+      # The kernel set (~740 MB: DE440, SB441-N16, Earth/Moon BPCs, GM,
+      # observatory codes, debiasing tables) is content-stable per
+      # release; cache it keyed on the pinned empyrean version so only
+      # the first run after a pin bump downloads.
+      - name: Extract pinned empyrean version
+        id: pin
+        run: echo "version=$(grep -oE 'empyrean==[0-9rc.]+' pyproject.toml | cut -d= -f3)" >> "$GITHUB_OUTPUT"
+      - name: Cache kernels
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/share/empyrean
+          key: kernels-${{ steps.pin.outputs.version }}
+          restore-keys: kernels-
+      - name: Install package (pinned release + walkthrough deps)
+        run: pip install -e .
+      - name: Provision kernels
+        run: python -c "import empyrean; empyrean.initialize()"
+      - name: Run install-page snippets (Python)
+        run: |
+          set -euo pipefail
+          for f in install-page/*.py; do
+            echo "── $f"
+            python "$f"
+          done
+      - name: Run scenarios (Python)
+        run: |
+          set -euo pipefail
+          for d in 2008_TC3 67P_Churyumov-Gerasimenko 2020_CD3 101955_Bennu 2024_YR4 99942_Apophis; do
+            echo "── $d/main.py"
+            python "$d/main.py"
+          done
+      - name: Build walkthrough binaries (Rust, pinned release)
+        run: cargo build --release --workspace
+      - name: Run install-page snippets + scenarios (Rust)
+        run: |
+          set -euo pipefail
+          for b in install-initialize install-query-jpl install-propagate \
+                   install-ephemeris install-determine install-transform \
+                   install-body-states install-observer-states install-epochs \
+                   tc3 comet67p cd3 bennu yr4 apophis; do
+            echo "── $b"
+            cargo run --release --bin "$b"
           done

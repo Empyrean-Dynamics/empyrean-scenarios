@@ -1,6 +1,7 @@
 # 67P/Churyumov-Gerasimenko: cometary non-grav vs gravity-only control
 
-Scripts: [`main.py`](./main.py) (Python) · [`main.rs`](./main.rs) (Rust)
+[![Python](https://img.shields.io/badge/Python-main.py-3776AB?logo=python&logoColor=white&style=flat-square)](./main.py)
+[![Rust](https://img.shields.io/badge/Rust-main.rs-B7410E?logo=rust&logoColor=white&style=flat-square)](./main.rs)
 
 ## The story
 
@@ -42,7 +43,7 @@ Yarkovsky-on-asteroids).
 
 4. **Differences the two trajectories.** The L2 separation between
    the non-grav and gravity-only states grows secularly, accumulating
-   into a multi-thousand-km along-track displacement over the 16-year
+   into a ~180,000 km along-track displacement over the 16-year
    propagation window. That accumulated separation is the
    integrated effect of outgassing — the quantity every cometary
    ephemeris pipeline has to model in order to recover the orbit.
@@ -62,18 +63,17 @@ Yarkovsky-on-asteroids).
 
 ```
 non-grav coefficients (SBDB):
-  A1 = 1.234e-09 AU/d^2
-  A2 = -2.567e-10 AU/d^2
-  A3 = 8.901e-11 AU/d^2
+  A1 = 1.042e-09 AU/d^2
+  A2 = -6.740e-11 AU/d^2
+  A3 = 2.961e-10 AU/d^2
 
-Max separation (non-grav vs gravity-only) over 16 years: 3,450,000 km
-(That's the cumulative effect of outgassing — what every cometary
-ephemeris pipeline has to model.)
+Max separation (non-grav vs gravity-only) over 16 years: 181,095 km
+(That's the cumulative effect of outgassing — what every cometary ephemeris pipeline has to model.)
 ```
 
 The exact separation depends on the SBDB epoch and the latest
 non-grav fit, which is updated as new astrometry arrives. The
-qualitative result — millions of km of cumulative displacement — is
+qualitative result — some 180,000 km of cumulative displacement — is
 robust across plausible solutions.
 
 ## A note on Marsden vs Yarkovsky

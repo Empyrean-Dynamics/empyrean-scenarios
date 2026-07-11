@@ -1,6 +1,7 @@
 # 2020 CD3: Earth's second known mini-moon
 
-Scripts: [`main.py`](./main.py) (Python) · [`main.rs`](./main.rs) (Rust)
+[![Python](https://img.shields.io/badge/Python-main.py-3776AB?logo=python&logoColor=white&style=flat-square)](./main.py)
+[![Rust](https://img.shields.io/badge/Rust-main.rs-B7410E?logo=rust&logoColor=white&style=flat-square)](./main.rs)
 
 ## The story
 
@@ -13,9 +14,9 @@ system in March 2020.
 
 The CD3 event tests a propagator's ability to handle:
 
-- **Non-Keplerian gravitational capture** — the orbit transitions in
-  and out of the Earth-Moon system multiple times during the capture
-  episode.
+- **Non-Keplerian gravitational capture** — the orbit's loosely-bound
+  loops through the Earth-Moon system during the capture episode are
+  chaotic and non-Keplerian throughout.
 - **Dense close-approach detection** — over the ~3-year capture, the
   object made hundreds of close passes by both Earth and the Moon.
 - **Inverse-square non-gravitational acceleration** — for a small
@@ -28,16 +29,18 @@ The CD3 event tests a propagator's ability to handle:
    inverse-square non-grav coefficient (radiation-pressure analogue of
    the cometary A1 model) which the propagator picks up automatically.
 
-2. **Propagates 2014 → 2022 at 1-day cadence.** Window covers the
-   pre-capture cruise, the full capture episode, and post-capture
-   escape. Dense-output triggers refine the trajectory automatically
+2. **Propagates 2001 → 2020 at 1-day cadence (~19 years).** Window
+   covers the long pre-capture cruise, the full capture episode, and
+   the approach to escape. Dense-output triggers refine the trajectory automatically
    during each capture pass.
 
 3. **Counts capture events + close approaches.** The headline numbers
    are the number of `CaptureStart` / `CaptureEnd` events (the
    transitions in and out of the Earth-Moon Hill sphere) and the total
    number of detected Earth + Moon close approaches during the
-   capture episode (~116 in our fixture).
+   capture episode (~264 with the SBDB non-grav coefficients in our
+   fixture, versus ~5 for the gravity-only control — the same
+   trajectory class, radically different encounter bookkeeping).
 
 ## Reference values
 
@@ -52,19 +55,30 @@ The CD3 event tests a propagator's ability to handle:
 
 ```
 Object: (2020 CD3)
+Epoch MJD TDB: 61200.0
+non-grav coefficients (SBDB):  A1 = 1.357e-10  A2 = 0.000e+00  A3 = 0.000e+00 AU/d^2
 
-Capture starts: 1
+── With SBDB non-grav (A1 = 1.357e-10) ──
+Capture starts: 0
 Capture ends:   1
-Close approaches (Earth+Moon): 116
+Close approaches (Earth+Moon): 264
+Closest Earth approach: MJD 58577.393       13147 km
 
-Closest Earth approach: MJD 58898.123      13456 km
+── Gravity-only control (A1 = A2 = A3 = 0) ──
+Capture starts: 1
+Capture ends:   0
+Close approaches (Earth+Moon): 5
+Closest Earth approach: MJD 58181.339       24491 km
+
 Reference: capture period ~2017-2020 (Fedorets+ 2020).
 ```
 
 The exact number of close approaches depends on the detection
-threshold and the cadence; this fixture uses 1-day samples plus
-encounter dense-output, which produces ~116 detected periapses across
-the Earth + Moon stack.
+threshold, the cadence, and — on a chaotic temporarily-captured
+orbit — the live astrometry itself; this fixture uses 1-day samples
+plus encounter dense-output, which currently produces ~264 detected
+periapses across the Earth + Moon stack with non-grav forces enabled
+(~5 for the gravity-only control).
 
 ## See also
 

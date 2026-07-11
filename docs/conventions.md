@@ -64,7 +64,7 @@ if __name__ == "__main__":
    final-section `print(...)` lines double as the manual test:
    eyeball the close-approach distance, IP, B-plane geometry against
    the inline `Reference (...)` lines. CI will eventually pin these
-   to the spielberg fixtures (see issue empyrean-c368).
+   to golden fixtures.
 
 5. **Reference values cited inline.** Every quantitative reference
    value appears next to the corresponding script output, prefixed by
@@ -83,8 +83,9 @@ if __name__ == "__main__":
 
 ## Adding a new scenario
 
-1. Mirror the spielberg `src/data/scenarios/<id>.ts` fixture — the
-   numbers should match what the explore-mode panel shows.
+1. Match the corresponding explore-mode scenario on
+   empyrean-dynamics.com — the numbers should agree with what the
+   panel shows.
 2. Create a per-object directory at the repo root, named for the
    object's full canonical designation: `<number>_<Name>` for named
    asteroids and comets (e.g. `99942_Apophis`,
@@ -112,3 +113,32 @@ if __name__ == "__main__":
 | **JPL SBDB** | Orbital elements + 6×6 covariance + non-grav | Source of truth for propagation initial conditions |
 | **MPC** | Astrometric observations | Source of truth for orbit-determination input |
 | **Published papers** | Yarkovsky coefficients, capture-episode bounds, atmospheric-entry timing | Cited inline in the script's docstring + alongside corresponding `print(...)` |
+
+## Version pinning
+
+Both manifests pin the published `empyrean` release **exactly** —
+`empyrean==X.Y.Z` in `pyproject.toml` and `empyrean = "=X.Y.Z"` in
+`Cargo.toml` (cargo's bare `"X.Y.Z"` is a caret range and would float
+across patch releases).
+
+The pin, every scenario's "Expected output (rough)" block, and any
+version-coupled numbers in the READMEs form one atomic artifact:
+they are updated together, in a single commit, per release. Bumping
+the pin means re-running every scenario in both languages against the
+new release and regenerating the blocks — that re-run is the upgrade
+validation, and diffs in the blocks are the changelog of what the
+release changed for these objects. Never bump the pin without
+refreshing the blocks, and never use a version range: a fresh clone
+must print the committed numbers (modulo live-astrometry drift, which
+the blocks are marked "rough" for).
+
+The `empyrean X.Y.Z` badge in the top-level README is part of the same
+atomic artifact — it displays the pinned version the committed outputs
+were generated with, and is updated in the same pin-bump commit.
+
+The repo itself is versioned in lockstep: the manifests' own `version`
+matches the pinned empyrean release, and a `vX.Y.Z` tag marks each
+pin-bump commit — checking out scenarios `vX.Y.Z` gives the
+walkthroughs-of-record for empyrean `X.Y.Z`. Content added between
+releases (new scenarios, prose) evolves on `main` untagged and is swept
+into the next pin-bump tag.

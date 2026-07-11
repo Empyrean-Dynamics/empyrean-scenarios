@@ -8,7 +8,7 @@
 //! cargo run --release --bin tc3
 //! ```
 
-// spielberg:snippet:start
+// empyrean:snippet:start
 use empyrean::{
     Context, Epoch, EventConfig, ODConfig, PropagationConfig, UncertaintyMethod, query_observations,
 };
@@ -57,7 +57,7 @@ fn main() -> empyrean::Result<()> {
 
     // ── 4. Predicted entry — atmospheric_entry is the ~100 km Karman-
     //       line crossing, the apples-to-apples comparator for the
-    //       Borovička+ 2010 fireball lat/lon (the surface-impact event
+    //       Borovička+ 2010 fireball timing (the surface-impact event
     //       lands ~150 km downrange because the fireball exploded at
     //       ~37 km altitude). ─────────────────────────────────────────
     println!("\nPredicted atmospheric entry (Empyrean):");
@@ -66,11 +66,14 @@ fn main() -> empyrean::Result<()> {
         .iter()
         .filter(|e| e.event_type == "atmospheric_entry")
     {
+        // `impact_altitude_km` is the true altitude above the reference
+        // ellipsoid from the planetodetic ground track (~100 km Karman
+        // line); `distance_km` is the body-CENTER crossing distance.
         println!(
             "  MJD {:.5}  v_rel = {:.2} km/s  alt = {:.0} km",
             ev.epoch.mjd(),
             ev.relative_velocity_au_day * 149_597_870.7 / 86_400.0,
-            ev.distance_km,
+            ev.impact_altitude_km,
         );
     }
     println!("Reference (Borovička+ 2010):");
@@ -78,4 +81,4 @@ fn main() -> empyrean::Result<()> {
 
     Ok(())
 }
-// spielberg:snippet:end
+// empyrean:snippet:end

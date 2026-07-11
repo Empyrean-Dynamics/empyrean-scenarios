@@ -8,7 +8,9 @@ Run:
     python 99942_Apophis/main.py
 
 What it does:
-    1. Pulls every available MPC astrometric observation of Apophis.
+    1. Pulls every available MPC optical observation of Apophis plus the
+       JPL Goldstone/Arecibo radar delay/Doppler astrometry, and folds
+       both ADES tables into one fit.
     2. Runs `empyrean.determine` with the 9-parameter (state + Marsden
        A1/A2/A3) solve_for so the converged orbit carries the same
        non-gravitational coefficients JPL fits jointly with the state.
@@ -31,7 +33,7 @@ Authoritative cross-checks (printed inline):
 
 from __future__ import annotations
 
-# spielberg:snippet:start
+# empyrean:snippet:start
 import numpy as np
 
 import empyrean
@@ -41,18 +43,21 @@ from empyrean import Epochs, ODConfig, SolveForParams, TimeScale, UncertaintyMet
 def main() -> None:
     empyrean.initialize()  # downloads SPICE kernels on first run
 
-    # ── 1. Astrometric observations from MPC ────────────────────────
-    # ~9,500 observations from 2004 onward, including Goldstone radar
-    # delay/Doppler and Gaia-grade CCD measurements.
+    # ── 1. Optical astrometry (MPC) + radar astrometry (JPL) ────────
+    # ~9,500 optical observations from 2004 onward (Gaia-grade CCD), plus
+    # Apophis's extensive Goldstone/Arecibo radar delay/Doppler record set.
+    # The MPC carries optical only; asteroid radar is a JPL SSD product,
+    # queried separately and folded into the same fit.
     obs = empyrean.query_observations(["99942"])
-    print(f"{len(obs)} observations from MPC")
+    radar = empyrean.query_radar(["99942"])
+    print(f"{len(obs)} optical + {len(radar)} radar (delay/Doppler)")
 
     # ── 2. 9-parameter OD with non-grav ─────────────────────────────
     # Forces the (state + A1, A2, A3) solve. The hyperdual integrator
     # computes the (O-C) Jacobian against all 9 parameters analytically
     # — no finite differencing of the 21-year arc.
     cfg = ODConfig(solve_for=SolveForParams.STATE_AND_NONGRAV)
-    result = empyrean.determine(obs, config=cfg)
+    result = empyrean.determine(obs, radar=radar if len(radar) else None, config=cfg)
     s = result.summary
     print(f"Converged:  {result.converged}")
     print(f"chi2/dof:   {s.reduced_chi2:.3f}")
@@ -99,19 +104,25 @@ def main() -> None:
     earth = [i for i in range(len(p)) if bodies[i] == "Earth"]
     if earth:
         ca_mjd = epochs_p[earth[0]]
-        grid_mjd = epochs.mjd.to_numpy(zero_copy_only=False)
-        k = int(np.argmin(np.abs(grid_mjd - ca_mjd)))
+        # Output rows are NOT request-ordered (encounter episodes are
+        # grouped by origin), so look every table up by ITS OWN epoch
+        # column — never by request-grid position.
+        out_mjd = prop.states.coordinates.epoch.to_numpy(zero_copy_only=False)
+        k_state = int(np.argmin(np.abs(out_mjd - ca_mjd)))
 
         # σ_pos = sqrt(trace of the 3×3 position block), AU → km.
         def pos_sigma_km(cov6x6: np.ndarray) -> float:
             return float(np.sqrt(cov6x6[:3, :3].trace())) * au_km
 
-        print(f"\nFlyby covariance readback (Empyrean, grid MJD {grid_mjd[k]:.3f}):")
-        linear = prop.states.coordinates.covariance.to_matrix()[k]
+        print(
+            f"\nFlyby covariance readback (Empyrean, grid MJD {out_mjd[k_state]:.3f}):"
+        )
+        linear = prop.states.coordinates.covariance.to_matrix()[k_state]
         print(f"  bare linear        sigma_pos = {pos_sigma_km(linear):>10.0f} km")
 
         series = prop.tagged_covariance_series(0)
-        resolved = series[k]
+        series_mjd = np.array([tc.epoch_mjd_tdb for tc in series])
+        resolved = series[int(np.argmin(np.abs(series_mjd - ca_mjd)))]
         print(
             f"  resolved {resolved.kind.value:<12s} sigma_pos = "
             f"{pos_sigma_km(np.asarray(resolved.matrix)):>10.0f} km"
@@ -143,7 +154,7 @@ def main() -> None:
     print("(B-plane uncertainty input to any downstream resonant-return analysis.)")
 
 
-# spielberg:snippet:end
+# empyrean:snippet:end
 
 
 if __name__ == "__main__":

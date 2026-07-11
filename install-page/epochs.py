@@ -14,7 +14,7 @@ def main() -> None:
     empyrean.initialize()
     orbits = empyrean.query_sbdb(["Apophis"])
 
-    # spielberg:snippet:start
+    # empyrean:snippet:start
     from astropy.time import Time
 
     # Explicit scale at construction
@@ -29,7 +29,7 @@ def main() -> None:
 
     # From Astropy
     epochs = Epochs.from_astropy(Time(["2029-04-13T21:46:00"], scale="utc"))
-    # spielberg:snippet:end
+    # empyrean:snippet:end
     _ = (epoch_tdb, epochs)
 
 

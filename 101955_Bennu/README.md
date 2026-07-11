@@ -1,6 +1,7 @@
 # Bennu: textbook transverse non-grav A2 (≈ Yarkovsky) + 2060 Earth encounter
 
-Scripts: [`main.py`](./main.py) (Python) · [`main.rs`](./main.rs) (Rust)
+[![Python](https://img.shields.io/badge/Python-main.py-3776AB?logo=python&logoColor=white&style=flat-square)](./main.py)
+[![Rust](https://img.shields.io/badge/Rust-main.rs-B7410E?logo=rust&logoColor=white&style=flat-square)](./main.rs)
 
 ## The story
 
@@ -13,9 +14,9 @@ sub-1% precision (Farnocchia et al. 2021). The physical interpretation
 is Yarkovsky thermal recoil from anisotropic re-radiation of absorbed
 sunlight; Empyrean fits the empirical Marsden A1/A2/A3 form with
 inverse-square g(r), capturing Yarkovsky's leading 1/r² scaling per
-Farnocchia et al. 2013. That A2 implies an along-track drift of ~284 m
-per orbit, and over the 50-year propagation arc to 2060 it accumulates
-into a sub-km offset.
+Farnocchia et al. 2013. That A2 implies an along-track drift of ~285 m
+per year (−284.6 ± 0.2 m/yr, Farnocchia et al. 2021), and over the
+50-year propagation arc to 2060 it accumulates into a ~14 km offset.
 
 The 2060 Earth encounter is the geometric event that any future-impact
 analysis is anchored on. Bennu passes ~750,000 km geocentric (about
@@ -38,7 +39,7 @@ constrained to better than 1-in-1750 cumulative probability.
    query result is silent. This makes the script work standalone
    regardless of SBDB's per-day non-grav-availability state.
 
-3. **Propagates 125 years at 5-day cadence.** 5-day cadence renders
+3. **Propagates ~72 years (2011 → 2083) at 5-day cadence.** 5-day cadence renders
    smoothly when the camera zooms in to planet-radius scale (the
    coarser 30-day cadence produces piecewise-linear segments that
    are visible in the 3D viewer). Window is 2010 → 2086, which
@@ -47,9 +48,10 @@ constrained to better than 1-in-1750 cumulative probability.
    visible.
 
 4. **Reads close approaches + per-encounter B-plane geometry.** The
-   headline number is the 21 km 3σ semi-major of the projected
-   uncertainty ellipse at the 2060 encounter — the precision result
-   Farnocchia 2021 published.
+   headline number is the ~20 km 3σ semi-major of the projected
+   uncertainty ellipse at the 2060 encounter — the same order of
+   precision Farnocchia 2021 published from the OSIRIS-REx-era
+   solution.
 
 ## Reference values
 
@@ -57,45 +59,45 @@ constrained to better than 1-in-1750 cumulative probability.
 |---|---|---|
 | Diameter | ~490 m | OSIRIS-REx in-situ |
 | Marsden A2 (≈ Yarkovsky) | −4.6178×10⁻¹⁴ AU/d² | Farnocchia et al. 2021 |
-| Implied along-track drift | 284 ± 1 m / orbit | Farnocchia et al. 2021 |
+| Implied along-track drift | −284.6 ± 0.2 m / year | Farnocchia et al. 2021 |
 | 2060 Earth CA epoch | 2060-09-23 (MJD ~73725) | JPL CAD |
 | 2060 Earth CA distance | ~750,000 km (~1.95 LD) | JPL CAD |
-| 2080 Earth CA distance | ~1.7 M km | JPL CAD |
+| 2080 Earth CA distance | ~2.34 M km (2080-09-22) | JPL CAD |
 | Cumulative IP through 2300 | ≤ 1 in 1,750 | Farnocchia et al. 2021 |
 
 ## Expected output (rough)
 
 ```
-Object: 101955
+Object: 101955 Bennu (1999 RQ36)
 Epoch MJD TDB: 55562.0
 Marsden A2 (≈ Yarkovsky): -4.618e-14 AU/d^2
 Reference                 -4.6178e-14    (Farnocchia 2021)
 
 Close approaches (Empyrean):
-  Earth   MJD 73725.103      750576 km
-  Moon    MJD 73725.555      662245 km
-  Earth   MJD 81029.211     1738122 km
+  Earth   MJD 73725.025        749045 km
+  Earth   MJD 81028.981       2396400 km
 Reference (JPL CAD nominal):
   Earth   MJD 73725 (2060-09-23)   ~750,000 km
 
 Earth B-plane geometry (Empyrean):
-  MJD 73725.103  |B| =     750576 km  3-sigma semi-major =     21.0 km
-  MJD 81029.211  |B| =    1738122 km  3-sigma semi-major =   9263.4 km
-(2060 B-plane uncertainty input to any downstream resonant-return analysis; 440x covariance amplification at 2080.)
+  MJD 73725.025  |B| =     749045 km  3-sigma semi-major =     20.5 km
+  MJD 81028.981  |B| =    2396400 km  3-sigma semi-major =   9306.7 km
+(2060 B-plane uncertainty input to any downstream resonant-return analysis; 3-sigma ellipse grows 453x by 2080.)
 ```
 
-## The 21 km result, in context
+## The ~20 km result, in context
 
-A 21 km 3σ semi-major at a 750,000 km close approach is a
+A 20.5 km 3σ semi-major at a 750,000 km close approach is a
 positional knowledge of ~3 parts in 10⁵. To put it differently: Bennu
 is a 490 m object that we know the position of, 35 years from now, to
-within a ~40-Bennu-radius ellipse. That precision comes from including
+within an ellipse ~40 Bennu diameters across. That precision comes from including
 the measured transverse non-grav A2 in the OD; without it, the same
 propagation produces an uncertainty ellipse hundreds of km wide.
 
-The 9,263 km B-plane uncertainty at the 2080 follow-up is gravitational
-covariance amplification at close approach made quantitative — a 440×
-covariance inflation produced by the 2060 close pass. Where Bennu
+The ~9,300 km B-plane uncertainty at the 2080 follow-up is
+gravitational covariance amplification at close approach made
+quantitative — the 3σ ellipse grows ~450× through the 2060 close
+pass (the script prints the exact ratio). Where Bennu
 actually threads the 2060 B-plane controls almost everything about its
 22nd-century trajectory.
 

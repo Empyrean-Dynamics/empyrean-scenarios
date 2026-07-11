@@ -13,14 +13,14 @@ from empyrean import Epochs, TimeScale, Frame, Origin
 def main() -> None:
     empyrean.initialize()
 
-    # spielberg:snippet:start
+    # empyrean:snippet:start
     states = empyrean.get_states(
         target=Origin.EARTH,
         center=Origin.SSB,
         epochs=Epochs.from_kwargs(mjd=[60200.0, 60201.0], scale=TimeScale.TDB),
         frame=Frame.ECLIPTICJ2000,
     )
-    # spielberg:snippet:end
+    # empyrean:snippet:end
     print(f"states: {len(states)}")
 
 

@@ -14,7 +14,7 @@ def main() -> None:
     empyrean.initialize()
     orbits = empyrean.query_sbdb(["Apophis"])
 
-    # spielberg:snippet:start
+    # empyrean:snippet:start
     from empyrean import CartesianCoordinates, KeplerianCoordinates
 
     # Cometary -> Cartesian (same frame, same origin)
@@ -27,7 +27,7 @@ def main() -> None:
         frame=Frame.ICRF,
         origin=Origin.EARTH,
     )
-    # spielberg:snippet:end
+    # empyrean:snippet:end
     _ = (cart, kep)
 
 

@@ -10,7 +10,7 @@ from __future__ import annotations
 
 
 def main() -> None:
-    # spielberg:snippet:start
+    # empyrean:snippet:start
     import empyrean
     from empyrean import Epochs, TimeScale, UncertaintyMethod
 
@@ -39,7 +39,7 @@ def main() -> None:
 
     # Save everything to a directory of Parquet files
     result.to_dir("apophis_2029/")
-    # spielberg:snippet:end
+    # empyrean:snippet:end
 
 
 if __name__ == "__main__":

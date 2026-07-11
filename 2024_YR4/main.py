@@ -12,8 +12,9 @@ What it does:
     2. Filters to the discovery arc (≤ ~2025-01-05) and runs a
        short-arc OD; second pass uses the full arc.
     3. Propagates both fits to the 2032 Earth encounter and reads
-       impact probabilities. Early arc surfaces ~1.4% Earth IP; full
-       arc collapses it to zero. Sentry's published peak was 3.1%
+       impact probabilities. Early arc surfaces ~0.14% Earth IP with a
+       ~12-lunar-distance miss sigma; the full arc collapses it to
+       zero. Sentry's published peak was 3.1%
        on 2025-02-18 — different arc cuts give different IPs, all
        legitimately within published uncertainty bounds.
 
@@ -26,7 +27,7 @@ Authoritative cross-checks (printed inline):
 
 from __future__ import annotations
 
-# spielberg:snippet:start
+# empyrean:snippet:start
 import numpy as np
 
 import empyrean
@@ -116,11 +117,14 @@ def main() -> None:
     peri_mjd = peri.epoch.to_numpy(zero_copy_only=False)
     ca_mjd = next(peri_mjd[i] for i in range(len(bodies)) if bodies[i] == "Earth")
 
-    # Resolved-kind covariance, one tag per output epoch, aligned
-    # epoch-for-epoch with full_prop.states.
+    # Resolved-kind covariance, one tag per output epoch. The states
+    # table is NOT request-ordered (encounter episodes are grouped by
+    # origin), so each table is looked up by its own epoch column.
     series = full_prop.tagged_covariance_series(0)
     out_mjd = np.array([tc.epoch_mjd_tdb for tc in series])
     k = int(np.argmin(np.abs(out_mjd - ca_mjd)))
+    state_mjd = full_prop.states.coordinates.epoch.to_numpy(zero_copy_only=False)
+    k_state = int(np.argmin(np.abs(state_mjd - ca_mjd)))
 
     def _pos_sigma_km(m) -> float:
         m = np.asarray(m)
@@ -130,7 +134,7 @@ def main() -> None:
     resolved_sigma = _pos_sigma_km(resolved.matrix)
     # The bare linear covariance lives on the propagated states.
     linear = full_prop.states.coordinates.covariance.to_matrix()
-    linear_sigma = _pos_sigma_km(linear[k])
+    linear_sigma = _pos_sigma_km(linear[k_state])
 
     print(f"\nTagged-covariance readback at 2032 Earth perigee (MJD {ca_mjd:.4f} TDB):")
     print(f"  resolved kind        = {resolved.kind}")
@@ -146,7 +150,7 @@ def main() -> None:
     print("  Earth   55-day arc, 2025-02-18 published    IP = 3.1%")
 
 
-# spielberg:snippet:end
+# empyrean:snippet:end
 
 
 if __name__ == "__main__":

@@ -13,13 +13,13 @@ from empyrean import Epochs, TimeScale
 def main() -> None:
     empyrean.initialize()
 
-    # spielberg:snippet:start
+    # empyrean:snippet:start
     observers = empyrean.Observers.from_codes(
         obs_codes=["W84", "F51"],
         epochs=Epochs.from_kwargs(mjd=[60200.0, 60201.0], scale=TimeScale.TDB),
     )
     # 4 rows: cross product of codes x epochs, ICRF/SSB positions + velocities
-    # spielberg:snippet:end
+    # empyrean:snippet:end
     print(f"observers: {len(observers)} rows")
 
 

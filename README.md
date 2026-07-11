@@ -4,6 +4,8 @@
 Runnable Rust + Python walkthroughs of the explore-mode scenarios on empyrean-dynamics.com
 
 <a href="https://github.com/Empyrean-Dynamics/empyrean-scenarios/actions/workflows/ci.yml"><img src="https://github.com/Empyrean-Dynamics/empyrean-scenarios/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+<a href="https://pypi.org/project/empyrean/"><img src="https://img.shields.io/badge/empyrean-0.8.1-1a1a2e?style=flat-square" alt="empyrean version"></a>
+<a href="https://zenodo.org/badge/latestdoi/1228940802"><img src="https://zenodo.org/badge/1228940802.svg" alt="DOI"></a>
 <a href="https://opensource.org/licenses/BSD-3-Clause"><img src="https://img.shields.io/badge/License-BSD--3--Clause-blue.svg?style=flat-square" alt="License"></a>
 <a href="https://claude.ai"><img src="https://img.shields.io/badge/Built%20with-Claude%20Code-D97757?logo=anthropic&logoColor=white&style=flat-square" alt="Built with Claude Code"></a>
 <br>
@@ -26,16 +28,16 @@ No hosted endpoint, no proprietary data — just `cargo add empyrean`
 or `pip install empyrean` against the publicly-available astrometry
 catalogues.
 
-## Built on
+## Scenarios
 
-<a href="https://github.com/Empyrean-Dynamics/nolan"><img src="docs/nolan.png" width="220" alt="nolan"></a> <a href="https://github.com/Empyrean-Dynamics/villeneuve"><img src="docs/villeneuve.png" width="220" alt="villeneuve"></a> <a href="https://github.com/Empyrean-Dynamics/scott"><img src="docs/scott.png" width="220" alt="scott"></a>
-
-| Component | Role |
-|---|---|
-| [`empyrean`](https://github.com/Empyrean-Dynamics/empyrean) | Public Python wrapper — the `pip install empyrean` distribution every script imports |
-| [`nolan`](https://github.com/Empyrean-Dynamics/nolan) | Hyperdual automatic differentiation (Jet1, Jet2) — what the second-order STT propagation and the OD partials are built on |
-| [`villeneuve`](https://github.com/Empyrean-Dynamics/villeneuve) | Orbital propagation, uncertainty propagation, event detection — close approaches, B-plane geometry, capture/escape, atmospheric entry |
-| [`scott`](https://github.com/Empyrean-Dynamics/scott) | Orbit determination from optical astrometry — IOD + differential correction, with optional Marsden A1/A2/A3 non-grav solve (Yarkovsky-form for asteroids, water-ice for comets) |
+| Scenario | What it shows | Scripts |
+|---|---|---|
+| [99942 Apophis](99942_Apophis/) | Optical + radar orbit determination with non-gravitational parameters, the 2029 Earth flyby, provenance-tagged covariance readback, and B-plane geometry | [![py](https://img.shields.io/badge/py-3776AB?logo=python&logoColor=white&style=flat-square)](99942_Apophis/main.py) [![rs](https://img.shields.io/badge/rs-B7410E?logo=rust&logoColor=white&style=flat-square)](99942_Apophis/main.rs) |
+| [2024 YR4](2024_YR4/) | Discovery-arc vs full-arc fits and how the 2032 impact probability collapses as astrometry accumulates | [![py](https://img.shields.io/badge/py-3776AB?logo=python&logoColor=white&style=flat-square)](2024_YR4/main.py) [![rs](https://img.shields.io/badge/rs-B7410E?logo=rust&logoColor=white&style=flat-square)](2024_YR4/main.rs) |
+| [101955 Bennu](101955_Bennu/) | Yarkovsky-driven 72-year propagation, the 2060 encounter, and covariance amplification between close approaches | [![py](https://img.shields.io/badge/py-3776AB?logo=python&logoColor=white&style=flat-square)](101955_Bennu/main.py) [![rs](https://img.shields.io/badge/rs-B7410E?logo=rust&logoColor=white&style=flat-square)](101955_Bennu/main.rs) |
+| [2008 TC3](2008_TC3/) | A 19-hour discovery arc fit forward to the observed atmospheric entry over Sudan | [![py](https://img.shields.io/badge/py-3776AB?logo=python&logoColor=white&style=flat-square)](2008_TC3/main.py) [![rs](https://img.shields.io/badge/rs-B7410E?logo=rust&logoColor=white&style=flat-square)](2008_TC3/main.rs) |
+| [2020 CD3](2020_CD3/) | Temporary lunar-distance capture ("mini-moon") event detection, with and without non-gravitational forces | [![py](https://img.shields.io/badge/py-3776AB?logo=python&logoColor=white&style=flat-square)](2020_CD3/main.py) [![rs](https://img.shields.io/badge/rs-B7410E?logo=rust&logoColor=white&style=flat-square)](2020_CD3/main.rs) |
+| [67P/Churyumov–Gerasimenko](67P_Churyumov-Gerasimenko/) | Cometary water-sublimation outgassing and its cumulative along-track displacement | [![py](https://img.shields.io/badge/py-3776AB?logo=python&logoColor=white&style=flat-square)](67P_Churyumov-Gerasimenko/main.py) [![rs](https://img.shields.io/badge/rs-B7410E?logo=rust&logoColor=white&style=flat-square)](67P_Churyumov-Gerasimenko/main.rs) |
 
 ## Layout
 
@@ -90,7 +92,7 @@ data directory; later runs reuse the cache.
 Each scenario ships **two implementations** — `<dirname>/main.py`
 (Python) and `<dirname>/main.rs` (Rust) — and each implementation:
 
-- Imports only from the public `empyrean` package / crate surface (no nolan / villeneuve / scott direct imports).
+- Imports only from the public `empyrean` package / crate surface.
 - Initializes once at the top (`empyrean.initialize()` in Python, `Context::default_data_dir()?` in Rust).
 - Pulls inputs from authoritative public sources — JPL SBDB, MPC, JPL CAD.
 - Prints a small banner of headline numbers (close-approach distances, IP, B-plane geometry) so the binary doubles as a smoke test.

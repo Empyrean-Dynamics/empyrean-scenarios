@@ -9,7 +9,9 @@
 //! ```
 //!
 //! What it does:
-//! 1. Pulls every available MPC astrometric observation of Apophis.
+//! 1. Pulls every available MPC optical observation of Apophis plus the
+//!    JPL Goldstone/Arecibo radar delay/Doppler astrometry, and folds
+//!    both ADES tables into one fit.
 //! 2. Runs the full IOD → DC pipeline with the 9-parameter
 //!    `STATE_AND_NONGRAV` solve so the converged orbit carries the
 //!    same Marsden A1/A2/A3 non-gravitational coefficients JPL fits
@@ -31,10 +33,10 @@
 //!   - A2 ≈ -2.9e-14 AU/d²  (transverse, ≈ Yarkovsky)  (JPL SBDB)
 //!   - Removed from Sentry 2021-02-21               (NASA / CNEOS)
 
-// spielberg:snippet:start
+// empyrean:snippet:start
 use empyrean::{
-    Context, Epoch, EventConfig, ODConfig, Origin, PropagationConfig, SolveForParams,
-    UncertaintyMethod, query_observations,
+    Context, Epoch, EventConfig, ODConfig, Observations, Origin, PropagationConfig, SolveForParams,
+    UncertaintyMethod, query_observations, query_radar,
 };
 
 fn main() -> empyrean::Result<()> {
@@ -43,9 +45,21 @@ fn main() -> empyrean::Result<()> {
     // the platform's XDG data directory on first run.
     let ctx = Context::from_data_dir(None)?;
 
-    // ── 1. Astrometric observations from MPC ────────────────────────
-    let observations = query_observations(&["99942"], None)?;
-    println!("{} observations from MPC", observations.len());
+    // ── 1. Optical astrometry (MPC) + radar astrometry (JPL) ────────
+    // The MPC carries optical only; asteroid radar delay/Doppler is a
+    // JPL SSD product, queried separately and folded into the same fit.
+    // Apophis has an extensive Goldstone/Arecibo radar record set.
+    let optical = query_observations(&["99942"], None)?;
+    let radar = query_radar(&["99942"], None)?;
+    println!(
+        "{} optical + {} radar (delay/Doppler)",
+        optical.len(),
+        radar.len()
+    );
+
+    // Fold both ADES tables into a single observation set. When the
+    // radar query comes back empty the fit is optical-only.
+    let observations = Observations::from_arrays(&optical.iter().collect::<Vec<_>>(), &radar)?;
 
     // ── 2. 9-parameter OD with non-grav ─────────────────────────────
     // Forces the (state + A1, A2, A3) solve. The hyperdual integrator
@@ -126,14 +140,17 @@ fn main() -> empyrean::Result<()> {
         .find(|e| e.event_type == "periapsis" && e.body == Some(Origin::Earth))
         .map(|e| e.epoch.mjd());
     if let Some(ca_mjd) = ca_mjd {
-        // Grid epoch (orbit 0, orbit-major ⇒ states[k]) nearest the flyby.
-        let k = epochs
+        // Output rows are NOT request-ordered (encounter episodes are
+        // grouped by origin), so find the state row by ITS OWN epoch —
+        // never by request-grid position.
+        let k = prop
+            .states
             .iter()
             .enumerate()
             .min_by(|(_, a), (_, b)| {
-                (a.mjd() - ca_mjd)
+                (a.epoch.mjd() - ca_mjd)
                     .abs()
-                    .total_cmp(&(b.mjd() - ca_mjd).abs())
+                    .total_cmp(&(b.epoch.mjd() - ca_mjd).abs())
             })
             .map(|(i, _)| i)
             .unwrap();
@@ -143,12 +160,20 @@ fn main() -> empyrean::Result<()> {
         let pos_sigma_km =
             |cov: &[[f64; 6]; 6]| -> f64 { (cov[0][0] + cov[1][1] + cov[2][2]).sqrt() * au_km };
 
+        // The series is chain-ordered — look it up by its own epoch too.
         let series = prop.covariance_series_cartesian(0)?;
-        let resolved = &series[k];
+        let resolved = series
+            .iter()
+            .min_by(|a, b| {
+                (a.epoch.mjd_tdb().unwrap() - ca_mjd)
+                    .abs()
+                    .total_cmp(&(b.epoch.mjd_tdb().unwrap() - ca_mjd).abs())
+            })
+            .expect("non-empty covariance series");
 
         println!(
             "\nFlyby covariance readback (Empyrean, grid MJD {:.3}):",
-            epochs[k].mjd()
+            prop.states[k].epoch.mjd()
         );
         if let Some(linear) = prop.states[k].covariance {
             println!(
@@ -186,4 +211,4 @@ fn main() -> empyrean::Result<()> {
 
     Ok(())
 }
-// spielberg:snippet:end
+// empyrean:snippet:end
