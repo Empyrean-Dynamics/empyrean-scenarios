@@ -135,3 +135,10 @@ the blocks are marked "rough" for).
 The `empyrean X.Y.Z` badge in the top-level README is part of the same
 atomic artifact — it displays the pinned version the committed outputs
 were generated with, and is updated in the same pin-bump commit.
+
+The repo itself is versioned in lockstep: the manifests' own `version`
+matches the pinned empyrean release, and a `vX.Y.Z` tag marks each
+pin-bump commit — checking out scenarios `vX.Y.Z` gives the
+walkthroughs-of-record for empyrean `X.Y.Z`. Content added between
+releases (new scenarios, prose) evolves on `main` untagged and is swept
+into the next pin-bump tag.
