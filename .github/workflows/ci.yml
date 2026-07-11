@@ -57,9 +57,9 @@ jobs:
   # caching being wired into CI; once that lands, this job will also
   # run each script against a fixed reference epoch.
   #
-  # The `spielberg:snippet:start/end` regions in these scripts feed
+  # The `empyrean:snippet:start/end` regions in these scripts feed
   # the explore-mode "Reproduce in Python" panel directly via
-  # spielberg's snippet extractor (single source of truth). Catching
+  # the app's snippet extractor (single source of truth). Catching
   # syntax / import breakage here is the minimum bar for that panel
   # to remain runnable.
   smoke:

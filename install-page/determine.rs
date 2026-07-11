@@ -13,7 +13,7 @@ fn main() -> empyrean::Result<()> {
     let psv_path = concat!(env!("CARGO_MANIFEST_DIR"), "/install-page/observations.psv");
     let psv = std::fs::read_to_string(psv_path).expect("sample observations.psv not found");
 
-    // spielberg:snippet:start
+    // empyrean:snippet:start
     use empyrean::ODConfig;
 
     let cfg = ODConfig::default();
@@ -41,7 +41,7 @@ fn main() -> empyrean::Result<()> {
     // prior). The refined result is itself re-feedable into the next refine.
     let refined = ctx.refine(&fit.orbit, &obs, &cfg)?;
     println!("refined: converged={}", refined.converged);
-    // spielberg:snippet:end
+    // empyrean:snippet:end
     let _ = refined;
     Ok(())
 }

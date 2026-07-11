@@ -27,7 +27,7 @@ Authoritative cross-checks (printed inline):
 
 from __future__ import annotations
 
-# spielberg:snippet:start
+# empyrean:snippet:start
 import numpy as np
 
 import empyrean
@@ -150,7 +150,7 @@ def main() -> None:
     print("  Earth   55-day arc, 2025-02-18 published    IP = 3.1%")
 
 
-# spielberg:snippet:end
+# empyrean:snippet:end
 
 
 if __name__ == "__main__":

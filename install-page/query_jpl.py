@@ -12,7 +12,7 @@ import empyrean
 def main() -> None:
     empyrean.initialize()
 
-    # spielberg:snippet:start
+    # empyrean:snippet:start
     # SBDB: elements + covariance + non-grav + photometry
     orbits = empyrean.query_sbdb(["Apophis", "Eros"])
 
@@ -21,7 +21,7 @@ def main() -> None:
 
     # MPC: astrometric observations in ADES
     obs = empyrean.query_observations(["Apophis"])
-    # spielberg:snippet:end
+    # empyrean:snippet:end
 
     print(f"SBDB:      {len(orbits)} orbits")
     print(f"Horizons:  {len(eph_ref)} ephemeris rows")

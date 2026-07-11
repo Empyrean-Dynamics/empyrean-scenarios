@@ -4,7 +4,7 @@
 //! <https://empyrean-dynamics.com/install>.
 
 fn main() -> empyrean::Result<()> {
-    // spielberg:snippet:start
+    // empyrean:snippet:start
     use empyrean::{
         Context, Epoch, EventConfig, Origin, PropagationConfig, UncertaintyMethod, query_sbdb,
         write_events_parquet,
@@ -52,6 +52,6 @@ fn main() -> empyrean::Result<()> {
 
     // Save the detected events to a Parquet file
     write_events_parquet("apophis_2029_events.parquet", &result.events)?;
-    // spielberg:snippet:end
+    // empyrean:snippet:end
     Ok(())
 }

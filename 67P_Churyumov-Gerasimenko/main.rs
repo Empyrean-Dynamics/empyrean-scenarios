@@ -8,7 +8,7 @@
 //! cargo run --release --bin comet67p
 //! ```
 
-// spielberg:snippet:start
+// empyrean:snippet:start
 use empyrean::{Context, Epoch, PropagationConfig, UncertaintyMethod, query_sbdb};
 
 const KM_PER_AU: f64 = 149_597_870.7;
@@ -68,4 +68,4 @@ fn main() -> empyrean::Result<()> {
 
     Ok(())
 }
-// spielberg:snippet:end
+// empyrean:snippet:end

@@ -33,7 +33,7 @@
 //!   - A2 ≈ -2.9e-14 AU/d²  (transverse, ≈ Yarkovsky)  (JPL SBDB)
 //!   - Removed from Sentry 2021-02-21               (NASA / CNEOS)
 
-// spielberg:snippet:start
+// empyrean:snippet:start
 use empyrean::{
     Context, Epoch, EventConfig, ODConfig, Observations, Origin, PropagationConfig, SolveForParams,
     UncertaintyMethod, query_observations, query_radar,
@@ -211,4 +211,4 @@ fn main() -> empyrean::Result<()> {
 
     Ok(())
 }
-// spielberg:snippet:end
+// empyrean:snippet:end

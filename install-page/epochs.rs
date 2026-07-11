@@ -14,7 +14,7 @@ fn main() -> empyrean::Result<()> {
     let batch = query_sbdb(&["Apophis"], None)?;
     let orbit = batch.orbits.into_iter().next().expect("not found");
 
-    // spielberg:snippet:start
+    // empyrean:snippet:start
     use empyrean::Epoch;
 
     // Explicit scale at construction
@@ -35,7 +35,7 @@ fn main() -> empyrean::Result<()> {
 
     // From an ISO-8601 string (UTC, trailing Z required)
     let epochs = vec![Epoch::from_iso_utc("2029-04-13T21:46:00Z")?];
-    // spielberg:snippet:end
+    // empyrean:snippet:end
     let _ = (epoch_tdb, epochs);
     Ok(())
 }

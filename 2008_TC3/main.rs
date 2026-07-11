@@ -8,7 +8,7 @@
 //! cargo run --release --bin tc3
 //! ```
 
-// spielberg:snippet:start
+// empyrean:snippet:start
 use empyrean::{
     Context, Epoch, EventConfig, ODConfig, PropagationConfig, UncertaintyMethod, query_observations,
 };
@@ -81,4 +81,4 @@ fn main() -> empyrean::Result<()> {
 
     Ok(())
 }
-// spielberg:snippet:end
+// empyrean:snippet:end

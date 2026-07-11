@@ -12,7 +12,7 @@
 //!   - 2060-09-23, geocentric ~750,000 km                (JPL CAD)
 //!   - A2 = -4.62e-14 AU/d² (~284 m/orbit)               (Farnocchia 2021)
 
-// spielberg:snippet:start
+// empyrean:snippet:start
 use empyrean::{
     Context, Epoch, EventConfig, Origin, PropagationConfig, UncertaintyMethod, query_sbdb,
 };
@@ -111,4 +111,4 @@ fn main() -> empyrean::Result<()> {
 
     Ok(())
 }
-// spielberg:snippet:end
+// empyrean:snippet:end

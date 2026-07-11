@@ -10,7 +10,7 @@ fn main() -> empyrean::Result<()> {
     let batch = query_sbdb(&["Apophis"], None)?;
     let orbit = batch.orbits.into_iter().next().expect("not found");
 
-    // spielberg:snippet:start
+    // empyrean:snippet:start
     use empyrean::{Frame, Origin, Representation};
 
     // Cometary -> Cartesian (same frame, same origin)
@@ -28,7 +28,7 @@ fn main() -> empyrean::Result<()> {
         Frame::ICRF,
         Origin::Earth,
     )?;
-    // spielberg:snippet:end
+    // empyrean:snippet:end
     let _ = (cart, kep);
     Ok(())
 }

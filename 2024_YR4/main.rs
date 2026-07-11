@@ -8,7 +8,7 @@
 //! cargo run --release --bin yr4
 //! ```
 
-// spielberg:snippet:start
+// empyrean:snippet:start
 use empyrean::{
     Context, Epoch, ODConfig, Origin, PropagationConfig, UncertaintyMethod, query_observations,
 };
@@ -170,4 +170,4 @@ fn main() -> empyrean::Result<()> {
 
     Ok(())
 }
-// spielberg:snippet:end
+// empyrean:snippet:end

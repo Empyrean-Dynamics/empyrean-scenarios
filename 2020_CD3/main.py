@@ -26,7 +26,7 @@ Authoritative cross-checks (printed inline):
 
 from __future__ import annotations
 
-# spielberg:snippet:start
+# empyrean:snippet:start
 import empyrean
 from empyrean import CometaryOrbits, Epochs, EventConfig, TimeScale, UncertaintyMethod
 
@@ -113,7 +113,7 @@ def main() -> None:
     print("\nReference: capture period ~2017-2020 (Fedorets+ 2020).")
 
 
-# spielberg:snippet:end
+# empyrean:snippet:end
 
 
 if __name__ == "__main__":

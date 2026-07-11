@@ -33,7 +33,7 @@ Authoritative cross-checks (printed inline):
 
 from __future__ import annotations
 
-# spielberg:snippet:start
+# empyrean:snippet:start
 import numpy as np
 
 import empyrean
@@ -154,7 +154,7 @@ def main() -> None:
     print("(B-plane uncertainty input to any downstream resonant-return analysis.)")
 
 
-# spielberg:snippet:end
+# empyrean:snippet:end
 
 
 if __name__ == "__main__":

@@ -17,7 +17,7 @@ def main() -> None:
     empyrean.initialize()
     orbits = empyrean.query_sbdb(["Apophis"])
 
-    # spielberg:snippet:start
+    # empyrean:snippet:start
     observers = empyrean.Observers.from_codes(
         obs_codes=["W84", "F51"],
         epochs=Epochs.from_kwargs(mjd=[60200.0, 60201.0], scale=TimeScale.TDB),
@@ -37,7 +37,7 @@ def main() -> None:
     # Local horizon
     print(eph.zenith_angle.to_numpy())  # degrees from zenith
     print(eph.azimuth.to_numpy())  # degrees East of North
-    # spielberg:snippet:end
+    # empyrean:snippet:end
 
 
 if __name__ == "__main__":

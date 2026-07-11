@@ -14,13 +14,13 @@ from __future__ import annotations
 
 
 def main() -> None:
-    # spielberg:snippet:start
+    # empyrean:snippet:start
     import empyrean
     from empyrean import Epochs, TimeScale, Frame, Origin
 
     empyrean.download_data()  # first-run only
     empyrean.initialize()
-    # spielberg:snippet:end
+    # empyrean:snippet:end
     _ = (Epochs, TimeScale, Frame, Origin)  # silence "unused"
     print("empyrean initialized OK")
 

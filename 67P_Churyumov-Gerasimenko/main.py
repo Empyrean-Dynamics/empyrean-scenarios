@@ -29,7 +29,7 @@ Authoritative cross-checks (printed inline):
 
 from __future__ import annotations
 
-# spielberg:snippet:start
+# empyrean:snippet:start
 import empyrean
 from empyrean import (
     CometaryOrbits,
@@ -127,7 +127,7 @@ def main() -> None:
     )
 
 
-# spielberg:snippet:end
+# empyrean:snippet:end
 
 
 if __name__ == "__main__":

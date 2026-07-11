@@ -13,7 +13,7 @@ fn main() -> empyrean::Result<()> {
     let batch = query_sbdb(&["Apophis"], None)?;
     let orbit = batch.orbits.into_iter().next().expect("not found");
 
-    // spielberg:snippet:start
+    // empyrean:snippet:start
     use empyrean::{EphemerisConfig, Epoch};
 
     let observers = ctx.get_observers(
@@ -35,6 +35,6 @@ fn main() -> empyrean::Result<()> {
         let (m, s) = (row.mag, row.mag_sigma);
         println!("V = {m:.2} \u{00B1} {s:.2}");
     }
-    // spielberg:snippet:end
+    // empyrean:snippet:end
     Ok(())
 }

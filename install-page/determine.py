@@ -18,7 +18,7 @@ PSV = str(Path(__file__).parent / "observations.psv")
 def main() -> None:
     empyrean.initialize()
 
-    # spielberg:snippet:start
+    # empyrean:snippet:start
     # Read ADES PSV observations (file path or PSV string). ADES models
     # radar as its own top-level table, so read_ades returns both —
     # unpack the (optical, radar) tuple.
@@ -42,7 +42,7 @@ def main() -> None:
     # prior). The refined result is itself re-feedable into the next refine.
     refined = empyrean.refine(fit.orbit, obs)
     print(f"refined: converged={refined.converged}")
-    # spielberg:snippet:end
+    # empyrean:snippet:end
     _ = refined
 
 

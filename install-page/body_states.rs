@@ -7,7 +7,7 @@ fn main() -> empyrean::Result<()> {
     use empyrean::Context;
     let ctx = Context::from_data_dir(None)?;
 
-    // spielberg:snippet:start
+    // empyrean:snippet:start
     use empyrean::{Epoch, Frame, Origin};
 
     let states = ctx.get_states(
@@ -16,7 +16,7 @@ fn main() -> empyrean::Result<()> {
         &[Epoch::from_mjd_tdb(60200.0), Epoch::from_mjd_tdb(60201.0)],
         Frame::EclipticJ2000,
     )?;
-    // spielberg:snippet:end
+    // empyrean:snippet:end
     println!("states: {}", states.len());
     Ok(())
 }
