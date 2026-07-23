@@ -55,7 +55,6 @@ import empyrean
 from empyrean import (
     CartesianCoordinates,
     CartesianOrbits,
-    CometaryOrbits,
     NonGravParams,
     ODConfig,
     SolveFor,
