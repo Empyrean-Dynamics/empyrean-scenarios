@@ -86,7 +86,7 @@ jobs:
       - name: py_compile all scenario scripts
         run: |
           set -e
-          for f in 99942_Apophis 101955_Bennu 2008_TC3 2020_CD3 2024_YR4 67P_Churyumov-Gerasimenko; do
+          for f in 99942_Apophis 101955_Bennu 2008_TC3 2009_BD 2020_CD3 2024_YR4 67P_Churyumov-Gerasimenko; do
             echo "py_compile: $f/main.py"
             python -m py_compile "$f/main.py"
           done
@@ -147,7 +147,7 @@ jobs:
       - name: Run scenarios (Python)
         run: |
           set -euo pipefail
-          for d in 2008_TC3 67P_Churyumov-Gerasimenko 2020_CD3 101955_Bennu 2024_YR4 99942_Apophis; do
+          for d in 2008_TC3 67P_Churyumov-Gerasimenko 2009_BD 2020_CD3 101955_Bennu 2024_YR4 99942_Apophis; do
             echo "── $d/main.py"
             python "$d/main.py"
           done
@@ -158,7 +158,7 @@ jobs:
         run: |
           set -euo pipefail
           pip install "nbformat>=5" "nbclient>=0.9" "ipykernel>=6"
-          for d in 2008_TC3 67P_Churyumov-Gerasimenko 2020_CD3 101955_Bennu 2024_YR4 99942_Apophis; do
+          for d in 2008_TC3 67P_Churyumov-Gerasimenko 2009_BD 2020_CD3 101955_Bennu 2024_YR4 99942_Apophis; do
             echo "── $d/main.ipynb"
             python -c "
           import nbformat
