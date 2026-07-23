@@ -39,6 +39,10 @@ name = "bennu"
 path = "101955_Bennu/main.rs"
 
 [[bin]]
+name = "bd2009"
+path = "2009_BD/main.rs"
+
+[[bin]]
 name = "yr4"
 path = "2024_YR4/main.rs"
 

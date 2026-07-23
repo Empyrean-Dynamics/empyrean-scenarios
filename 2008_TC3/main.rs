@@ -75,6 +75,12 @@ fn main() -> empyrean::Result<()> {
             ev.relative_velocity_au_day * 149_597_870.7 / 86_400.0,
             ev.impact_altitude_km,
         );
+        // The entry event carries its planetodetic ground point — the
+        // 19-hour discovery arc pins WHERE over Sudan, not just when.
+        println!(
+            "  over {:.2}°N {:.2}°E",
+            ev.impact_latitude_deg, ev.impact_longitude_deg
+        );
     }
     println!("Reference (Borovička+ 2010):");
     println!("  MJD 54746.115 (2008-10-07 02:45:40 UT) over 20.74°N 32.16°E  v = 12.4 km/s");

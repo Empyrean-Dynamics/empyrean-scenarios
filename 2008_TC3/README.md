@@ -68,6 +68,7 @@ RMS:         RA·cos(d) 1.108"  Dec 0.590"
 
 Predicted atmospheric entry (Empyrean):
   MJD 54746.11569  v_rel = 12.79 km/s  alt = 100 km
+  over 21.09°N 30.53°E
 Reference (Borovička+ 2010):
   MJD 54746.115 (2008-10-07 02:45:40 UT) over 20.74°N 32.16°E  v = 12.4 km/s
 ```
