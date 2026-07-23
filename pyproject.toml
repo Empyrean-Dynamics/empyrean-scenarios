@@ -1,6 +1,6 @@
 [project]
 name = "empyrean-scenarios"
-version = "0.8.1"
+version = "0.9.0"
 description = "Runnable Python walkthroughs of the explore-mode planetary-science scenarios on empyrean-dynamics.com."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -15,11 +15,16 @@ keywords = ["astrodynamics", "planetary-science", "near-earth-objects", "example
 # collection of `python <script>.py` runnable demos. Each script
 # imports only from the public `empyrean` API surface.
 dependencies = [
-    "empyrean==0.8.1",
+    "empyrean==0.9.0",
     "numpy>=1.21",
     # The install-page Epochs walkthrough demonstrates Astropy interop.
     "astropy>=6",
 ]
+
+# Execute the notebook twins headlessly (CI and local re-runs):
+#   pip install -e '.[notebooks]'
+[project.optional-dependencies]
+notebooks = ["nbformat>=5", "nbclient>=0.9", "ipykernel>=6"]
 
 # Not an importable package — installing this project just provisions
 # the dependency set above. Without this, setuptools' flat-layout

@@ -151,6 +151,22 @@ jobs:
             echo "── $d/main.py"
             python "$d/main.py"
           done
+      - name: Execute notebook twins
+        # Re-executes every committed main.ipynb headlessly so the
+        # rendered outputs on GitHub can never silently go stale
+        # against the pinned empyrean release.
+        run: |
+          set -euo pipefail
+          pip install "nbformat>=5" "nbclient>=0.9" "ipykernel>=6"
+          for d in 2008_TC3 67P_Churyumov-Gerasimenko 2020_CD3 101955_Bennu 2024_YR4 99942_Apophis; do
+            echo "── $d/main.ipynb"
+            python -c "
+          import nbformat
+          from nbclient import NotebookClient
+          nb = nbformat.read('$d/main.ipynb', as_version=4)
+          NotebookClient(nb, timeout=1800, kernel_name='python3').execute()
+          "
+          done
       - name: Build walkthrough binaries (Rust, pinned release)
         run: cargo build --release --workspace
       - name: Run install-page snippets + scenarios (Rust)

@@ -22,7 +22,13 @@ fn main() -> empyrean::Result<()> {
         .orbits
         .into_iter()
         .next()
-        .expect("SBDB returned no orbit for 67P");
+        .expect("SBDB returned no orbit for 67P")
+        // SBDB ships 67P's outgassing time-delay DT with its sigma. The
+        // sigma is a *fit prior* — it opens the DT solve column, which
+        // needs the Marsden A1/A2/A3 covariance alongside it. This
+        // walkthrough only propagates, so keep the DT value (it shifts
+        // the g(r) evaluation) and drop the fit trigger.
+        .with_non_grav_dt_variance(None);
     println!("non-grav coefficients (SBDB):");
     println!("  A1 = {:.3e} AU/d^2", orbit.a1);
     println!("  A2 = {:.3e} AU/d^2", orbit.a2);
