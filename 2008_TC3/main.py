@@ -95,10 +95,15 @@ def main() -> None:
         epoch = ae.epoch.to_numpy(zero_copy_only=False)[i]
         v_rel = ae.relative_velocity_au_day.to_numpy(zero_copy_only=False)[i]
         alt = ae.altitude_km.to_numpy(zero_copy_only=False)[i]
+        # The entry event carries its planetodetic ground point — the
+        # 19-hour discovery arc pins WHERE over Sudan, not just when.
+        lat = ae.latitude_deg.to_numpy(zero_copy_only=False)[i]
+        lon = ae.longitude_deg.to_numpy(zero_copy_only=False)[i]
         print(
             f"  MJD {epoch:.5f}  v_rel = {v_rel * au_per_day_to_km_per_s:.2f} km/s  "
             f"alt = {alt:.0f} km"
         )
+        print(f"  over {lat:.2f}°N {lon:.2f}°E")
     print("Reference (Borovička+ 2010):")
     print(
         "  MJD 54746.115 (2008-10-07 02:45:40 UT) over 20.74°N 32.16°E  v = 12.4 km/s"

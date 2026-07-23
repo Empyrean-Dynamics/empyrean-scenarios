@@ -12,6 +12,7 @@ include = [
     "99942_Apophis/**/*",
     "101955_Bennu/**/*",
     "2008_TC3/**/*",
+    "2009_BD/**/*",
     "2020_CD3/**/*",
     "2024_YR4/**/*",
     "67P_Churyumov-Gerasimenko/**/*",
@@ -36,6 +37,10 @@ path = "99942_Apophis/main.rs"
 [[bin]]
 name = "bennu"
 path = "101955_Bennu/main.rs"
+
+[[bin]]
+name = "bd2009"
+path = "2009_BD/main.rs"
 
 [[bin]]
 name = "yr4"

@@ -1,6 +1,7 @@
 # 2009 BD: weighing an asteroid with sunlight (fitting the SRP area-to-mass ratio)
 
 [![Python](https://img.shields.io/badge/Python-main.py-3776AB?logo=python&logoColor=white&style=flat-square)](./main.py)
+[![Rust](https://img.shields.io/badge/Rust-main.rs-B7410E?logo=rust&logoColor=white&style=flat-square)](./main.rs)
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Empyrean-Dynamics/empyrean-scenarios/blob/main/2009_BD/main.ipynb)
 
 Prefer a notebook? [`main.ipynb`](./main.ipynb) is the same walkthrough,
