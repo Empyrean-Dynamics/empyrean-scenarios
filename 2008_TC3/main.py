@@ -27,7 +27,7 @@ from __future__ import annotations
 
 # empyrean:snippet:start
 import empyrean
-from empyrean import Epochs, TimeScale, UncertaintyMethod
+from empyrean import Epochs, ODConfig, PhotometryConfig, TimeScale, UncertaintyMethod
 
 
 def main() -> None:
@@ -37,17 +37,38 @@ def main() -> None:
     obs = empyrean.query_observations(["2008 TC3"])
     print(f"{len(obs)} observations spanning the discovery arc")
 
-    # ── 2. Full pipeline OD ─────────────────────────────────────────
+    # ── 2. Full pipeline OD, with a post-OD photometric fit ─────────
     # IOD (Gauss + Herget on triplets), 6-param state DC, optional
     # auto-escalation to 9-param if non-grav residuals are non-trivial,
-    # outlier rejection.
-    result = empyrean.determine(obs)
+    # outlier rejection. `photometry` adds the v0.9.0 H/G fit over the
+    # observations' magnitudes once the orbit is solved.
+    result = empyrean.determine(obs, config=ODConfig(photometry=PhotometryConfig()))
     s = result.summary
     print(
         f"chi2/dof:    {s.reduced_chi2:.3f}  "
         f"({s.num_selected}/{s.num_obs} obs selected)"
     )
     print(f'RMS:         RA·cos(d) {s.rms_ra_arcsec:.3f}"  Dec {s.rms_dec_arcsec:.3f}"')
+
+    # ── 2b. Absolute magnitude from the discovery-arc photometry ────
+    # The same observations carry V-band magnitudes; the post-OD H/G
+    # fit recovers the absolute magnitude H with an honest 1-sigma from
+    # its 3x3 parameter covariance. Over a 19-hour arc the phase-angle
+    # coverage is thin, so the model ladder settles on HG12 (one shape
+    # parameter) rather than the full three-parameter HG1G2.
+    ph = result.photometry
+    if ph is not None:
+        h_sigma = (
+            float(ph.covariance[0, 0] ** 0.5)
+            if ph.covariance is not None
+            else float("nan")
+        )
+        print(
+            f"Photometry:  H = {ph.h:.2f} +/- {h_sigma:.2f}  "
+            f"(model {ph.model_used}, chi2_r {ph.reduced_chi2:.2f}, "
+            f"{ph.n_mags_used} mags)"
+        )
+        print("Reference (JPL SBDB): H = 30.9  (a ~4 m ureilite)")
 
     # ── 3. Propagate forward through atmospheric entry ──────────────
     # IAS15 step size auto-bottoms out as Earth's gravity tightens; the

@@ -2,6 +2,11 @@
 
 [![Python](https://img.shields.io/badge/Python-main.py-3776AB?logo=python&logoColor=white&style=flat-square)](./main.py)
 [![Rust](https://img.shields.io/badge/Rust-main.rs-B7410E?logo=rust&logoColor=white&style=flat-square)](./main.rs)
+[![Jupyter](https://img.shields.io/badge/Jupyter-main.ipynb-F37626?logo=jupyter&logoColor=white&style=flat-square)](./main.ipynb)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Empyrean-Dynamics/empyrean-scenarios/blob/main/99942_Apophis/main.ipynb)
+
+The notebook twin [`main.ipynb`](./main.ipynb) is rendered on GitHub with
+executed outputs, or opens directly in Colab via the badge above.
 
 ## The story
 

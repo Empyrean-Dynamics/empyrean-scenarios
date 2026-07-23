@@ -2,6 +2,12 @@
 
 [![Python](https://img.shields.io/badge/Python-main.py-3776AB?logo=python&logoColor=white&style=flat-square)](./main.py)
 [![Rust](https://img.shields.io/badge/Rust-main.rs-B7410E?logo=rust&logoColor=white&style=flat-square)](./main.rs)
+[![Notebook](https://img.shields.io/badge/Notebook-main.ipynb-F37626?logo=jupyter&logoColor=white&style=flat-square)](./main.ipynb)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Empyrean-Dynamics/empyrean-scenarios/blob/main/2024_YR4/main.ipynb)
+
+Prefer a notebook? [`main.ipynb`](./main.ipynb) is the same walkthrough,
+rendered on GitHub with executed outputs — or open it in Colab with the
+badge above.
 
 ## The story
 

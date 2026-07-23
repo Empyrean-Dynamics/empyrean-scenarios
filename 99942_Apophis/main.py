@@ -37,7 +37,14 @@ from __future__ import annotations
 import numpy as np
 
 import empyrean
-from empyrean import Epochs, ODConfig, SolveForParams, TimeScale, UncertaintyMethod
+from empyrean import (
+    Epochs,
+    ODConfig,
+    PhotometryConfig,
+    SolveForParams,
+    TimeScale,
+    UncertaintyMethod,
+)
 
 
 def main() -> None:
@@ -56,7 +63,10 @@ def main() -> None:
     # Forces the (state + A1, A2, A3) solve. The hyperdual integrator
     # computes the (O-C) Jacobian against all 9 parameters analytically
     # — no finite differencing of the 21-year arc.
-    cfg = ODConfig(solve_for=SolveForParams.STATE_AND_NONGRAV)
+    cfg = ODConfig(
+        solve_for=SolveForParams.STATE_AND_NONGRAV,
+        photometry=PhotometryConfig(),  # v0.9.0: fit H/G alongside the orbit
+    )
     result = empyrean.determine(obs, radar=radar if len(radar) else None, config=cfg)
     s = result.summary
     print(f"Converged:  {result.converged}")
@@ -69,6 +79,24 @@ def main() -> None:
     a2 = ng.a2.to_numpy(zero_copy_only=False)[0]
     print(f"Fitted A1 = {a1:.3e}  A2 = {a2:.3e}")
     print("Reference  A1 = 5.000e-13     A2 = -2.902e-14   (JPL SBDB)")
+
+    # ── 2b. Absolute magnitude + phase function (v0.9.0) ────────────
+    # The 21-year arc spans a wide phase-angle range, so the post-OD
+    # photometric fit's model ladder admits the full three-parameter
+    # HG1G2 — H plus the two slopes G1, G2 that shape the opposition
+    # surge — with an honest 1-sigma on H from its 3x3 covariance.
+    ph = result.photometry
+    if ph is not None:
+        h_sigma = (
+            float(ph.covariance[0, 0] ** 0.5)
+            if ph.covariance is not None
+            else float("nan")
+        )
+        print(
+            f"Fitted H  = {ph.h:.2f} +/- {h_sigma:.2f}  "
+            f"(model {ph.model_used}, chi2_r {ph.reduced_chi2:.2f})"
+        )
+        print("Reference  H = 19.09   (JPL SBDB)")
 
     # ── 3. Forward propagation through the 2029 flyby ───────────────
     epochs = Epochs.from_kwargs(
