@@ -15,8 +15,11 @@ What it does:
        capture episode, both with the SBDB non-grav term and as a
        gravity-only control.
     3. Counts CaptureStart / CaptureEnd events (the 2017–2020
-       gravitational capture by the Earth-Moon system) and the dense
-       constellation of Earth + Moon close approaches in between.
+       gravitational capture by the Earth-Moon system) and the Moon
+       close-approach periapses along the way. In-capture geocentric
+       passes are orbital structure around the central body, not close
+       approaches — the engine emits no CA events for them, so the
+       geocentric minimum is read off the propagated states instead.
 
 Authoritative cross-checks (printed inline):
     - Discovery: 2020-02-15 by Catalina Sky Survey
@@ -28,7 +31,16 @@ from __future__ import annotations
 
 # empyrean:snippet:start
 import empyrean
-from empyrean import CometaryOrbits, Epochs, EventConfig, TimeScale, UncertaintyMethod
+from empyrean import (
+    CartesianCoordinates,
+    CometaryOrbits,
+    Epochs,
+    EventConfig,
+    Origin,
+    TimeScale,
+    UncertaintyMethod,
+    transform_coordinates,
+)
 
 
 def main() -> None:
@@ -90,7 +102,8 @@ def main() -> None:
         ends = [b for b in prop.events.capture_ends.body.to_pylist() if b == "Earth"]
         p = prop.events.periapses
         bodies = p.body.to_pylist()
-        periapses = [b for b in bodies if b in ("Earth", "Moon")]
+        n_earth = sum(1 for b in bodies if b == "Earth")
+        n_moon = sum(1 for b in bodies if b == "Moon")
         dist = p.distance_km.to_numpy()
         ep = p.epoch.to_numpy()
         earth_cas = sorted(
@@ -100,12 +113,33 @@ def main() -> None:
         print(f"\n── {label} ──")
         print(f"Capture starts: {len(starts)}")
         print(f"Capture ends:   {len(ends)}")
-        print(f"Close approaches (Earth+Moon): {len(periapses)}")
+        print(
+            f"Close-approach periapses: Earth {n_earth}, Moon {n_moon}  "
+            "(in-capture geocentric passes are orbital structure around "
+            "the central body, not close approaches — no events emitted)"
+        )
         if earth_cas:
             mjd, d = earth_cas[0]
-            print(f"Closest Earth approach: MJD {mjd:.3f}  {d:>10.0f} km")
-        else:
-            print("Closest Earth approach: none in window")
+            print(f"Closest Earth CA periapsis: MJD {mjd:.3f}  {d:>10.0f} km")
+        # The geocentric minimum through the capture falls out of the
+        # propagated states instead: re-origin the daily states to
+        # Earth and take the smallest position norm. (Coarser than an
+        # event — the grid is 1-day — but it is the honest headline for
+        # a body that spends the episode *orbiting* Earth.)
+        geo = transform_coordinates(
+            prop.states.coordinates, CartesianCoordinates, origin=Origin.EARTH
+        )
+        xs = geo.x.to_numpy(zero_copy_only=False)
+        ys = geo.y.to_numpy(zero_copy_only=False)
+        zs = geo.z.to_numpy(zero_copy_only=False)
+        eps = geo.epoch.to_numpy(zero_copy_only=False)
+        au_km = 149_597_870.7
+        r_km = (xs**2 + ys**2 + zs**2) ** 0.5 * au_km
+        k = int(r_km.argmin())
+        print(
+            f"Closest geocentric distance (daily-sampled states): "
+            f"MJD {eps[k]:.3f}  {r_km[k]:>10.0f} km"
+        )
 
     summarize("With SBDB non-grav (A1 = 1.357e-10)", prop)
     summarize("Gravity-only control (A1 = A2 = A3 = 0)", prop_grav_only)

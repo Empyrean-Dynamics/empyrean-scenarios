@@ -79,24 +79,25 @@ constrained to better than 1-in-1750 cumulative probability.
 
 ```
 603 optical + 29 radar (delay/Doppler)
-Anchor (1999-2000, 217 optical + 10 radar): chi2/dof 0.22
+Anchor (1999-2000, 217 optical + 10 radar): chi2/dof 0.31
 Converged:  True
-chi2/dof:   0.200
-RMS:        RA·cos(d) 0.748"  Dec 0.351"
-Fitted A2 (≈ Yarkovsky) = -2.837e-14 +/- 1.1e-14 AU/d^2
+chi2/dof:   0.304
+RMS:        RA·cos(d) 0.747"  Dec 0.350"
+Selected:   603/603
+Fitted A2 (≈ Yarkovsky) = -2.905e-14 +/- 8.5e-15 AU/d^2
 Reference                 -4.618e-14 AU/d^2   (Farnocchia 2021,
                           radar-complete joint solution)
 
 Close approaches (Empyrean):
-  Earth   MJD 73725.025        749738 km
-  Earth   MJD 81029.197       2054181 km
+  Earth   MJD 73725.025        749725 km
+  Earth   MJD 81029.193       2060592 km
 Reference (JPL CAD nominal):
   Earth   MJD 73725 (2060-09-23)   ~750,000 km
 
 Earth B-plane geometry (Empyrean):
-  MJD 73725.025  |B| =     749738 km  3-sigma semi-major =    294.7 km
-  MJD 81029.197  |B| =    2054181 km  3-sigma semi-major = 134233.2 km
-(2060 B-plane uncertainty input to any downstream resonant-return analysis; 3-sigma ellipse grows 455x by 2080.)
+  MJD 73725.025  |B| =     749725 km  3-sigma semi-major =    947.2 km
+  MJD 81029.193  |B| =    2060592 km  3-sigma semi-major = 426946.4 km
+(2060 B-plane uncertainty input to any downstream resonant-return analysis; 3-sigma ellipse grows 451x by 2080.)
 ```
 
 ## The measurement, in context

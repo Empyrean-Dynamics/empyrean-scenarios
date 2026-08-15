@@ -50,6 +50,7 @@ from __future__ import annotations
 
 # empyrean:snippet:start
 import empyrean
+import numpy as np
 from empyrean import (
     CartesianCoordinates,
     CartesianOrbits,
@@ -59,8 +60,6 @@ from empyrean import (
     SRPParams,
     transform_coordinates,
 )
-import numpy as np
-
 
 # Wide AMRAT prior (variance, (m^2/kg)^2): loose enough that the
 # astrometry, not the prior, drives the fitted AMRAT. ~ (1e-3 m^2/kg)^2.
@@ -144,7 +143,7 @@ def main() -> None:
     obs = empyrean.query_observations(["2009 BD"])
     print(f"\n{len(obs)} optical observations")
 
-    cfg = ODConfig(solve_for_flags=SolveFor(amrat=True))
+    cfg = ODConfig(solve_for_flags=SolveFor(amrat="solved"))
     result = empyrean.refine(primed, obs, config=cfg)
 
     s = result.summary

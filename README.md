@@ -4,7 +4,7 @@
 Runnable Rust + Python walkthroughs of the explore-mode scenarios on empyrean-dynamics.com
 
 <a href="https://github.com/Empyrean-Dynamics/empyrean-scenarios/actions/workflows/ci.yml"><img src="https://github.com/Empyrean-Dynamics/empyrean-scenarios/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
-<a href="https://pypi.org/project/empyrean/"><img src="https://img.shields.io/badge/empyrean-0.9.0-1a1a2e?style=flat-square" alt="empyrean version"></a>
+<a href="https://pypi.org/project/empyrean/"><img src="https://img.shields.io/badge/empyrean-0.10.0rc0-1a1a2e?style=flat-square" alt="empyrean version"></a>
 <br>
 <a href="LICENSE"><img src="https://img.shields.io/badge/license-BSD--3--Clause-blue.svg?style=flat-square" alt="License"></a>
 <a href="https://doi.org/10.5281/zenodo.21315115"><img src="https://zenodo.org/badge/1228940802.svg" alt="DOI"></a>
@@ -41,6 +41,8 @@ catalogues.
 | [2020 CD3](2020_CD3/) | Temporary lunar-distance capture ("mini-moon") event detection, with and without non-gravitational forces | [![py](https://img.shields.io/badge/py-3776AB?logo=python&logoColor=white&style=flat-square)](2020_CD3/main.py) [![rs](https://img.shields.io/badge/rs-B7410E?logo=rust&logoColor=white&style=flat-square)](2020_CD3/main.rs) [![ipynb](https://img.shields.io/badge/ipynb-F37626?logo=jupyter&logoColor=white&style=flat-square)](2020_CD3/main.ipynb) |
 | [2009 BD](2009_BD/) | Solar-radiation-pressure area-to-mass ratio measured directly from the astrometry of a metre-scale asteroid | [![py](https://img.shields.io/badge/py-3776AB?logo=python&logoColor=white&style=flat-square)](2009_BD/main.py) [![rs](https://img.shields.io/badge/rs-B7410E?logo=rust&logoColor=white&style=flat-square)](2009_BD/main.rs) [![ipynb](https://img.shields.io/badge/ipynb-F37626?logo=jupyter&logoColor=white&style=flat-square)](2009_BD/main.ipynb) |
 | [67P/Churyumov–Gerasimenko](67P_Churyumov-Gerasimenko/) | Cometary water-sublimation outgassing and its cumulative along-track displacement | [![py](https://img.shields.io/badge/py-3776AB?logo=python&logoColor=white&style=flat-square)](67P_Churyumov-Gerasimenko/main.py) [![rs](https://img.shields.io/badge/rs-B7410E?logo=rust&logoColor=white&style=flat-square)](67P_Churyumov-Gerasimenko/main.rs) [![ipynb](https://img.shields.io/badge/ipynb-F37626?logo=jupyter&logoColor=white&style=flat-square)](67P_Churyumov-Gerasimenko/main.ipynb) |
+| [2025-010D](2025-010D/) | A Falcon 9 second stage fit from public-domain amateur astrometry — geocentric OD, a rocket-body area-to-mass ratio, and the 2026 lunar impact predicted to seconds | [![py](https://img.shields.io/badge/py-3776AB?logo=python&logoColor=white&style=flat-square)](2025-010D/main.py) [![rs](https://img.shields.io/badge/rs-B7410E?logo=rust&logoColor=white&style=flat-square)](2025-010D/main.rs) [![ipynb](https://img.shields.io/badge/ipynb-F37626?logo=jupyter&logoColor=white&style=flat-square)](2025-010D/main.ipynb) |
+| [2026 PDC27](2026_PDC27/) | The (fictional) IAA PDC 2027 exercise asteroid — the knowledge-timeline replay of its impact probability under four uncertainty methods | [![py](https://img.shields.io/badge/py-3776AB?logo=python&logoColor=white&style=flat-square)](2026_PDC27/main.py) [![rs](https://img.shields.io/badge/rs-B7410E?logo=rust&logoColor=white&style=flat-square)](2026_PDC27/main.rs) [![ipynb](https://img.shields.io/badge/ipynb-F37626?logo=jupyter&logoColor=white&style=flat-square)](2026_PDC27/main.ipynb) |
 
 ## Layout
 
@@ -65,8 +67,8 @@ empyrean-scenarios/
 
 The directory name carries the full provenance; the script files
 inside are named `main.py` / `main.rs` for clarity. Rust binary
-names stay short (`apophis`, `bennu`, `cd3`, `comet67p`, `tc3`,
-`yr4`) so they're cheap to type at the CLI.
+names stay short (`apophis`, `bd2009`, `bennu`, `cd3`, `comet67p`,
+`falcon9`, `pdc27`, `tc3`, `yr4`) so they're cheap to type at the CLI.
 
 ## Quick start
 
@@ -76,7 +78,7 @@ Pick a runtime — both reproduce the same headline numbers.
 ```bash
 git clone https://github.com/Empyrean-Dynamics/empyrean-scenarios.git
 cd empyrean-scenarios
-cargo run --release --bin <scenario>     # apophis | bennu | cd3 | comet67p | tc3 | yr4
+cargo run --release --bin <scenario>     # apophis | bd2009 | bennu | cd3 | comet67p | falcon9 | pdc27 | tc3 | yr4
 ```
 
 **Python:**

@@ -1,6 +1,6 @@
 [package]
 name = "empyrean-scenarios"
-version = "0.9.0"
+version = "0.10.0-rc.0"
 edition = "2024"
 rust-version = "1.90.0"
 authors = ["Joachim Moeyens <moeyensj@gmail.com>"]
@@ -55,6 +55,14 @@ name = "cd3"
 path = "2020_CD3/main.rs"
 
 [[bin]]
+name = "falcon9"
+path = "2025-010D/main.rs"
+
+[[bin]]
+name = "pdc27"
+path = "2026_PDC27/main.rs"
+
+[[bin]]
 name = "comet67p"
 path = "67P_Churyumov-Gerasimenko/main.rs"
 
@@ -107,4 +115,5 @@ path = "install-page/epochs.rs"
 # Sole physics dep — every scenario script imports only from the
 # public `empyrean` crate surface. Resolved from the published crate
 # on crates.io.
-empyrean = "=0.9.0"
+empyrean = "=0.10.0-rc.0"
+

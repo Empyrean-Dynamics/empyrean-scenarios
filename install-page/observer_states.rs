@@ -8,11 +8,13 @@ fn main() -> empyrean::Result<()> {
     let ctx = Context::from_data_dir(None)?;
 
     // empyrean:snippet:start
-    use empyrean::Epoch;
+    use empyrean::{Epoch, Frame, Origin};
 
     let observers = ctx.get_observers(
         &["W84", "F51"],
         &[Epoch::from_mjd_tdb(60200.0), Epoch::from_mjd_tdb(60201.0)],
+        Frame::ICRF,
+        Origin::SSB,
     )?;
     // 4 rows: cross product of codes x epochs, ICRF/SSB positions + velocities
     // empyrean:snippet:end

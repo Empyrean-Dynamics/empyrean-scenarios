@@ -83,7 +83,7 @@ def main() -> None:
         short,
         radar=radar_short if len(radar_short) else None,
         config=ODConfig(solve_for=SolveForParams.STATE_ONLY),
-    )
+    ).single()
     print(
         f"Anchor (1999-2000, {len(short)} optical + {len(radar_short)} radar): "
         f"chi2/dof {anchor.summary.reduced_chi2:.2f}"
@@ -172,7 +172,9 @@ def main() -> None:
     # The growth factor is computed live below.
     b_planes = empyrean.compute_b_planes(
         result.orbit,
-        end_epoch=epochs.mjd.to_numpy(zero_copy_only=False)[-1],
+        end_epoch=Epochs.from_mjd(
+            [epochs.mjd.to_numpy(zero_copy_only=False)[-1]], scale=TimeScale.TDB.value
+        ),
         methods=[UncertaintyMethod.SECOND_ORDER],
         body_filter=["Earth"],
     )

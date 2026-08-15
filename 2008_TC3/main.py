@@ -42,7 +42,9 @@ def main() -> None:
     # auto-escalation to 9-param if non-grav residuals are non-trivial,
     # outlier rejection. `photometry` adds the v0.9.0 H/G fit over the
     # observations' magnitudes once the orbit is solved.
-    result = empyrean.determine(obs, config=ODConfig(photometry=PhotometryConfig()))
+    result = empyrean.determine(
+        obs, config=ODConfig(photometry=PhotometryConfig())
+    ).single()
     s = result.summary
     print(
         f"chi2/dof:    {s.reduced_chi2:.3f}  "

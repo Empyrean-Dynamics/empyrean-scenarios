@@ -52,6 +52,7 @@ from __future__ import annotations
 
 # empyrean:snippet:start
 import empyrean
+import numpy as np
 from empyrean import (
     CartesianCoordinates,
     CartesianOrbits,
@@ -60,8 +61,6 @@ from empyrean import (
     SolveFor,
     transform_coordinates,
 )
-import numpy as np
-
 
 # SBDB water-ice g(r) shape for 67P and the reference outgassing delay.
 G_ALPHA, G_R0, G_M, G_N, G_K = 0.1113, 2.808, 2.15, 5.093, 4.6142
@@ -129,7 +128,7 @@ def main() -> None:
     obs = empyrean.query_observations(["67P"])
     print(f"\n{len(obs)} optical observations")
 
-    cfg = ODConfig(solve_for_flags=SolveFor(marsden=True, dt=True))
+    cfg = ODConfig(solve_for_flags=SolveFor(marsden="solved", dt="solved"))
     result = empyrean.refine(primed, obs, config=cfg)
 
     s = result.summary

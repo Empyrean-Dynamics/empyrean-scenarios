@@ -24,7 +24,9 @@ fn main() -> empyrean::Result<()> {
     );
 
     // ── 2. Full pipeline OD ─────────────────────────────────────────
-    let result = ctx.determine(&observations, None, &ODConfig::default())?;
+    let result = ctx
+        .determine(&observations, None, &ODConfig::default())?
+        .into_single()?;
     let s = &result.summary;
     println!(
         "chi2/dof:    {:.3}  ({}/{} obs selected)",

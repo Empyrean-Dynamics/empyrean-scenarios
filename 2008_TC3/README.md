@@ -63,11 +63,13 @@ fireball-recovered fragments.
 
 ```
 883 observations spanning the discovery arc
-chi2/dof:    0.582  (819/883 obs selected)
-RMS:         RA·cos(d) 1.108"  Dec 0.590"
+chi2/dof:    0.143  (859/883 obs selected)
+RMS:         RA·cos(d) 1.546"  Dec 0.887"
+Photometry:  H = 31.15 +/- 0.46  (model PhotometryModel.HG12, chi2_r 1.07, 783 mags)
+Reference (JPL SBDB): H = 30.9  (a ~4 m ureilite)
 
 Predicted atmospheric entry (Empyrean):
-  MJD 54746.11569  v_rel = 12.79 km/s  alt = 100 km
+  MJD 54746.11568  v_rel = 12.79 km/s  alt = 100 km
   over 21.09°N 30.53°E
 Reference (Borovička+ 2010):
   MJD 54746.115 (2008-10-07 02:45:40 UT) over 20.74°N 32.16°E  v = 12.4 km/s

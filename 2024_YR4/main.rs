@@ -46,10 +46,10 @@ fn main() -> empyrean::Result<()> {
         );
     };
 
-    let early = ctx.determine(&early_arc, None, &cfg)?;
+    let early = ctx.determine(&early_arc, None, &cfg)?.into_single()?;
     print_summary("Discovery arc", &early);
 
-    let full = ctx.determine(&all_obs, None, &cfg)?;
+    let full = ctx.determine(&all_obs, None, &cfg)?.into_single()?;
     print_summary("Full arc     ", &full);
 
     // ── 4. Compute impact probabilities to 2032 encounter for both fits ──
