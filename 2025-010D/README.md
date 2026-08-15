@@ -173,12 +173,22 @@ Final-arc orbit scored against the full 402-obs record:
   Apr-May 2026               RMS       165.29"
   Dec 2025                   RMS      1679.28"
   Jan 2025 discovery         RMS    470490.62"
+(Five orders of magnitude across two lunar encounters and a
+ changing tumble — consistent with the per-arc solutions
+ Project Pluto published; Gray 2026, Campbell et al. 2026.)
 ```
 
 An impact epoch 0.2 s from JPL's radar-informed solution, from
 optical-only public astrometry — and a residual ladder spanning five
 orders of magnitude that shows exactly why every arc of a tumbling
 rocket body earns its own fit.
+
+## References
+
+- Gray, B. 2026, "A Falcon 9 second stage will hit the moon", Project Pluto — <https://www.projectpluto.com/25010d.htm>; pseudo-MPECs 25010d and 25010d_new (the astrometry, orbit solutions, and impact predictions compared above).
+- Campbell, T., Battle, A., Gray, B., Sanchez, J. A., Cantillo, D., LeCorre, L. & Reddy, V. 2026, "Physical Characterization of Moon Impactor 2025-010D", arXiv:2608.00360 — independent optical-only orbit solutions and physical characterization.
+- Fernando, B., Heldmann, J., Gray, B., et al. 2026, "Observational planning for the 2026 August 5 Falcon 9 Upper Stage lunar impact", arXiv:2607.14625.
+- JPL Horizons, target `-162719`, solution #GA1A2/21 (S. Naidu) — the radar-informed reference solution and 3σ ellipse quoted above.
 
 ## See also
 

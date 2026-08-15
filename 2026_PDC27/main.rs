@@ -143,8 +143,10 @@ fn main() -> empyrean::Result<()> {
         let _ = iso_to_mjd("2026-08-01T00:00:00Z", TimeScale::UTC);
     }
 
-    println!("\nOnly the sampling method tracks the published values (0.001 → 0.16 → 0.19);");
-    println!("κ — which AUTO computes for free — is the warning label on every analytic number.");
+    println!("\nThe Monte Carlo estimates agree with the published values (0.001 → 0.16 → 0.19;");
+    println!("CNEOS / IAWN 2026) within their 95% confidence intervals at every checkpoint;");
+    println!("the analytic estimates bracket them in the ordering expected at large κ");
+    println!("(Park & Scheeres 2006; DeMars, Bishop & Jah 2013; Roa, Farnocchia & Chesley 2021).");
 
     Ok(())
 }

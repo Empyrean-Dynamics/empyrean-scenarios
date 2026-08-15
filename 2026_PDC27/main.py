@@ -25,11 +25,14 @@ What it does:
     4. Prints the per-step method table; the notebook twin renders it
        as the IP-evolution figure.
 
-The point: at a twelve-year horizon the encounter mapping is deeply
-nonlinear (κ ≈ 13–50), the analytic methods disagree with each other
-by up to two orders of magnitude, and only the sampling method tracks
-the published values at every step. κ — which AUTO computes for free —
-is the number that tells you when to stop trusting analytics.
+At a twelve-year horizon the encounter mapping is strongly nonlinear
+(κ ≈ 13–50) and the four estimates differ accordingly: the Monte
+Carlo estimates agree with the exercise's published values within
+their 95% confidence intervals at every checkpoint, while the
+analytic estimates bracket them in the ordering expected at large κ
+(Park & Scheeres 2006; DeMars, Bishop & Jah 2013; Roa, Farnocchia &
+Chesley 2021). Published comparison values: CNEOS PDC27 Epoch-1 page
+and the IAWN notifications of 2026-07-15 and 2026-08-01.
 """
 
 from __future__ import annotations
@@ -88,7 +91,7 @@ def main() -> None:
 
     print(
         "\nknowledge date  n_obs  kappa      linear   2nd-order      auto"
-        "        MC (95% CI)     published"
+        "        MC (95% CI)     published (CNEOS/IAWN)"
     )
     rows = []
     for night in apparition[3:]:  # need a few nights before IOD is stable
@@ -150,13 +153,15 @@ def main() -> None:
 
     final = rows[-1]
     print(
-        f"\nEpoch-1 verdict: MC {final[6]:.3f} ± {final[7]:.3f} vs published 0.19 — "
-        f"linear {final[3]:.3f}, second-order {final[4]:.5f}, auto {final[5]:.3f}"
+        f"\nEpoch 1: MC {final[6]:.3f} ± {final[7]:.3f} vs 0.19 published "
+        "(CNEOS / IAWN 2026-08-01);"
     )
     print(
-        "Only the sampling method tracks the published values; κ ≈ "
-        f"{final[2]:.0f} is the warning label on every analytic number."
+        f"  linear {final[3]:.3f}, second-order {final[4]:.5f}, "
+        f"auto {final[5]:.3f} at κ ≈ {final[2]:.0f} — the ordering expected "
+        "for a strongly"
     )
+    print("  nonlinear mapping (Park & Scheeres 2006; DeMars+ 2013; Roa+ 2021).")
 
 
 # empyrean:snippet:end

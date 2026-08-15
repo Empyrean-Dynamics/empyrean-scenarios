@@ -18,8 +18,9 @@ What it does:
     3. Propagates into the Moon and reads the impact epoch and
        selenographic coordinates off the Impact event.
     4. Scores the final-arc orbit against all 402 observations — the
-       residual ladder through two lunar encounters is why nobody
-       (including Bill Gray) publishes one grand fit of this object.
+       residual growth through two lunar encounters shows why the
+       public record is fit per arc, consistent with the per-arc
+       solutions Project Pluto published (Gray 2026).
 
 Authoritative cross-checks (printed inline):
     - Gray, fit to this same 74-obs arc: impact 2026-08-05
@@ -147,12 +148,12 @@ def main() -> None:
     print("JPL #GA1A2/21:      2026-08-05T06:35:40Z ± 9 s at 19.507°N 266.7°E")
     print("Confirmed:          2026-08-05 ~06:35 UTC near crater Einstein")
 
-    # ── 4. Why there is no grand unified fit ────────────────────────
+    # ── 4. Why the record is fit per arc ────────────────────────────
     # Score the final-arc orbit against the WHOLE public record. The
     # residuals climb five orders of magnitude through two lunar
-    # encounters and a tumbling body whose effective area changed —
-    # each arc earns its own fit, which is exactly how Project Pluto
-    # published them.
+    # encounters and a tumbling body whose effective area changed
+    # between arcs (Gray 2026; Campbell et al. 2026) — consistent with
+    # the per-arc solutions Project Pluto published.
     ev = empyrean.evaluate(refined.orbit, obs)
     r = ev.observations
     t_mjd = r.epoch_mjd_tdb.to_numpy(zero_copy_only=False)
@@ -170,8 +171,9 @@ def main() -> None:
         if m.any():
             rms = float(np.sqrt(np.nanmean(res_ra[m] ** 2 + res_dec[m] ** 2)))
             print(f'  {label:26s} RMS {rms:>12.2f}"')
-    print("(Five orders of magnitude: tumbling-body SRP + two lunar")
-    print(" encounters make every arc its own fit — as published.)")
+    print("(Five orders of magnitude across two lunar encounters and a")
+    print(" changing tumble — consistent with the per-arc solutions")
+    print(" Project Pluto published; Gray 2026, Campbell et al. 2026.)")
 
 
 # empyrean:snippet:end

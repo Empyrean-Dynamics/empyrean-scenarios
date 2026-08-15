@@ -52,19 +52,23 @@ notification threshold or march toward certainty.
    2038-07-10 05:29:35.52 UTC carried by JPL Horizons.
 
 The divergence (or agreement) of the uncertainty methods across a
-twelve-year propagation is the point of the scenario: where the lines
-sit on top of each other, linear theory was enough; where they fan
-out, you are watching nonlinearity arrive.
+twelve-year propagation is the point of the scenario: where the
+estimates coincide, the linear mapping is adequate; where they
+separate, the mapping has become strongly nonlinear, and κ quantifies
+by how much (Park & Scheeres 2006).
 
 ## The figure
 
 ![The 2038 impact probability, four ways](ip_evolution.png)
 
-One probability, four answers. The precovery jump on July 12 is the
-cliff; after it, κ sits between 13 and 50 and the analytic family
-spreads across two orders of magnitude — linear fooled high,
-second-order over-corrected low, AUTO's adaptive mixture closest —
-while the Monte Carlo band tracks every published checkpoint.
+One probability, four estimates. After the July 12 precovery jump the
+nonlinearity index κ sits between 13 and 50, and the analytic family
+spreads across two orders of magnitude: the linear estimate lies above
+the sampled value, the second-order estimate below it, and the
+adaptive Gaussian mixture closest among the analytic methods — the
+ordering expected at large κ (Park & Scheeres 2006; DeMars, Bishop &
+Jah 2013). The Monte Carlo band agrees with each published checkpoint
+(CNEOS / IAWN) within its 95% confidence interval.
 
 ## The data
 
@@ -119,7 +123,7 @@ astrometry file, unmodified, with this attribution.
 ```
 52 synthetic observations (JPL CNEOS, Epoch 1)
 
-knowledge date  n_obs  kappa      linear   2nd-order      auto        MC (95% CI)     published
+knowledge date  n_obs  kappa      linear   2nd-order      auto        MC (95% CI)     published (CNEOS/IAWN)
 2026-07-01      8     3.5    0.00010    0.00003    0.00003   0.000 ±0.000  
 2026-07-02     10     3.9    0.00018    0.00004    0.00004   0.000 ±0.000  
 2026-07-03     12     4.9    0.00027    0.00006    0.00006   0.000 ±0.000  
@@ -138,9 +142,16 @@ knowledge date  n_obs  kappa      linear   2nd-order      auto        MC (95% CI
 2026-07-24     50    35.9    0.86095    0.04504    0.13212   0.183 ±0.024  
 2026-07-31     52    36.1    0.87714    0.04775    0.13638   0.190 ±0.024    ← 0.190 published
 
-Epoch-1 verdict: MC 0.190 ± 0.024 vs published 0.19 — linear 0.877, second-order 0.04775, auto 0.136
-Only the sampling method tracks the published values; κ ≈ 36 is the warning label on every analytic number.
+Epoch 1: MC 0.190 ± 0.024 vs 0.19 published (CNEOS / IAWN 2026-08-01);
+  linear 0.877, second-order 0.04775, auto 0.136 at κ ≈ 36 — the ordering expected for a strongly
+  nonlinear mapping (Park & Scheeres 2006; DeMars+ 2013; Roa+ 2021).
 ```
+
+## References
+
+- Park, R. S. & Scheeres, D. J. 2006, "Nonlinear mapping of Gaussian statistics: theory and applications to spacecraft trajectory design", *JGCD* **29**(6) — the second-order (STT) uncertainty mapping.
+- DeMars, K. J., Bishop, R. H. & Jah, M. K. 2013, "Entropy-based approach for uncertainty propagation of nonlinear dynamical systems", *JGCD* **36**(4) — the adaptive Gaussian-mixture splitting.
+- Roa, J., Farnocchia, D. & Chesley, S. R. 2021, "A novel approach to asteroid impact monitoring", *AJ* **162**(6) — impact-probability computation practice (Sentry-II).
 
 ## See also
 

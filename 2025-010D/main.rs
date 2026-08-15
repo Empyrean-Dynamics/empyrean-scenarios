@@ -107,11 +107,12 @@ fn main() -> empyrean::Result<()> {
     println!("JPL #GA1A2/21:      2026-08-05T06:35:40Z ± 9 s at 19.507°N 266.7°E");
     println!("Confirmed:          2026-08-05 ~06:35 UTC near crater Einstein");
 
-    // ── 4. Why there is no grand unified fit ────────────────────────
+    // ── 4. Why the record is fit per arc ────────────────────────────
     // Score the final-arc orbit against the WHOLE public record: the
-    // residual RMS blows up through two lunar encounters and a tumbling
-    // body whose effective area changed. Each arc earns its own fit —
-    // which is exactly how Project Pluto published them.
+    // residual RMS grows through two lunar encounters and a tumbling
+    // body whose effective area changed between arcs (Gray 2026;
+    // Campbell et al. 2026) — consistent with the per-arc solutions
+    // Project Pluto published.
     let own = ctx.evaluate(&refined.orbit, &final_arc, &od_config)?;
     let full = ctx.evaluate(&refined.orbit, &obs, &od_config)?;
     println!(
@@ -122,8 +123,8 @@ fn main() -> empyrean::Result<()> {
         "Final-arc orbit scored against all 402 obs:   RMS {:>12.2}\"",
         full.summary.rms_combined_arcsec
     );
-    println!("(Tumbling-body SRP + two lunar encounters make every arc");
-    println!(" its own fit — as published.)");
+    println!("(Consistent with the per-arc solutions Project Pluto published;");
+    println!(" Gray 2026, Campbell et al. 2026.)");
 
     Ok(())
 }
