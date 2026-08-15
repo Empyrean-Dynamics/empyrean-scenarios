@@ -7,7 +7,7 @@ https://empyrean-dynamics.com/install.
 from __future__ import annotations
 
 import empyrean
-from empyrean import Epochs, TimeScale, Frame, Origin
+from empyrean import Epochs, Frame, Origin, TimeScale
 
 
 def main() -> None:
