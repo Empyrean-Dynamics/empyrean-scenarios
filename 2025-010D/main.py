@@ -1,4 +1,4 @@
-"""2025-010D: a Falcon 9 second stage → amateur astrometry → lunar impact.
+"""2025-010D: a Falcon 9 second stage → community-driven astrometry → lunar impact.
 
 Reproduces the 25010d explore-mode scenario from
 https://empyrean-dynamics.com/explore/25010d.
@@ -79,7 +79,7 @@ def main() -> None:
     # catalogued Earth-orbiting object.
     geocentric = ODConfig(
         origin=OriginPolicy(mode=OriginPolicyMode.EXPLICIT, origin=Origin.EARTH),
-        # The PSV carries no per-observation sigmas and these amateur
+        # The PSV carries no per-observation sigmas and these community
         # stations have no survey-weighting rules, so the catalog
         # fallback would assume ~1.5" for astrometry that fits at 0.3".
         # State the residual-matched sigma explicitly.

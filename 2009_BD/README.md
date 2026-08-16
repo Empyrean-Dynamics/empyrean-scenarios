@@ -52,7 +52,7 @@ precise NEO ephemeris has to carry.
 4. **Reports the fitted AMRAT ± σ** against the SBDB A1-derived
    reference and the Micheli, Tholen & Elliott (2012) measurement. The
    point of the scenario is the *measured uncertainty*, not a bare point
-   estimate: the area-to-mass ratio is a measured quantity in v0.9.0,
+   estimate: the area-to-mass ratio is a measured quantity since v0.9.0,
    not a fixed input.
 
 ## Reference values

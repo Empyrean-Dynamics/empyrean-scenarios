@@ -1,6 +1,6 @@
 [package]
 name = "empyrean-scenarios"
-version = "0.10.0-rc.0"
+version = "0.10.0-rc.1"
 edition = "2024"
 rust-version = "1.90.0"
 authors = ["Joachim Moeyens <moeyensj@gmail.com>"]
@@ -115,5 +115,5 @@ path = "install-page/epochs.rs"
 # Sole physics dep — every scenario script imports only from the
 # public `empyrean` crate surface. Resolved from the published crate
 # on crates.io.
-empyrean = "=0.10.0-rc.0"
+empyrean = "=0.10.0-rc.1"
 

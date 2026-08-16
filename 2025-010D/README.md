@@ -1,4 +1,4 @@
-# 2025-010D: a Falcon 9 stage → amateur astrometry → predicted lunar impact
+# 2025-010D: a Falcon 9 stage → community-driven astrometry → predicted lunar impact
 
 [![Python](https://img.shields.io/badge/Python-main.py-3776AB?logo=python&logoColor=white&style=flat-square)](./main.py)
 [![Rust](https://img.shields.io/badge/Rust-main.rs-B7410E?logo=rust&logoColor=white&style=flat-square)](./main.rs)
@@ -24,7 +24,7 @@ In September 2025, Gray's orbit solutions began showing a lunar impact
 in August 2026. There was no radar tracking to lean on — at lunar
 distance, radar returns are ~10¹⁰ times fainter than for LEO objects —
 so the trajectory came almost entirely from telescopic astrometry: NEO
-surveys plus a hand-raised network of amateurs on four continents who
+surveys plus a hand-raised network of community observers on four continents who
 answered Gray's call for measurements. The final pre-impact prediction
 put the stage on the Moon at **2026-08-05 06:35:37.5 UTC**, near the
 crater Einstein at the Moon's western limb — terrain just past the
@@ -43,7 +43,7 @@ For an orbit-determination engine this object is a stress test that no
 asteroid provides: a ~4-tonne hollow tumbling cylinder whose
 solar-radiation-pressure area-to-mass ratio (~0.008 m²/kg) is one to
 two orders of magnitude above any natural body's, fitted from a public
-arc of amateur astrometry, propagated through the Earth–Moon system
+arc of community-driven astrometry, propagated through the Earth–Moon system
 into a hyperbolic selenocentric encounter.
 
 ## The data (read this — it's not the usual MPC query)
@@ -162,7 +162,7 @@ fit: chi2/dof 0.540  RMS RA·cos(d) 0.323" Dec 0.279"  (74/74 obs)
 Fitted AMR = 0.0029 ± 0.0011 m²/kg
 Gray (same 74-obs arc): 0.0079 ± 0.0017 m²/kg
 
-Predicted lunar impact (Empyrean): 2026-08-05T06:35:40.169156925Z
+Predicted lunar impact (Empyrean): 2026-08-05T06:35:40.169293969Z
   at 19.514°N 266.646°E (selenographic)
 Gray (74-obs arc):  2026-08-05T06:35:42.45Z at 19.577°N 266.630°E
 JPL #GA1A2/21:      2026-08-05T06:35:40Z ± 9 s at 19.507°N 266.7°E
@@ -170,9 +170,9 @@ Confirmed:          2026-08-05 ~06:35 UTC near crater Einstein
 
 Final-arc orbit scored against the full 402-obs record:
   own arc   (2026 Jul-Aug)   RMS         0.41"
-  Apr-May 2026               RMS       165.29"
-  Dec 2025                   RMS      1679.28"
-  Jan 2025 discovery         RMS    470490.62"
+  Apr-May 2026               RMS       165.28"
+  Dec 2025                   RMS      1679.22"
+  Jan 2025 discovery         RMS    470230.99"
 (Five orders of magnitude across two lunar encounters and a
  changing tumble — consistent with the per-arc solutions
  Project Pluto published; Gray 2026, Campbell et al. 2026.)

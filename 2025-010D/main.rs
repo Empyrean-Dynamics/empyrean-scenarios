@@ -1,4 +1,4 @@
-//! 2025-010D: a Falcon 9 second stage → amateur astrometry → lunar impact.
+//! 2025-010D: a Falcon 9 second stage → community-driven astrometry → lunar impact.
 //!
 //! Rust twin of `2025-010D/main.py`. Reproduces the 25010d explore-mode
 //! scenario from <https://empyrean-dynamics.com/explore/25010d>.
@@ -35,7 +35,7 @@ fn main() -> empyrean::Result<()> {
     // ── 2. Geocentric fit + AMR refine ──────────────────────────────
     // EXPLICIT/Earth: heliocentric Gauss IOD is unphysical for a
     // catalogued Earth-orbiting object. The PSV carries no
-    // per-observation sigmas and these amateur stations have no
+    // per-observation sigmas and these community stations have no
     // survey-weighting rules, so state the residual-matched 0.3"
     // explicitly instead of inheriting the ~1.5" catalog fallback.
     let weighting = WeightingConfig {

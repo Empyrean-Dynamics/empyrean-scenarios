@@ -29,7 +29,7 @@ fn main() -> empyrean::Result<()> {
         // walkthrough only propagates, so keep the DT value (it shifts
         // the g(r) evaluation) and drop the fit trigger.
         .with_non_grav_dt_variance(None);
-    // 0.10.0rc0 workaround: the Rust wrapper's query_sbdb populates the
+    // 0.10.0rc workaround (rc1 rebuilds the same engine, so it still applies): the Rust wrapper's query_sbdb populates the
     // state<->non-grav cross-covariance without the 3x3 it conditions
     // on, and the engine (correctly) refuses the half-attached joint.
     // Clear the cross terms — this scenario reads nominal-trajectory
