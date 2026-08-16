@@ -25,7 +25,7 @@ fn main() -> empyrean::Result<()> {
 
     // Full pipeline: IOD + differential correction + outlier rejection.
     // Any <radar> block read above rides along inside `obs`.
-    let fit = ctx.determine(&obs, None, &cfg)?;
+    let fit = ctx.determine(&obs, None, &cfg)?.into_single()?;
     let s = &fit.summary;
     println!(
         "converged={}  RMS RA\u{00B7}cos(d) {:.2}\"  Dec {:.2}\"",

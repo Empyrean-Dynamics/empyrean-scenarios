@@ -71,9 +71,16 @@ non-grav coefficients (SBDB):
   A1 = 1.042e-09 AU/d^2
   A2 = -6.740e-11 AU/d^2
   A3 = 2.961e-10 AU/d^2
+  DT = 45.69 d  (SBDB reference outgassing lag)
 
-Max separation (non-grav vs gravity-only) over 16 years: 181,095 km
-(That's the cumulative effect of outgassing — what every cometary ephemeris pipeline has to model.)
+11205 optical observations
+Converged:  True
+chi2/dof:   1.342
+RMS:        RA.cos(d) 1.174"  Dec 1.108"
+
+Fitted DT = 37.41 +/- 0.34 d
+SBDB DT   = 45.69 d
+(The fit measures the outgassing lag directly from the astrometry, with an honest sigma from the solved covariance.)
 ```
 
 The exact separation depends on the SBDB epoch and the latest

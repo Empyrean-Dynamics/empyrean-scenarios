@@ -14,7 +14,7 @@ fn main() -> empyrean::Result<()> {
     use empyrean::{Frame, Origin, Representation};
 
     // Cometary -> Cartesian (same frame, same origin)
-    let cart = ctx.transform(
+    let cart = ctx.transform_coordinates_single(
         &orbit.state,
         Representation::Cartesian,
         orbit.state.frame,
@@ -22,7 +22,7 @@ fn main() -> empyrean::Result<()> {
     )?;
 
     // Full transform: representation + frame + origin
-    let kep = ctx.transform(
+    let kep = ctx.transform_coordinates_single(
         &orbit.state,
         Representation::Keplerian,
         Frame::ICRF,

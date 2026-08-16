@@ -60,18 +60,19 @@ resolution is what this script demonstrates.
 ```
 512 observations from MPC (full arc)
 171 observations in the discovery arc (~10 days)
-Discovery arc: chi2/dof = 0.053  RMS RA·cos(d) 0.183" Dec 0.232"  (170/171 obs)
-Full arc     : chi2/dof = 0.055  RMS RA·cos(d) 0.176" Dec 0.202"  (511/512 obs)
+Discovery arc: chi2/dof = 0.081  RMS RA·cos(d) 0.183" Dec 0.234"  (170/171 obs)
+Full arc     : chi2/dof = 0.077  RMS RA·cos(d) 0.171" Dec 0.203"  (511/512 obs)
 
 2032 encounter — impact probability + miss geometry:
-  early arc  Earth   IP_linear =  0.138%  miss =  1130503.6 km  sigma_d =  4633148.4 km
-  full arc   Earth   IP_linear =  0.000%  miss =   272293.4 km  sigma_d =    16648.0 km
-  full arc   Moon    IP_linear =  5.145%  miss =    16484.1 km  sigma_d =    17784.7 km
+  early arc  Earth   IP_linear =  0.126%  miss =   142360.4 km  sigma_d =  4036393.3 km
+  early arc  Moon    IP_linear =  0.031%  miss =   124373.9 km  sigma_d =  4479534.8 km
+  full arc   Earth   IP_linear =  0.000%  miss =   278877.3 km  sigma_d =    11812.0 km
+  full arc   Moon    IP_linear =  1.952%  miss =    23518.8 km  sigma_d =    12624.7 km
 
-Tagged-covariance readback at 2032 Earth perigee (MJD 63588.3539 TDB):
+Tagged-covariance readback at 2032 Earth perigee (MJD 63588.3481 TDB):
   resolved kind        = CovarianceKind.SECOND_ORDER
-  resolved pos sigma   =    30784.5 km  (second-order ellipsoid)
-  linear   pos sigma   =    28932.8 km  (bare Phi Sigma0 Phi^T)
+  resolved pos sigma   =    18962.6 km  (second-order ellipsoid)
+  linear   pos sigma   =    18845.4 km  (bare Phi Sigma0 Phi^T)
 
 Reference (JPL CAD, full-arc nominal):
   Earth   ~278,000 km   IP = 0

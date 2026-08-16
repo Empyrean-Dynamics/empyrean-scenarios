@@ -16,7 +16,7 @@ from __future__ import annotations
 def main() -> None:
     # empyrean:snippet:start
     import empyrean
-    from empyrean import Epochs, TimeScale, Frame, Origin
+    from empyrean import Epochs, Frame, Origin, TimeScale
 
     empyrean.download_data()  # first-run only
     empyrean.initialize()

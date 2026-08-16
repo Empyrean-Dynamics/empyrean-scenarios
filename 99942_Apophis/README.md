@@ -81,27 +81,29 @@ the keyhole catalog itself is a separate roadmap item.
 ```
 9527 optical + 50 radar (delay/Doppler)
 Converged:  True
-chi2/dof:   0.110
-RMS:        RA·cos(d) 0.517"  Dec 0.530"
+chi2/dof:   0.080
+RMS:        RA·cos(d) 0.514"  Dec 0.473"
 Selected:   9569/9577
-Fitted A1 = 9.645e-13  A2 = -3.065e-14
+Fitted A1 = -4.108e-12  A2 = -2.849e-14
 Reference  A1 = 5.000e-13     A2 = -2.902e-14   (JPL SBDB)
+Fitted H  = 18.42 +/- 0.20  (model PhotometryModel.HG12, chi2_r 1.83)
+Reference  H = 19.09   (JPL SBDB)
 
 Close approaches (Empyrean):
-  Earth   MJD 62239.90713         38055 km
-  Moon    MJD 62240.60601         95773 km
+  Earth   MJD 62239.90709         38016 km
+  Moon    MJD 62240.60579         95942 km
 Reference (JPL CAD):
   Earth   MJD 62239.907    38,012 km    (2029-04-13 21:46 UT)
 
 Flyby covariance readback (Empyrean, grid MJD 62240.000):
-  bare linear        sigma_pos =       3951 km
-  resolved second_order sigma_pos =       2947 km
-  2nd-order mean shift |dmu_prop| =       50 km
+  bare linear        sigma_pos =         25 km
+  resolved second_order sigma_pos =       2582 km
+  2nd-order mean shift |dmu_prop| =       39 km
 
 2029 Earth B-plane geometry (Empyrean):
-  B*T =     -37537 km
-  B*R =      -6258 km
-  3-sigma semi-major =   5302.8 km
+  B*T =     -37502 km
+  B*R =      -6232 km
+  3-sigma semi-major =     46.8 km
 (B-plane uncertainty input to any downstream resonant-return analysis.)
 ```
 

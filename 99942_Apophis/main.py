@@ -33,10 +33,10 @@ Authoritative cross-checks (printed inline):
 
 from __future__ import annotations
 
+import empyrean
+
 # empyrean:snippet:start
 import numpy as np
-
-import empyrean
 from empyrean import (
     Epochs,
     ODConfig,
@@ -66,8 +66,17 @@ def main() -> None:
     cfg = ODConfig(
         solve_for=SolveForParams.STATE_AND_NONGRAV,
         photometry=PhotometryConfig(),  # v0.9.0: fit H/G alongside the orbit
+        # 0.10.0rc workaround (rc1 rebuilds the same engine, so it still applies): the radar+optical convergence criterion
+        # currently mis-scales the mixed optical/radar units, so the
+        # default 1e-5 tolerance is unreachable on the radar path even
+        # at machine-precision update norms. 1e-3 converges in 10
+        # iterations to the same solution (identical 9569/9577
+        # selection). Remove once fixed upstream.
+        convergence_tol=1e-3,
     )
-    result = empyrean.determine(obs, radar=radar if len(radar) else None, config=cfg)
+    result = empyrean.determine(
+        obs, radar=radar if len(radar) else None, config=cfg
+    ).single()
     s = result.summary
     print(f"Converged:  {result.converged}")
     print(f"chi2/dof:   {s.reduced_chi2:.3f}")
@@ -164,7 +173,9 @@ def main() -> None:
     # propagation with the requested uncertainty method per body.
     b_planes = empyrean.compute_b_planes(
         result.orbit,
-        end_epoch=epochs.mjd.to_numpy(zero_copy_only=False)[-1],
+        end_epoch=Epochs.from_mjd(
+            [epochs.mjd.to_numpy(zero_copy_only=False)[-1]], scale=TimeScale.TDB.value
+        ),
         methods=[UncertaintyMethod.SECOND_ORDER],
         body_filter=["Earth"],
     )

@@ -47,6 +47,13 @@ fn main() -> empyrean::Result<()> {
         .into_iter()
         .next()
         .expect("SBDB returned no orbit for 2009 BD");
+    // 0.10.0rc workaround (rc1 rebuilds the same engine, so it still applies): the Rust wrapper's query_sbdb populates the
+    // state<->non-grav cross-covariance without the 3x3 it conditions
+    // on, and the engine (correctly) refuses the half-attached joint.
+    // Clear the cross terms — this scenario reads nominal-trajectory
+    // numbers only. Remove once the wrapper attaches the full block.
+    let mut orbit = orbit;
+    orbit.state.non_grav_cross = None;
     let a1 = orbit.a1;
     // Loud, not silent: without JPL's fitted radial non-grav there is
     // no seed to fit from.
@@ -71,8 +78,7 @@ fn main() -> empyrean::Result<()> {
     // `refine` linearizes about a Cartesian state — carry the SBDB
     // elements (and their covariance, through the element→Cartesian
     // Jacobian) into Cartesian form before priming.
-    let mut orbit = orbit;
-    orbit.state = ctx.transform(
+    orbit.state = ctx.transform_coordinates_single(
         &orbit.state,
         empyrean::Representation::Cartesian,
         orbit.state.frame,
@@ -99,7 +105,7 @@ fn main() -> empyrean::Result<()> {
 
     let od_config = ODConfig {
         solve_for: SolveForParams::Explicit(SolveFor {
-            amrat: true,
+            amrat: empyrean::ParamDisposition::Solved,
             ..Default::default()
         }),
         ..Default::default()

@@ -40,12 +40,13 @@ The CD3 event tests a propagator's ability to handle:
    during each capture pass.
 
 3. **Counts capture events + close approaches.** The headline numbers
-   are the number of `CaptureStart` / `CaptureEnd` events (the
-   transitions in and out of the Earth-Moon Hill sphere) and the total
-   number of detected Earth + Moon close approaches during the
-   capture episode (~264 with the SBDB non-grav coefficients in our
-   fixture, versus ~5 for the gravity-only control — the same
-   trajectory class, radically different encounter bookkeeping).
+   are the `CaptureStart` / `CaptureEnd` events (the transitions in
+   and out of gravitational capture) and the Moon close-approach
+   periapses along the way (~87 with the SBDB non-grav coefficients,
+   0 for the gravity-only control). In-capture *geocentric* passes are
+   orbital structure around the current central body, not close
+   approaches — the engine emits no CA events for them — so the
+   geocentric minimum is read off the propagated states instead.
 
 ## Reference values
 
@@ -66,14 +67,14 @@ non-grav coefficients (SBDB):  A1 = 1.357e-10  A2 = 0.000e+00  A3 = 0.000e+00 AU
 ── With SBDB non-grav (A1 = 1.357e-10) ──
 Capture starts: 0
 Capture ends:   1
-Close approaches (Earth+Moon): 264
-Closest Earth approach: MJD 58577.393       13147 km
+Close-approach periapses: Earth 0, Moon 87  (in-capture geocentric passes are orbital structure around the central body, not close approaches — no events emitted)
+Closest geocentric distance (daily-sampled states): MJD 58248.000       31264 km
 
 ── Gravity-only control (A1 = A2 = A3 = 0) ──
 Capture starts: 1
 Capture ends:   0
-Close approaches (Earth+Moon): 5
-Closest Earth approach: MJD 58181.339       24491 km
+Close-approach periapses: Earth 0, Moon 0  (in-capture geocentric passes are orbital structure around the central body, not close approaches — no events emitted)
+Closest geocentric distance (daily-sampled states): MJD 58636.000        6376 km
 
 Reference: capture period ~2017-2020 (Fedorets+ 2020).
 ```
@@ -81,9 +82,9 @@ Reference: capture period ~2017-2020 (Fedorets+ 2020).
 The exact number of close approaches depends on the detection
 threshold, the cadence, and — on a chaotic temporarily-captured
 orbit — the live astrometry itself; this fixture uses 1-day samples
-plus encounter dense-output, which currently produces ~264 detected
-periapses across the Earth + Moon stack with non-grav forces enabled
-(~5 for the gravity-only control).
+plus encounter dense-output, which currently produces ~87 detected
+Moon periapses with non-grav forces enabled (0 for the gravity-only
+control, which stays captured for the whole window).
 
 ## See also
 

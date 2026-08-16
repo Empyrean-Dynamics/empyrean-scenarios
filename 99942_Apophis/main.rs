@@ -67,10 +67,18 @@ fn main() -> empyrean::Result<()> {
     // — no finite differencing of the 21-year arc.
     let od_config = ODConfig {
         solve_for: SolveForParams::StateAndNonGrav,
+        // 0.10.0rc workaround (rc1 rebuilds the same engine, so it still applies): the radar+optical convergence criterion
+        // currently mis-scales the mixed optical/radar units, so the
+        // default 1e-5 tolerance is unreachable on the radar path. 1e-3
+        // converges in 10 iterations to the same solution. Remove once
+        // fixed upstream.
+        convergence_tol: 1e-3,
         ..Default::default()
     };
 
-    let result = ctx.determine(&observations, None, &od_config)?;
+    let result = ctx
+        .determine(&observations, None, &od_config)?
+        .into_single()?;
     let s = &result.summary;
     println!("Converged:  {}", result.converged);
     println!("chi2/dof:   {:.3}", s.reduced_chi2);

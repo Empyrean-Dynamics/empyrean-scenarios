@@ -47,14 +47,16 @@ fn main() -> empyrean::Result<()> {
         .cloned()
         .collect();
     let anchor_obs = Observations::from_arrays(&short.iter().collect::<Vec<_>>(), &radar_short)?;
-    let anchor = ctx.determine(
-        &anchor_obs,
-        None,
-        &ODConfig {
-            solve_for: SolveForParams::StateOnly,
-            ..Default::default()
-        },
-    )?;
+    let anchor = ctx
+        .determine(
+            &anchor_obs,
+            None,
+            &ODConfig {
+                solve_for: SolveForParams::StateOnly,
+                ..Default::default()
+            },
+        )?
+        .into_single()?;
     println!(
         "Anchor (1999-2000, {} optical + {} radar): chi2/dof {:.2}",
         short.len(),

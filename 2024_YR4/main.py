@@ -27,10 +27,10 @@ Authoritative cross-checks (printed inline):
 
 from __future__ import annotations
 
+import empyrean
+
 # empyrean:snippet:start
 import numpy as np
-
-import empyrean
 from empyrean import Epochs, Origin, TimeScale, UncertaintyMethod
 
 
@@ -58,10 +58,10 @@ def main() -> None:
             f"({s.num_selected}/{s.num_obs} obs)"
         )
 
-    early = empyrean.determine(discovery_arc)
+    early = empyrean.determine(discovery_arc).single()
     _summary("Discovery arc", early)
 
-    full = empyrean.determine(obs)
+    full = empyrean.determine(obs).single()
     _summary("Full arc     ", full)
 
     # ── 4. Impact probabilities at the 2032 encounter for both fits ──
@@ -70,7 +70,7 @@ def main() -> None:
     # the encounter B-plane. (Reading sigma_d / IP off the propagation
     # event stream would not work: possible_impact events are purely
     # geometric — they carry the nominal miss distance only.)
-    end_epoch = 63730.0  # ~2032-12-31, MJD TDB
+    end_epoch = Epochs.from_mjd([63730.0], scale=TimeScale.TDB.value)  # ~2032-12-31
 
     print("\n2032 encounter — impact probability + miss geometry:")
     for label, fit in [("early arc", early), ("full arc", full)]:

@@ -6,7 +6,7 @@
 //! scope; this harness queries SBDB first so the file is runnable
 //! end-to-end.
 
-use empyrean::{Context, query_sbdb};
+use empyrean::{Context, Frame, Origin, query_sbdb};
 
 fn main() -> empyrean::Result<()> {
     let ctx = Context::from_data_dir(None)?;
@@ -19,6 +19,8 @@ fn main() -> empyrean::Result<()> {
     let observers = ctx.get_observers(
         &["W84", "F51"],
         &[Epoch::from_mjd_tdb(60200.0), Epoch::from_mjd_tdb(60201.0)],
+        Frame::ICRF,
+        Origin::SSB,
     )?;
 
     let eph = ctx.generate_ephemeris(&[orbit], &observers, &EphemerisConfig::default())?;
