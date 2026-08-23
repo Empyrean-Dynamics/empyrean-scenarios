@@ -90,13 +90,13 @@ Reference                 -4.618e-14 AU/d^2   (Farnocchia 2021,
 
 Close approaches (Empyrean):
   Earth   MJD 73725.025        749725 km
-  Earth   MJD 81029.193       2060592 km
+  Earth   MJD 81029.193       2060594 km
 Reference (JPL CAD nominal):
   Earth   MJD 73725 (2060-09-23)   ~750,000 km
 
 Earth B-plane geometry (Empyrean):
   MJD 73725.025  |B| =     749725 km  3-sigma semi-major =    947.2 km
-  MJD 81029.193  |B| =    2060592 km  3-sigma semi-major = 426946.4 km
+  MJD 81029.193  |B| =    2060594 km  3-sigma semi-major = 426946.4 km
 (2060 B-plane uncertainty input to any downstream resonant-return analysis; 3-sigma ellipse grows 451x by 2080.)
 ```
 
