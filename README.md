@@ -4,7 +4,7 @@
 Runnable Rust + Python walkthroughs of the explore-mode scenarios on empyrean-dynamics.com
 
 <a href="https://github.com/Empyrean-Dynamics/empyrean-scenarios/actions/workflows/ci.yml"><img src="https://github.com/Empyrean-Dynamics/empyrean-scenarios/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
-<a href="https://pypi.org/project/empyrean/"><img src="https://img.shields.io/badge/empyrean-0.10.0rc1-1a1a2e?style=flat-square" alt="empyrean version"></a>
+<a href="https://pypi.org/project/empyrean/"><img src="https://img.shields.io/badge/empyrean-0.10.0-1a1a2e?style=flat-square" alt="empyrean version"></a>
 <br>
 <a href="LICENSE"><img src="https://img.shields.io/badge/license-BSD--3--Clause-blue.svg?style=flat-square" alt="License"></a>
 <a href="https://doi.org/10.5281/zenodo.21315115"><img src="https://zenodo.org/badge/1228940802.svg" alt="DOI"></a>

@@ -123,20 +123,31 @@ jobs:
       # The kernel set (~740 MB: DE440, SB441-N16, Earth/Moon BPCs, GM,
       # observatory codes, debiasing tables) is content-stable per
       # release; cache it keyed on the pinned empyrean version so only
-      # the first run after a pin bump downloads.
+      # the first run after a pin bump downloads. Exact key only: kernel
+      # coverage mandates move with the engine, so a data directory from
+      # another version is never a valid starting point (a pre-0.10
+      # predict kernel fails 0.10's 2125 coverage mandate at
+      # initialize). Save is a separate gated step so a failed run can
+      # never poison the key with a partial or stale directory.
       - name: Extract pinned empyrean version
         id: pin
         run: echo "version=$(grep -oE 'empyrean==[0-9rc.]+' pyproject.toml | cut -d= -f3)" >> "$GITHUB_OUTPUT"
-      - name: Cache kernels
-        uses: actions/cache@v4
+      - name: Restore kernels
+        id: kernels
+        uses: actions/cache/restore@v4
         with:
           path: ~/.local/share/empyrean
           key: kernels-${{ steps.pin.outputs.version }}
-          restore-keys: kernels-
       - name: Install package (pinned release + walkthrough deps)
         run: pip install -e .
       - name: Provision kernels
         run: python -c "import empyrean; empyrean.initialize()"
+      - name: Save kernels
+        if: steps.kernels.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: ~/.local/share/empyrean
+          key: kernels-${{ steps.pin.outputs.version }}
       - name: Run install-page snippets (Python)
         run: |
           set -euo pipefail

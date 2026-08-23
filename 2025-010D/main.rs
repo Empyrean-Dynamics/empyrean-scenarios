@@ -113,18 +113,35 @@ fn main() -> empyrean::Result<()> {
     // body whose effective area changed between arcs (Gray 2026;
     // Campbell et al. 2026) — consistent with the per-arc solutions
     // Project Pluto published.
-    let own = ctx.evaluate(&refined.orbit, &final_arc, &od_config)?;
     let full = ctx.evaluate(&refined.orbit, &obs, &od_config)?;
-    println!(
-        "\nFinal-arc orbit scored against its own arc:   RMS {:>12.2}\"",
-        own.summary.rms_combined_arcsec
-    );
-    println!(
-        "Final-arc orbit scored against all 402 obs:   RMS {:>12.2}\"",
-        full.summary.rms_combined_arcsec
-    );
-    println!("(Consistent with the per-arc solutions Project Pluto published;");
-    println!(" Gray 2026, Campbell et al. 2026.)");
+    // Per-arc ladder, same statistic as the Python twin: total angular
+    // RMS sqrt(mean(ra_res^2 + dec_res^2)) over each arc's rows,
+    // NaN-skipped. (The engine summary's rms_combined is the per-axis
+    // quadratic mean over evaluable rows — a different convention.)
+    println!("\nFinal-arc orbit scored against the full 402-obs record:");
+    for (label, lo, hi) in [
+        ("own arc   (2026 Jul-Aug)", 61244.0, 61300.0),
+        ("Apr-May 2026", 61135.0, 61190.0),
+        ("Dec 2025", 61020.0, 61040.0),
+        ("Jan 2025 discovery", 60680.0, 60700.0),
+    ] {
+        let mut ss = 0.0_f64;
+        let mut n = 0_usize;
+        for r in &full.residuals {
+            let ti = r.epoch.mjd_tdb()?;
+            let (ra, de) = (r.ra_residual_arcsec, r.dec_residual_arcsec);
+            if ti >= lo && ti < hi && ra.is_finite() && de.is_finite() {
+                ss += ra * ra + de * de;
+                n += 1;
+            }
+        }
+        if n > 0 {
+            println!("  {label:26} RMS {:>12.2}\"", (ss / n as f64).sqrt());
+        }
+    }
+    println!("(Five orders of magnitude across two lunar encounters and a");
+    println!(" changing tumble — consistent with the per-arc solutions");
+    println!(" Project Pluto published; Gray 2026, Campbell et al. 2026.)");
 
     Ok(())
 }

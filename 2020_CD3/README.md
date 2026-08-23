@@ -67,14 +67,14 @@ non-grav coefficients (SBDB):  A1 = 1.357e-10  A2 = 0.000e+00  A3 = 0.000e+00 AU
 ── With SBDB non-grav (A1 = 1.357e-10) ──
 Capture starts: 0
 Capture ends:   1
-Close-approach periapses: Earth 0, Moon 87  (in-capture geocentric passes are orbital structure around the central body, not close approaches — no events emitted)
-Closest geocentric distance (daily-sampled states): MJD 58248.000       31264 km
+Close-approach periapses: Earth 0, Moon 43  (in-capture geocentric passes are orbital structure around the central body, not close approaches — no events emitted)
+Closest geocentric distance (daily-sampled states): MJD 54988.000       28181 km
 
 ── Gravity-only control (A1 = A2 = A3 = 0) ──
 Capture starts: 1
 Capture ends:   0
 Close-approach periapses: Earth 0, Moon 0  (in-capture geocentric passes are orbital structure around the central body, not close approaches — no events emitted)
-Closest geocentric distance (daily-sampled states): MJD 58636.000        6376 km
+Closest geocentric distance (daily-sampled states): MJD 58653.000        6376 km
 
 Reference: capture period ~2017-2020 (Fedorets+ 2020).
 ```
