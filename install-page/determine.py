@@ -26,7 +26,8 @@ def main() -> None:
 
     # Full pipeline: IOD + differential correction + outlier rejection.
     # Fold in radar when the file carries a <radar> block.
-    fit = empyrean.determine(obs, radar=radar if len(radar) else None)
+    # determine() is batch-first; .single() unwraps the one-object fit.
+    fit = empyrean.determine(obs, radar=radar if len(radar) else None).single()
     print(
         f"converged={fit.converged}  "
         f'RMS RA·cos(d) {fit.summary.rms_ra_arcsec:.2f}" '
