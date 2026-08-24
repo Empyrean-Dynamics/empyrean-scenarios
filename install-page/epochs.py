@@ -25,7 +25,7 @@ def main() -> None:
     epochs = Epochs.from_orbits(orbits, dt=[30, 60, 90])
 
     # Evenly spaced grid
-    epochs = Epochs.linspace(60200.0, 60565.0, num=100)
+    epochs = Epochs.linspace(60200.0, 60565.0, num=100, scale="tdb")
 
     # From Astropy
     epochs = Epochs.from_astropy(Time(["2029-04-13T21:46:00"], scale="utc"))

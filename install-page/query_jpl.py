@@ -7,6 +7,7 @@ https://empyrean-dynamics.com/install.
 from __future__ import annotations
 
 import empyrean
+from empyrean import Epochs
 
 
 def main() -> None:
@@ -17,7 +18,11 @@ def main() -> None:
     orbits = empyrean.query_sbdb(["Apophis", "Eros"])
 
     # Horizons: reference ephemeris for validation
-    eph_ref = empyrean.query_horizons(["Apophis"], observer="W84", epochs=[60200.0])
+    eph_ref = empyrean.query_horizons(
+        ["Apophis"],
+        observer="W84",
+        epochs=Epochs.from_mjd([60200.0], scale="tdb"),
+    )
 
     # MPC: astrometric observations in ADES
     obs = empyrean.query_observations(["Apophis"])
