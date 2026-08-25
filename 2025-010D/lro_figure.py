@@ -45,8 +45,8 @@ CRATER = (19.4759, 266.7138)  # NASA LRO, 2026-08-11/12
 PRED = {
     "Empyrean (optical, 74-obs arc)": (19.514, 266.646, "#eb6834"),
     "Gray / Project Pluto (74-obs arc)": (19.577, 266.630, "#1baf7a"),
-    "JPL #GA1A2/21 nominal": (19.507, 266.700, "#2a78d6"),
 }
+CNEOS_COLOR = {"terrain-aware": "#2a78d6", "no terrain": "#c0392b"}
 
 
 def offset_km(lat, lon):
@@ -55,7 +55,11 @@ def offset_km(lat, lon):
     return dn, de
 
 
-# ── georeference NASA's ellipse map from its own marked points ──
+# ── georeference NASA's ellipse map ──
+# The caption states both ellipses are 2.1 miles (3.4 km) long — JPL's
+# published 3-sigma ellipse — so the map scale comes from the blue
+# ellipse's own major axis. (The Horizons nominal is published to 0.1°
+# of longitude, ~1.4 km, far too coarse to anchor a sub-km scale.)
 img = np.asarray(Image.open(N + "ellipses.jpg").convert("RGB")).astype(int)
 r, g, b = img[..., 0], img[..., 1], img[..., 2]
 
@@ -65,20 +69,30 @@ def centroid(mask):
     return float(xs.mean()), float(ys.mean()), int(mask.sum())
 
 
-blue_pt = centroid((b > 170) & (r < 50) & (g < 60))  # JPL nominal dot (saturated)
-teal_pt = centroid((g > 120) & (b > 100) & (r < 60) & (g > r + 60))  # crater dot
-print("blue dot px:", blue_pt, "| teal dot px:", teal_pt)
-dn_jpl, de_jpl = offset_km(*PRED["JPL #GA1A2/21 nominal"][:2])
-m_per_px = (dn_jpl * 1000) / (teal_pt[1] - blue_pt[1])  # north-up, from Δlat
+def major_axis_px(mask):
+    ys, xs = np.nonzero(mask)
+    pts = np.column_stack([xs, ys]).astype(float)
+    c = pts.mean(axis=0)
+    _, _, vt = np.linalg.svd(pts - c, full_matrices=False)
+    proj = (pts - c) @ vt[0]
+    return float(proj.max() - proj.min())
+
+
+blue_pt = centroid((b > 170) & (r < 50) & (g < 60))  # CNEOS terrain-aware nominal
+red_pt = centroid((r > 150) & (g < 40) & (b < 40))  # CNEOS nominal without terrain
+teal_pt = centroid((g > 120) & (b > 100) & (r < 60) & (g > r + 60))  # LRO crater
+ELLIPSE_LONG_M = 2.1 * 1609.344
+m_per_px = ELLIPSE_LONG_M / major_axis_px((b - r > 45) & (b - g > 45) & (b < 170))
 print(
-    f"scale {m_per_px:.1f} m/px; east-west check: JPL should be {de_jpl * 1000:+.0f} m "
-    f"east, measured {(blue_pt[0] - teal_pt[0]) * m_per_px:+.0f} m (JPL lon rounded to 0.1°)"
+    f"scale {m_per_px:.2f} m/px from the 3.4 km ellipse; map {1280 * m_per_px / 1000:.1f} km wide"
 )
 
 
-def to_px(lat, lon):
-    dn, de = offset_km(lat, lon)
-    return teal_pt[0] + de * 1000 / m_per_px, teal_pt[1] - dn * 1000 / m_per_px
+def map_offset_km(pt):
+    """North/east offset of a marked map point from the crater, in km."""
+    de = (pt[0] - teal_pt[0]) * m_per_px / 1000
+    dn = -(pt[1] - teal_pt[1]) * m_per_px / 1000
+    return dn, de
 
 
 INK, MUTED, SURF = "#1a1a19", "#6b6a63", "#fcfcfb"
@@ -95,68 +109,91 @@ gs = fig.add_gridspec(
     bottom=0.14,
 )
 
-# Panel A: wide field
+# Panel A: NASA's map at its true scale, with a margin above for Gray's point
 ax = fig.add_subplot(gs[0])
-x0, x1, y0, y1 = 330, 900, 120, 800  # crop around the ellipses
-ax.imshow(img[y0:y1, x0:x1].astype(np.uint8), extent=[x0, x1, y1, y0])
+H_IMG, W_IMG = img.shape[:2]
+MARGIN = 190
+ax.imshow(img.astype(np.uint8), extent=[0, W_IMG, H_IMG, 0])
+ax.set_xlim(0, W_IMG)
+ax.set_ylim(H_IMG, -MARGIN)
+ax.axhspan(-MARGIN, 0, color="#e9e7e1", zorder=0)
+ax.text(
+    W_IMG / 2,
+    -MARGIN + 18,
+    "beyond the top edge of NASA's map",
+    ha="center",
+    fontsize=7.5,
+    color=MUTED,
+)
 cx, cy = teal_pt[:2]
-ax.add_patch(Circle((cx, cy), 9, fill=False, color="#fcfcfb", lw=2.2))
-ax.add_patch(Circle((cx, cy), 9, fill=False, color="#1a1a19", lw=1.1))
+ax.add_patch(Circle((cx, cy), 12, fill=False, color="#fcfcfb", lw=2.2))
+ax.add_patch(Circle((cx, cy), 12, fill=False, color="#1a1a19", lw=1.1))
 ax.annotate(
     "LRO crater\n19.4759°N 266.7138°E",
     (cx, cy),
-    xytext=(36, -62),
+    xytext=(60, -70),
     textcoords="offset points",
     fontsize=8.5,
     color="#fcfcfb",
     arrowprops={"arrowstyle": "-", "color": "#fcfcfb", "lw": 0.9},
-    bbox={"boxstyle": "round,pad=0.25", "fc": "#1a1a19", "ec": "none", "alpha": 0.75},
+    bbox={"boxstyle": "round,pad=0.25", "fc": "#1a1a19", "ec": "none", "alpha": 0.8},
 )
-for lab, (lat, lon, col) in PRED.items():
-    dn, de = offset_km(lat, lon)
-    d = math.hypot(dn, de)
-    if lab.startswith("JPL"):
-        px, py = blue_pt[:2]  # NASA's own marker for the JPL nominal
-        ax.annotate(
-            f"{lab} (NASA's marker)\n{d:.1f} km from crater",
-            (px, py),
-            xytext=(44, 26),
-            textcoords="offset points",
-            fontsize=8,
-            color="#fcfcfb",
-            ha="left",
-            arrowprops={"arrowstyle": "-", "color": col, "lw": 1.2},
-            bbox={"boxstyle": "round,pad=0.25", "fc": col, "ec": "none", "alpha": 0.9},
-        )
-        continue
-    px, py = to_px(lat, lon)
-    ax.plot(px, py, "o", ms=8, mfc=col, mec="#fcfcfb", mew=1.4, zorder=5)
-    ax.plot([cx, px], [cy, py], color=col, lw=1.1, alpha=0.8, zorder=4)
+MAP_PTS = {}
+for lab, pt, dxy in (
+    ("CNEOS terrain-aware nominal", blue_pt, (40, 30)),
+    ("CNEOS nominal, no terrain", red_pt, (-46, 62)),
+):
+    dn, de = map_offset_km(pt)
+    MAP_PTS[lab] = (dn, de)
+    col = CNEOS_COLOR["terrain-aware" if "aware" in lab else "no terrain"]
     ax.annotate(
-        f"{lab}\n{d:.1f} km from crater",
-        (px, py),
-        xytext=(-14, 10),
+        f"{lab}\n{math.hypot(dn, de):.1f} km from crater",
+        pt[:2],
+        xytext=dxy,
         textcoords="offset points",
         fontsize=8,
         color="#fcfcfb",
-        ha="right",
-        bbox={"boxstyle": "round,pad=0.25", "fc": col, "ec": "none", "alpha": 0.85},
+        ha="left" if dxy[0] > 0 else "right",
+        arrowprops={"arrowstyle": "-", "color": col, "lw": 1.2},
+        bbox={"boxstyle": "round,pad=0.25", "fc": col, "ec": "none", "alpha": 0.9},
     )
-# scale bar + north
-bar_px = 5000 / m_per_px
-ax.plot([x0 + 30, x0 + 30 + bar_px], [y1 - 40, y1 - 40], color="#fcfcfb", lw=3)
-ax.text(x0 + 30 + bar_px / 2, y1 - 52, "5 km", ha="center", fontsize=9, color="#fcfcfb")
+
+
+def to_px(lat, lon):
+    dn, de = offset_km(lat, lon)
+    return cx + de * 1000 / m_per_px, cy - dn * 1000 / m_per_px
+
+
+for lab, (lat, lon, col) in PRED.items():
+    dn, de = offset_km(lat, lon)
+    d = math.hypot(dn, de)
+    px, py = to_px(lat, lon)
+    ax.plot(px, py, "o", ms=9, mfc=col, mec="#fcfcfb", mew=1.4, zorder=5, clip_on=False)
+    ax.plot([cx, px], [cy, py], color=col, lw=1.1, alpha=0.8, zorder=4, clip_on=False)
+    ax.annotate(
+        f"{lab}\n{d:.1f} km from crater",
+        (px, py),
+        xytext=(14, -6),
+        textcoords="offset points",
+        fontsize=8,
+        color="#fcfcfb",
+        ha="left",
+        bbox={"boxstyle": "round,pad=0.25", "fc": col, "ec": "none", "alpha": 0.9},
+    )
+bar_px = 1000 / m_per_px
+ax.plot([30, 30 + bar_px], [H_IMG - 40, H_IMG - 40], color="#fcfcfb", lw=3)
+ax.text(30 + bar_px / 2, H_IMG - 54, "1 km", ha="center", fontsize=9, color="#fcfcfb")
 ax.annotate(
     "N",
-    (x1 - 40, y0 + 70),
-    (x1 - 40, y0 + 20),
+    (W_IMG - 40, 80),
+    (W_IMG - 40, 25),
     fontsize=10,
     color="#fcfcfb",
     ha="center",
     arrowprops={"arrowstyle": "<-", "color": "#fcfcfb", "lw": 1.5},
 )
 ax.set_title(
-    "JPL impact-probability ellipses (NASA/JPL-Caltech) with predicted sites",
+    "NASA/JPL-Caltech impact-probability ellipses (3σ, 3.4 × 0.6 km) with the predicted sites",
     fontsize=10.5,
     color=INK,
     loc="left",
@@ -181,8 +218,17 @@ for k, (ttl, fn) in enumerate(
     if k == 1:
         ccx, ccy = 0.492 * FRAME_M, 0.497 * FRAME_M  # fresh crater in the frame
         axb.add_patch(Circle((ccx, ccy), 16, fill=False, color="#fcfcfb", lw=1.6))
-        for j, (lab, (lat, lon, col)) in enumerate(PRED.items()):
-            dn, de = offset_km(lat, lon)
+        arrows = [
+            (lab, offset_km(lat, lon), col) for lab, (lat, lon, col) in PRED.items()
+        ]
+        arrows.append(
+            (
+                "CNEOS",
+                MAP_PTS["CNEOS terrain-aware nominal"],
+                CNEOS_COLOR["terrain-aware"],
+            )
+        )
+        for j, (lab, (dn, de), col) in enumerate(arrows):
             d = math.hypot(dn, de)
             ang = math.atan2(dn, de)
             L = (150, 205, 120)[j]
@@ -223,11 +269,12 @@ fig.suptitle(
 fig.text(
     0.02,
     0.035,
-    "Left: NASA/JPL-Caltech probability-ellipse map, georeferenced from its own marked points "
-    "(crater at 19.4759°N 266.7138°E; JPL nominal 19.507°N 266.7°E) assuming north up — "
-    f"{m_per_px:.0f} m/px; east–west placement inherits JPL's 0.1° longitude rounding (~1 km).  "
-    "Center/right: LRO NAC frames, NASA Goddard/Intuitive Machines, enlarged 3×, ~400 m wide, north up. "
-    "Crater 60 ft across. Predictions: this scenario's optical-only fit; Gray 2026 (Project Pluto); JPL Horizons #GA1A2/21.",
+    "Left: NASA/JPL-Caltech impact-probability ellipses — both 2.1 mi × 0.4 mi per NASA's caption "
+    "(JPL's 3σ ellipse; blue accounts for lunar terrain, red does not), georeferenced from the ellipse's "
+    f"own 3.4 km length ({m_per_px:.1f} m/px, north up) and anchored on NASA's crater marker. "
+    "CNEOS offsets are measured from NASA's markers (the Horizons nominal is published only to 0.1° of "
+    "longitude, ~1.4 km).  Center/right: LRO NAC frames, NASA Goddard/Intuitive Machines, ~400 m wide, "
+    "north up; crater 60 ft across. Predictions: this scenario's optical-only fit; Gray 2026 (Project Pluto).",
     fontsize=7.6,
     color=MUTED,
     wrap=True,

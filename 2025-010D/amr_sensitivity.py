@@ -80,7 +80,8 @@ def main() -> None:
         "\nEvery +0.001 m²/kg moves the site ~0.8 km cross-track while the fit\n"
         "quality barely changes: the optical arc cannot separate SRP from\n"
         "gravity. JPL #GA1A2/21 (370 measurements to Aug 4, including 3 radar\n"
-        "Doppler points) breaks that degeneracy and lands 1.0 km from the crater."
+        "Doppler points) breaks that degeneracy; CNEOS's terrain-aware nominal\n"
+        "lands 0.2 km from the crater."
     )
 
 
