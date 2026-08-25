@@ -66,7 +66,7 @@ def main() -> None:
     cfg = ODConfig(
         solve_for=SolveForParams.STATE_AND_NONGRAV,
         photometry=PhotometryConfig(),  # v0.9.0: fit H/G alongside the orbit
-        # 0.10.0rc workaround (rc1 rebuilds the same engine, so it still applies): the radar+optical convergence criterion
+        # 0.10.0 workaround (still present in the 0.10.0 release): the radar+optical convergence criterion
         # currently mis-scales the mixed optical/radar units, so the
         # default 1e-5 tolerance is unreachable on the radar path even
         # at machine-precision update norms. 1e-3 converges in 10

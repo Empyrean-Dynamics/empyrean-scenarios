@@ -183,6 +183,65 @@ optical-only public astrometry — and a residual ladder spanning five
 orders of magnitude that shows exactly why every arc of a tumbling
 rocket body earns its own fit.
 
+## Ground truth: LRO imaged the crater
+
+NASA's Lunar Reconnaissance Orbiter photographed the impact site on
+2026-08-11/12 and located the fresh crater — about 60 ft across — at
+**19.4759°N, 266.7138°E** (511 m elevation), inside JPL's final
+impact-probability ellipse. Against that ground truth, the optical-only
+forecasts land as follows (great-circle offsets on a 1737.4 km sphere):
+
+| Prediction | Site | Offset from crater |
+|---|---|---|
+| JPL #GA1A2/21 (radar-informed nominal) | 19.507°N, 266.7°E | 1.0 km, NNW |
+| **This scenario** (optical, 74-obs public arc) | 19.514°N, 266.646°E | 2.3 km, WNW |
+| Gray / Project Pluto (same 74-obs arc) | 19.577°N, 266.630°E | 3.9 km, NW |
+
+![LRO ground truth vs predicted impact sites](lro_impact_site.png)
+
+*Left: NASA/JPL-Caltech impact-probability ellipses, georeferenced from
+the map's own marked points (the crater and JPL's nominal) assuming
+north up (~27 m/px; the east–west placement inherits the 0.1° rounding
+of JPL's published longitude, ~1 km). Center/right: LRO NAC frames
+before and after the impact, NASA Goddard/Intuitive Machines, ~400 m
+wide, north up; the arrows point toward each prediction, all of which
+lie outside this frame.* The figure is built by
+`lro_figure.py`-style overlay code from the NASA release images, which
+are public domain (credit as shown).
+
+### Why two kilometers, and what would have done better
+
+Decomposing each miss along the approach direction (the stage arrived
+travelling toward azimuth ~52°, 2.42 km/s) separates *when* from *where*:
+
+| Prediction | Along-track | Cross-track |
+|---|---|---|
+| This scenario | −0.8 km (−0.4 s) | −2.1 km |
+| Gray / Project Pluto | 0.0 km | −3.9 km |
+| JPL #GA1A2/21 | +0.3 km (+0.1 s) | −1.0 km |
+
+Timing was solved by everyone; the error is cross-track, and all three
+solutions sit on the same side of the ground track. [`amr_sensitivity.py`](./amr_sensitivity.py)
+shows where it comes from: holding the solar-radiation-pressure
+area-to-mass ratio at a ladder of values and refitting the same
+74-observation arc slides the impact site ~0.8 km cross-track per
+0.001 m²/kg while the fit quality barely moves (χ²/dof 0.477 at the
+solved 0.0029, 0.470 at 0.0050 — where the miss collapses to 1.0 km,
+and 0.479 at 0.0060). Over nine nights of plane-of-sky astrometry, SRP
+is nearly degenerate with the gravitational signal, and the fit cannot
+tell 0.003 from 0.006.
+
+That is exactly the degeneracy radar breaks. JPL's #GA1A2/21 is a fit
+to 370 measurements spanning 2026-07-20 to 08-04 that includes three
+radar Doppler measurements (Horizons solution notes, S. Naidu) — five
+times the data, an arc reaching the eve of impact, and range-rate
+pinning the axis optical astrometry constrains worst. Without radar,
+the honest improvements are a physically informed AMR prior from the
+stage's known mass and dimensions, or reporting the AMR-marginalized
+ellipse instead of a point. (A frame mismatch is ruled out: the engine
+rotates the DE440 principal-axis orientation into the Mean Earth frame
+that Gray, JPL, and LROC all report in.)
+
 ## References
 
 - Gray, B. 2026, "A Falcon 9 second stage will hit the moon", Project Pluto — <https://www.projectpluto.com/25010d.htm>; pseudo-MPECs 25010d and 25010d_new (the astrometry, orbit solutions, and impact predictions compared above).
