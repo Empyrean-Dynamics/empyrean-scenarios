@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Question or general discussion
+    url: https://github.com/Empyrean-Dynamics/empyrean/discussions/categories/q-a
+    about: The central discussion board for everything Empyrean. Start there for a question about a scenario; tag it scenario.
+  - name: Bug in empyrean itself
+    url: https://github.com/Empyrean-Dynamics/empyrean/issues/new/choose
+    about: A wrong number or a crash that reproduces outside the scenarios belongs in the empyrean repository.
+  - name: Validation finding
+    url: https://github.com/Empyrean-Dynamics/empyrean-validation/issues/new/choose
+    about: empyrean disagrees with another tool or a published reference.
