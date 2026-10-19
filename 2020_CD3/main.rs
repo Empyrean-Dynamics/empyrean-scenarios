@@ -23,13 +23,6 @@ fn main() -> empyrean::Result<()> {
         .into_iter()
         .next()
         .expect("SBDB returned no orbit for 2020 CD3");
-    // 0.10.0rc workaround (rc1 rebuilds the same engine, so it still applies): the Rust wrapper's query_sbdb populates the
-    // state<->non-grav cross-covariance without the 3x3 it conditions
-    // on, and the engine (correctly) refuses the half-attached joint.
-    // Clear the cross terms — this scenario reads nominal-trajectory
-    // numbers only. Remove once the wrapper attaches the full block.
-    let mut orbit = orbit;
-    orbit.state.non_grav_cross = None;
     println!(
         "Object: {}",
         orbit.object_id.as_deref().unwrap_or("(2020 CD3)")

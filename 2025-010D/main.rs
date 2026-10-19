@@ -58,12 +58,22 @@ fn main() -> empyrean::Result<()> {
     // AMRAT is a refine-path solve: prime the fitted orbit with an SRP
     // prior wide enough for the artsat regime (~1e-2 m²/kg, 100× any
     // asteroid) so the astrometry, not the prior, drives the fit.
+    // The AMRAT prior rides the fitted orbit's packed joint (its AMRAT axis,
+    // bit 4), widening the state 6x6 to 7 — the removed
+    // `with_srp_amrat_variance` builder is gone.
+    let state6 = fit
+        .orbit
+        .covariance
+        .as_ref()
+        .expect("fit carries a state covariance joint")
+        .state_block();
+    let amrat_prior = prior_joint(state6, &[1.0e-4], 1 << 4);
     let primed = fit
         .orbit
         .clone()
         .with_orbit_id("2025-010D")
         .with_srp(0.008, 1.0)
-        .with_srp_amrat_variance(Some(1.0e-4));
+        .with_covariance(amrat_prior);
     let refine_config = ODConfig {
         solve_for: SolveForParams::Explicit(SolveFor {
             amrat: ParamDisposition::Solved,
@@ -113,7 +123,31 @@ fn main() -> empyrean::Result<()> {
     // body whose effective area changed between arcs (Gray 2026;
     // Campbell et al. 2026) — consistent with the per-arc solutions
     // Project Pluto published.
-    let full = ctx.evaluate(&refined.orbit, &obs, &od_config)?;
+    // evaluate (unlike determine) runs no rejection pass, so it refuses an
+    // observation whose station the engine cannot resolve (0.11.0 removed the
+    // old silent fallback). Drop any such unregistered community station
+    // explicitly — named by the engine's own refusal — before scoring.
+    let mut scorable: Vec<_> = obs.iter().collect();
+    let full = loop {
+        let subset = empyrean::Observations::from_array(&scorable)?;
+        match ctx.evaluate(&refined.orbit, &subset, &od_config) {
+            Ok(ev) => break ev,
+            Err(e) => {
+                let code = e
+                    .to_string()
+                    .split_once("unknown observatory code \"")
+                    .and_then(|(_, rest)| rest.split_once('"'))
+                    .map(|(c, _)| c.to_string());
+                match code {
+                    Some(c) => {
+                        scorable.retain(|o| o.obs_code != c);
+                        println!("(dropped unregistered community station {c:?} from scoring)");
+                    }
+                    None => return Err(e),
+                }
+            }
+        }
+    };
     // Per-arc ladder, same statistic as the Python twin: total angular
     // RMS sqrt(mean(ra_res^2 + dec_res^2)) over each arc's rows,
     // NaN-skipped. (The engine summary's rms_combined is the per-axis
@@ -146,3 +180,40 @@ fn main() -> empyrean::Result<()> {
     Ok(())
 }
 // empyrean:snippet:end
+
+/// A block-diagonal refine prior: the fit's state 6x6 plus one diagonal prior
+/// variance per parameter axis (zero cross terms). The AMRAT prior rides the
+/// orbit's one packed joint now (present bit 4 of the axis table) — the removed
+/// `with_srp_amrat_variance` builder is gone.
+fn prior_joint(
+    state6: [[f64; 6]; 6],
+    param_vars: &[f64],
+    present_bits: u32,
+) -> empyrean::PackedJoint {
+    let width = 6 + param_vars.len();
+    let mut full = vec![vec![0.0_f64; width]; width];
+    for (i, row) in state6.iter().enumerate() {
+        full[i][..6].copy_from_slice(row);
+    }
+    for (k, &v) in param_vars.iter().enumerate() {
+        full[6 + k][6 + k] = v;
+    }
+    let mut tri = Vec::with_capacity(width * (width + 1) / 2);
+    for (i, row) in full.iter().enumerate() {
+        tri.extend_from_slice(&row[..=i]);
+    }
+    empyrean::PackedJoint {
+        layout: empyrean::AxisLayout {
+            present: present_bits,
+            considered: 0,
+            marginalized: 0,
+        },
+        width: width as u8,
+        tri,
+        kind: empyrean::CovarianceKind::Linear,
+        quality: empyrean::JointQuality::PositiveDefinite,
+        functional: empyrean::JointFunctional::State,
+        provenance: empyrean::JointProvenance::Derived,
+        asserted_source: None,
+    }
+}

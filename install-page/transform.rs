@@ -13,17 +13,20 @@ fn main() -> empyrean::Result<()> {
     // empyrean:snippet:start
     use empyrean::{Frame, Origin, Representation};
 
-    // Cometary -> Cartesian (same frame, same origin)
-    let cart = ctx.transform_coordinates_single(
-        &orbit.state,
+    // Cometary -> Cartesian (same frame, same origin). transform_orbits moves
+    // the state AND its packed-joint covariance through the Jacobian;
+    // transform_coordinates_single handles bare states and refuses a
+    // covariance-bearing input (a queried orbit carries one).
+    let cart = ctx.transform_orbits(
+        std::slice::from_ref(&orbit),
         Representation::Cartesian,
         orbit.state.frame,
         orbit.state.origin,
     )?;
 
     // Full transform: representation + frame + origin
-    let kep = ctx.transform_coordinates_single(
-        &orbit.state,
+    let kep = ctx.transform_orbits(
+        std::slice::from_ref(&orbit),
         Representation::Keplerian,
         Frame::ICRF,
         Origin::Earth,

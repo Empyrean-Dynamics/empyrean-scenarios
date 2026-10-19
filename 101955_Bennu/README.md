@@ -81,42 +81,42 @@ constrained to better than 1-in-1750 cumulative probability.
 603 optical + 29 radar (delay/Doppler)
 Anchor (1999-2000, 217 optical + 10 radar): chi2/dof 0.31
 Converged:  True
-chi2/dof:   0.304
-RMS:        RA·cos(d) 0.747"  Dec 0.350"
+chi2/dof:   0.315
+RMS:        RA·cos(d) 0.758"  Dec 0.348"
 Selected:   603/603
-Fitted A2 (≈ Yarkovsky) = -2.905e-14 +/- 8.5e-15 AU/d^2
+Fitted A2 (≈ Yarkovsky) = -3.395e-14 +/- 8.2e-15 AU/d^2
 Reference                 -4.618e-14 AU/d^2   (Farnocchia 2021,
                           radar-complete joint solution)
 
 Close approaches (Empyrean):
-  Earth   MJD 73725.025        749725 km
-  Earth   MJD 81029.193       2060594 km
+  Earth   MJD 73725.025        749639 km
+  Earth   MJD 81029.167       2102437 km
 Reference (JPL CAD nominal):
   Earth   MJD 73725 (2060-09-23)   ~750,000 km
 
 Earth B-plane geometry (Empyrean):
-  MJD 73725.025  |B| =     749725 km  3-sigma semi-major =    947.2 km
-  MJD 81029.193  |B| =    2060594 km  3-sigma semi-major = 426946.4 km
+  MJD 73725.025  |B| =     749639 km  3-sigma semi-major =    918.6 km
+  MJD 81029.167  |B| =    2102437 km  3-sigma semi-major = 414309.1 km
 (2060 B-plane uncertainty input to any downstream resonant-return analysis; 3-sigma ellipse grows 451x by 2080.)
 ```
 
 ## The measurement, in context
 
-The fitted A2 = −2.8 ± 1.1 ×10⁻¹⁴ AU/d² is a 2.6σ detection of the
-Yarkovsky drift, consistent (1.6σ) with Farnocchia 2021's
+The fitted A2 = −3.395×10⁻¹⁴ ± 8.2×10⁻¹⁵ AU/d² is a 4.1σ detection of
+the Yarkovsky drift, consistent (1.5σ) with Farnocchia 2021's
 −4.618×10⁻¹⁴. The published value's sub-1% precision comes from a
 radar-complete joint solution plus OSIRIS-REx spacecraft tracking —
 data this scenario's two-stage ladder doesn't fold into the joint
 solve — so the honest comparison is sign, magnitude, and consistency,
 not equality.
 
-The ~295 km 3σ semi-major at the 2060 encounter is what THIS fit's
-covariance supports: positional knowledge of ~4 parts in 10⁴, 35 years
+The ~919 km 3σ semi-major at the 2060 encounter is what THIS fit's
+covariance supports: positional knowledge of ~1 part in 10³, 35 years
 out, from ground-based astrometry alone. (JPL's OSIRIS-REx-era
-solution reaches ~20 km on the same encounter.) The ~134,000 km
+solution reaches ~20 km on the same encounter.) The ~414,000 km
 uncertainty at the 2080 follow-up is gravitational covariance
 amplification at close approach made quantitative — the 3σ ellipse
-grows ~455× through the 2060 close pass (the script prints the exact
+grows ~451× through the 2060 close pass (the script prints the exact
 ratio). Where Bennu actually threads the 2060 B-plane controls almost
 everything about its 22nd-century trajectory.
 

@@ -15,17 +15,18 @@ What it does:
     2. Anchors the epoch state on the 1999-2000 discovery apparition —
        optical plus its Arecibo/Goldstone radar ranging — then measures
        the drift: a joint (state + Marsden A-block) refine over the full
-       26-year optical arc, with the A-block seeded at ZERO and opened
-       by a Bayesian prior that pins the radial/normal components and
-       leaves the transverse A2 wide. A2 IS the Yarkovsky measurement —
-       recovered from the astrometry with an honest 1σ from the solved
-       covariance, not patched in from a published value. (A real
-       first-principles Vokrouhlický thermal model is on the engine
+       26-year optical arc, with the A-block seeded at zero (the 0.11.0-rc.0
+       engine estimates a zero-seeded non-grav axis) and opened by a Bayesian
+       prior that pins the radial/normal components and leaves the transverse
+       A2 wide. A2 IS the
+       Yarkovsky measurement — recovered from the astrometry with an honest
+       1σ from the solved covariance, not patched in from a published value.
+       (A real first-principles Vokrouhlický thermal model is on the engine
        roadmap.)
 
-    Verified run (empyrean 0.9.0): A2 = -2.8e-14 ± 1.1e-14 AU/d² — a
-    2.6σ detection of the drift, consistent with JPL's radar-complete
-    joint solution (-4.618e-14, Farnocchia 2021) at 1.6σ.
+    Verified run (empyrean 0.11.0-rc.0): A2 = -3.40e-14 ± 8.2e-15 AU/d² — a
+    4.1σ detection of the drift, consistent with JPL's radar-complete
+    joint solution (-4.618e-14, Farnocchia 2021) at 1.5σ.
     3. Propagates the FITTED orbit ~72 years (2011-2083) at 5-day
        cadence through the 2060 Earth encounter and the 2080 follow-up.
     4. Reads out the close-approach geometry and the projected B-plane
@@ -41,13 +42,51 @@ from __future__ import annotations
 
 # empyrean:snippet:start
 import empyrean
+import numpy as np
 from empyrean import (
+    CovarianceKind,
     Epochs,
+    JointFunctional,
+    JointProvenance,
+    JointQuality,
+    NonGravParams,
     ODConfig,
+    PackedJoint,
+    PackedJoints,
+    SolveFor,
     SolveForParams,
     TimeScale,
     UncertaintyMethod,
 )
+
+
+def _prior_joint(state6, param_vars, present_bits):
+    """Block-diagonal refine prior: the fit's state 6x6 plus one diagonal
+    prior variance per parameter axis (zero cross terms). The Marsden / DT /
+    AMRAT prior rides the orbit's one packed joint now (bit 0=A1, 1=A2, 2=A3,
+    3=DT, 4=AMRAT) — the removed ``NonGravParams.covariance`` /
+    ``SRPParams.amrat_variance`` columns are gone."""
+    width = 6 + len(param_vars)
+    full = np.zeros((width, width), dtype=np.float64)
+    full[:6, :6] = np.asarray(state6, dtype=np.float64)
+    for k, v in enumerate(param_vars):
+        full[6 + k, 6 + k] = v
+    tri = [full[i, j] for i in range(width) for j in range(i + 1)]
+    return PackedJoint(
+        layout_present=present_bits,
+        layout_considered=0,
+        layout_marginalized=0,
+        width=width,
+        tri=np.asarray(tri, dtype=np.float64),
+        kind=CovarianceKind.LINEAR,
+        quality=JointQuality.POSITIVE_DEFINITE,
+        cov_rank=0,
+        cov_null_axes=0,
+        cov_min_eig_corr=float("nan"),
+        functional=JointFunctional.STATE,
+        provenance=JointProvenance.DERIVED,
+        asserted_source=None,
+    )
 
 
 def main() -> None:
@@ -71,8 +110,6 @@ def main() -> None:
     # apparition — short enough that the drift is negligible — with its
     # radar ranging pinning the line-of-sight distance at the ~100 m
     # level.
-    import numpy as np
-
     years = [t[:4] for t in obs.table.column("obs_time").to_pylist()]
     short = obs.take(np.nonzero(np.array([y in ("1999", "2000") for y in years]))[0])
     r_years = [t[:4] for t in radar.table.column("obs_time").to_pylist()]
@@ -94,29 +131,36 @@ def main() -> None:
     # is seeded at ZERO and opened by a Bayesian prior that pins A1/A3
     # near zero and leaves A2 wide: the astrometry, not the prior,
     # measures the drift. All-zero g(r) constants select the exact
-    # inverse-square law (the Yarkovsky convention).
-    from empyrean import NonGravParams
-
+    # inverse-square law (the Yarkovsky convention). The Marsden prior now
+    # rides the orbit's one packed joint (bits 0/1/2), widening the anchor's
+    # fitted state 6x6 to 9 — the removed NonGravParams.covariance is gone.
     sigma_tight = 1e-15  # AU/d^2 — A1/A3 pinned ~30x below the A2 signal
     sigma_wide = 1e-12  # AU/d^2 — A2 unconstrained (~20x above the signal)
+    # The 0.11.0-rc.0 engine estimates a zero-seeded non-grav axis, so A2
+    # starts at exactly zero; the wide A2 prior keeps the fit data-driven
+    # (a 0 and a -4.6e-14 seed converge to the same A2).
+    a2_seed = 0.0  # AU/d^2 — estimated from zero; the data drive the value
+    state6 = anchor.orbit.covariance.joint(0).state_block()
+    marsden_prior = _prior_joint(
+        state6,
+        [sigma_tight**2, sigma_wide**2, sigma_tight**2],
+        present_bits=0b111,  # A1, A2, A3 axes present
+    )
     primed = anchor.orbit.set_column(
         "non_grav",
         NonGravParams.from_kwargs(
             a1=[0.0],
-            a2=[0.0],
+            a2=[a2_seed],
             a3=[0.0],
-            model=["marsden"],
-            alpha=[0.0],
-            r0=[0.0],
-            m=[0.0],
-            n=[0.0],
-            k=[0.0],
-            covariance=[
-                [sigma_tight**2, 0, 0, 0, sigma_wide**2, 0, 0, 0, sigma_tight**2]
-            ],
+            model=["inverse_square"],
         ),
-    )
-    cfg = ODConfig(solve_for=SolveForParams.STATE_AND_NONGRAV)
+    ).set_column("covariance", PackedJoints.from_joints([marsden_prior]))
+    # Open the Marsden solve explicitly. The coarse STATE_AND_NONGRAV preset
+    # reaches the same posterior from this prior; the explicit form names the
+    # axis being solved. The 0.11.0-rc.0 engine estimates the A2 axis from the
+    # zero seed above (an earlier candidate left it silently at the seed); the
+    # wide prior and the astrometry set the value.
+    cfg = ODConfig(solve_for_flags=SolveFor(marsden="solved"))
     result = empyrean.refine(primed, obs, config=cfg)
     s = result.summary
     print(f"Converged:  {result.converged}")

@@ -48,9 +48,10 @@ risk list on 2021-02-21.
    finite-differencing of the 21-year arc.
 
 3. **Forward-propagates with second-order STT.** State Transition
-   Tensors carry the second-order term so the projected covariance at
-   the 2029 encounter is accurate even where linear propagation
-   breaks down (and around a deep planetary flyby, it does).
+   Tensors carry the second-order term; the projected covariance at
+   the 2029 encounter is the correct marginal of the 9-wide fit.
+   Through this flyby the linear, second-order, sigma-point and
+   Monte-Carlo methods agree (~25 km).
 
 4. **Reads close approaches + B-plane geometry.** Headline numbers:
    geocentric distance + epoch of the 2029 flyby, B·R / B·T components,
@@ -70,8 +71,7 @@ risk list on 2021-02-21.
 
 The 2029 flyby is the geometric event that any future-impact analysis
 is anchored on. The script's printed B-plane uncertainty (3σ semi-major
-~5,300 km for the 9-parameter state + non-grav solve — the extra
-non-gravitational degrees of freedom carry most of that width) is the
+~47 km for the 9-parameter state + non-grav solve) is the
 input geometry that downstream resonant-return / keyhole analyses
 (Valsecchi-Rossi-Milani 2003) consume — Empyrean produces the input;
 the keyhole catalog itself is a separate roadmap item.
@@ -84,9 +84,9 @@ Converged:  True
 chi2/dof:   0.080
 RMS:        RA·cos(d) 0.514"  Dec 0.473"
 Selected:   9569/9577
-Fitted A1 = -4.108e-12  A2 = -2.849e-14
+Fitted A1 = -4.103e-12  A2 = -2.849e-14
 Reference  A1 = 5.000e-13     A2 = -2.902e-14   (JPL SBDB)
-Fitted H  = 18.42 +/- 0.20  (model PhotometryModel.HG12, chi2_r 1.83)
+Fitted H  = 18.39 +/- 0.20  (model PhotometryModel.HG12, chi2_r 1.81)
 Reference  H = 19.09   (JPL SBDB)
 
 Close approaches (Empyrean):
@@ -97,8 +97,8 @@ Reference (JPL CAD):
 
 Flyby covariance readback (Empyrean, grid MJD 62240.000):
   bare linear        sigma_pos =         25 km
-  resolved second_order sigma_pos =       2582 km
-  2nd-order mean shift |dmu_prop| =       39 km
+  resolved second_order sigma_pos =         25 km
+  2nd-order mean shift |dmu_prop| =        0 km
 
 2029 Earth B-plane geometry (Empyrean):
   B*T =     -37502 km

@@ -30,8 +30,8 @@ Authoritative cross-checks (printed inline):
     - SBDB DT reference: ~+46 d (outgassing lag past perihelion)
     - Marsden A1: ~1e-9 AU/d^2
 
-Verified run (empyrean 0.9.0, 11,205 optical obs): fitted
-DT = 34.76 +/- 0.43 d, chi2/dof 0.978. That is ~11 d below JPL's
+Verified run (empyrean 0.11.0-rc.0, 11,205 optical obs): fitted
+DT = 37.41 +/- 0.34 d, chi2/dof 1.342. That is ~8 d below JPL's
 published 45.69 d — far more than the formal sigma, and honestly so:
 the formal sigma conditions on the Marsden A-block held at its SBDB
 prior, while JPL's DT comes from a joint solve of all four
@@ -42,10 +42,9 @@ scenario's point is the *measured uncertainty machinery*, and the
 sigma it reports is the honest width of THIS fit, not a claim that
 JPL's value is wrong.
 
-DT fitting is a refine-path solve -- it needs a DT-primed orbit
-(``dt_variance`` set, plus a Marsden A1/A2/A3 ``covariance`` prior for
-the joint solve), NOT a cold determine-from-scratch, which the engine
-refuses loudly.
+DT fitting is a refine-path solve -- it needs a DT-primed orbit (a DT-axis
+and Marsden A1/A2/A3 prior on the orbit's packed joint), NOT a cold
+determine-from-scratch, which the engine refuses loudly.
 """
 
 from __future__ import annotations
@@ -54,13 +53,47 @@ from __future__ import annotations
 import empyrean
 import numpy as np
 from empyrean import (
-    CartesianCoordinates,
     CartesianOrbits,
+    CovarianceKind,
+    JointFunctional,
+    JointProvenance,
+    JointQuality,
     NonGravParams,
     ODConfig,
+    PackedJoint,
+    PackedJoints,
     SolveFor,
-    transform_coordinates,
+    transform_orbits,
 )
+
+
+def _prior_joint(state6, param_vars, present_bits):
+    """Block-diagonal refine prior: the state 6x6 plus one diagonal prior
+    variance per parameter axis. The Marsden (bits 0/1/2) and DT (bit 3) priors
+    ride the orbit's one packed joint now — the removed ``NonGravParams``
+    ``covariance`` / ``dt_variance`` columns are gone."""
+    width = 6 + len(param_vars)
+    full = np.zeros((width, width), dtype=np.float64)
+    full[:6, :6] = np.asarray(state6, dtype=np.float64)
+    for k, v in enumerate(param_vars):
+        full[6 + k, 6 + k] = v
+    tri = [full[i, j] for i in range(width) for j in range(i + 1)]
+    return PackedJoint(
+        layout_present=present_bits,
+        layout_considered=0,
+        layout_marginalized=0,
+        width=width,
+        tri=np.asarray(tri, dtype=np.float64),
+        kind=CovarianceKind.LINEAR,
+        quality=JointQuality.POSITIVE_DEFINITE,
+        cov_rank=0,
+        cov_null_axes=0,
+        cov_min_eig_corr=float("nan"),
+        functional=JointFunctional.STATE,
+        provenance=JointProvenance.DERIVED,
+        asserted_source=None,
+    )
+
 
 # SBDB water-ice g(r) shape for 67P and the reference outgassing delay.
 G_ALPHA, G_R0, G_M, G_N, G_K = 0.1113, 2.808, 2.15, 5.093, 4.6142
@@ -101,27 +134,31 @@ def main() -> None:
         n=[G_N],
         k=[G_K],
         dt=[SBDB_DT_DAYS],
-        dt_variance=[DT_PRIOR_VAR],  # v0.9.0: opens + priors the DT column
-        # v0.9.0: the Marsden wide solve likewise requires a declared
-        # A1/A2/A3 prior -- the engine opens the Marsden columns only
-        # when the covariance is on the orbit. SBDB ships none for 67P,
-        # so we attach a wide diagonal 3x3 (row-major flattened).
-        covariance=[np.diag([A_PRIOR_SIGMA**2] * 3).flatten().tolist()],
     )
 
     # SBDB returns 67P in cometary elements, but ``refine`` works in the
-    # Cartesian state the differential correction solves for, and it needs
-    # the covariance as its Bayesian prior. ``transform_coordinates``
-    # carries the SBDB 6x6 covariance through the element->Cartesian
-    # Jacobian; the non-grav priors (Marsden + DT) are frame/representation
-    # invariant, so we re-attach them unchanged to the Cartesian orbit --
-    # nothing is dropped in the conversion.
-    cartesian_coords = transform_coordinates(orbits.coordinates, CartesianCoordinates)
+    # Cartesian state the differential correction solves for, and it takes
+    # the seed orbit's packed joint as its Bayesian prior. ``transform_orbits``
+    # transports the SBDB 6x6 covariance through the element->Cartesian
+    # Jacobian (``transform_coordinates`` now refuses a covariance-bearing
+    # input). The Marsden wide solve + DT solve require a declared A1/A2/A3
+    # and DT prior; both now ride the one packed joint (A1/A2/A3 on bits
+    # 0/1/2, DT on bit 3), widening the state 6x6 to a 10x10. The non-grav
+    # values (Marsden + DT) are representation invariant and re-attached
+    # unchanged -- nothing is dropped in the conversion.
+    cart = transform_orbits(orbits, CartesianOrbits)
+    state6 = cart.covariance.joint(0).state_block()
+    prior = _prior_joint(
+        state6,
+        [A_PRIOR_SIGMA**2, A_PRIOR_SIGMA**2, A_PRIOR_SIGMA**2, DT_PRIOR_VAR],
+        present_bits=0b111 | (1 << 3),  # A1, A2, A3 + DT axes present
+    )
     primed = CartesianOrbits.from_kwargs(
         orbit_id=orbits.orbit_id.to_pylist(),
         object_id=orbits.object_id.to_pylist(),
-        coordinates=cartesian_coords,
+        coordinates=cart.coordinates,
         non_grav=non_grav,
+        covariance=PackedJoints.from_joints([prior]),
     )
 
     # -- 3. 67P optical astrometry + wide DT refine -------------------

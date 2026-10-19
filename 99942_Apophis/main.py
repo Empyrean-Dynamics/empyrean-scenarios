@@ -20,8 +20,8 @@ What it does:
     3. Forward-propagates that orbit through the 2029 Earth flyby with
        second-order STT uncertainty.
     4. Prints close approaches, reads back the resolved-kind
-       (second-order) covariance at the flyby and contrasts it with
-       the bare linear covariance, and reports the 2029 B-plane
+       (second-order) covariance at the flyby alongside the bare linear
+       covariance (the methods agree there), and reports the 2029 B-plane
        geometry.
 
 Authoritative cross-checks (printed inline):
@@ -131,12 +131,13 @@ def main() -> None:
     print("  Earth   MJD 62239.907    38,012 km    (2029-04-13 21:46 UT)")
 
     # ── 4b. Tagged-covariance readback at the 2029 flyby ────────────
-    # The bare per-state covariance is always the linear Φ Σ₀ Φᵀ map —
-    # it over-states the encounter ellipse because the 2029 flyby bends
-    # the linear map hard. The resolved-kind readback carries the
-    # *honest* covariance: inside the close-approach window it is the
-    # Park-Scheeres second-order (Jet2 STT) ellipsoid we asked for via
-    # SECOND_ORDER. Compare them at the grid epoch nearest the periapsis.
+    # The bare per-state covariance is the linear Φ Σ₀ Φᵀ map; the
+    # resolved-kind readback carries the second-order (Jet2 STT) ellipsoid
+    # we asked for via SECOND_ORDER. Both are the correct marginal of the
+    # 9-wide fit, and through the 2029 flyby the methods agree — linear,
+    # second-order, sigma-point and Monte Carlo all land at ~25 km — so the
+    # second-order σ tracks the linear map here. Compare at the grid epoch
+    # nearest the periapsis.
     au_km = 1.495_978_707e8
     earth = [i for i in range(len(p)) if bodies[i] == "Earth"]
     if earth:

@@ -40,10 +40,10 @@ resolution is what this script demonstrates.
 
 4. **Propagates both fits to 2032 and reads the impact
    probabilities.** The early-arc fit surfaces a nonzero Earth
-   IP_linear ≈ 0.14% with a miss-distance σ of ~4.6 million km
-   (~12 lunar distances, 1σ) — the encounter is barely constrained at
+   IP_linear ≈ 0.16% with a miss-distance σ of ~4.0 million km
+   (~10 lunar distances, 1σ) — the encounter is barely constrained at
    all. The full-arc fit collapses the Earth IP to zero and the
-   miss-distance σ to ~17,000 km — a ~280× shrinkage from the
+   miss-distance σ to ~12,000 km — a ~340× shrinkage from the
    additional weeks of astrometry.
 
 ## Reference values
@@ -64,15 +64,15 @@ Discovery arc: chi2/dof = 0.081  RMS RA·cos(d) 0.183" Dec 0.234"  (170/171 obs)
 Full arc     : chi2/dof = 0.077  RMS RA·cos(d) 0.171" Dec 0.203"  (511/512 obs)
 
 2032 encounter — impact probability + miss geometry:
-  early arc  Earth   IP_linear =  0.126%  miss =   142358.6 km  sigma_d =  4036393.4 km
-  early arc  Moon    IP_linear =  0.031%  miss =   124375.9 km  sigma_d =  4479584.9 km
-  full arc   Earth   IP_linear =  0.000%  miss =   278877.3 km  sigma_d =    11811.9 km
-  full arc   Moon    IP_linear =  1.951%  miss =    23518.8 km  sigma_d =    12624.5 km
+  early arc  Earth   IP_linear =  0.160%  miss =   142356.1 km  sigma_d =  4036392.2 km
+  early arc  Moon    IP_linear =  0.027%  miss =   124378.7 km  sigma_d =  4485602.9 km
+  full arc   Earth   IP_linear =  0.000%  miss =   278877.3 km  sigma_d =    11812.6 km
+  full arc   Moon    IP_linear =  1.596%  miss =    23518.8 km  sigma_d =    12623.5 km
 
 Tagged-covariance readback at 2032 Earth perigee (MJD 63588.3481 TDB):
   resolved kind        = CovarianceKind.SECOND_ORDER
-  resolved pos sigma   =    18962.6 km  (second-order ellipsoid)
-  linear   pos sigma   =    18845.4 km  (bare Phi Sigma0 Phi^T)
+  resolved pos sigma   =    18904.1 km  (second-order ellipsoid)
+  linear   pos sigma   =    18904.1 km  (bare Phi Sigma0 Phi^T)
 
 Reference (JPL CAD, full-arc nominal):
   Earth   ~278,000 km   IP = 0
@@ -83,29 +83,29 @@ Reference (Sentry, peak):
 
 ## The full-arc Moon number
 
-The full-arc run prints a Moon IP_linear of ~5% — next to a JPL
+The full-arc run prints a Moon IP_linear of ~1.6% — next to a JPL
 reference of "Moon IP = 0". That is a linear-Gaussian bookkeeping
 artifact, not a lunar-impact forecast: the nominal lunar miss
-(~16,500 km) sits inside one σ of the full-arc miss-distance
-uncertainty (~17,800 km), and the linear estimator converts "the Moon
-is within one sigma of the corridor" into a few-percent tail
-probability. The second-order and Monte Carlo estimators, and the
-narrowing arc, are the tools that resolve it.
+(~23,500 km) sits within ~2σ of the full-arc miss-distance
+uncertainty (~12,600 km), and the linear estimator converts "the Moon
+is near the corridor" into a low-percent tail probability. The
+second-order and Monte Carlo estimators, and the narrowing arc, are
+the tools that resolve it.
 
-## Why the early-arc IP is 0.14% and not 3.1%
+## Why the early-arc IP is 0.16% and not 3.1%
 
 The two are not in conflict. The 3.1% peak Sentry published was the
 maximum IP across a *family* of observation cuts in the weeks after
 discovery — the precise arc cut that yielded that maximum was
-mid-February 2025, ~55 days into the observation window. The 0.14% in
+mid-February 2025, ~55 days into the observation window. The 0.16% in
 this script is what a ~10-day discovery arc gives — a much wider
-uncertainty (σ ≈ 12 lunar distances) diluting the probability over a
+uncertainty (σ ≈ 10 lunar distances) diluting the probability over a
 much larger region. Both are
 legitimately within the propagated uncertainty bounds for their
 respective arcs; what matters scientifically is the rate at which the
 covariance shrinks once additional astrometry is added.
 
-The 23,000 km Moon close approach in the full-arc fit is *inside*
+The ~23,500 km Moon close approach in the full-arc fit is *inside*
 the Moon's Hill sphere — a genuinely deep gravitational interaction.
 It's a non-trivial geometry that the propagator handles by switching
 the dominant body of the encounter test as 2024 YR4 transits the

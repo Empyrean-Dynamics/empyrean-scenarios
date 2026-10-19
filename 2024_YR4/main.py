@@ -107,11 +107,10 @@ def main() -> None:
 
     # ── 5. Tagged-covariance readback through the 2032 flyby ─────────
     # The bare linear covariance carried on the propagated states is
-    # Phi Sigma0 Phi^T — it ignores the curvature of the dynamics across
-    # the encounter. Near a planetary close approach that curvature
-    # matters, so we read the *resolved-kind* (Park–Scheeres second-order)
-    # covariance back from the full-arc SecondOrder propagation and
-    # contrast it with the linear one at perigee.
+    # Phi Sigma0 Phi^T; we read the *resolved-kind* (Park–Scheeres
+    # second-order) covariance back from the full-arc SecondOrder
+    # propagation alongside it at perigee. Both are the correct marginal
+    # of the fit, and at this 2032 approach the methods agree.
     peri = full_prop.events.periapses
     bodies = peri.body.to_pylist()
     peri_mjd = peri.epoch.to_numpy(zero_copy_only=False)

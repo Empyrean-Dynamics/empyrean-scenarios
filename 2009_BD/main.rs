@@ -52,8 +52,6 @@ fn main() -> empyrean::Result<()> {
     // on, and the engine (correctly) refuses the half-attached joint.
     // Clear the cross terms — this scenario reads nominal-trajectory
     // numbers only. Remove once the wrapper attaches the full block.
-    let mut orbit = orbit;
-    orbit.state.non_grav_cross = None;
     let a1 = orbit.a1;
     // Loud, not silent: without JPL's fitted radial non-grav there is
     // no seed to fit from.
@@ -69,21 +67,10 @@ fn main() -> empyrean::Result<()> {
     println!("  Cr    = {CR:.2}  (fixed; only Cr*AMRAT enters the dynamics)");
 
     // ── 2. Prime the orbit with an AMRAT prior ──────────────────────
-    // AMRAT fitting is a refine-path solve: the input orbit must carry
-    // amrat_variance — both the trigger that opens the AMRAT column and
-    // the Bayesian prior. Hand the radial slot to AMRAT (A1 zeroed so
-    // the same force is never counted twice) while the transverse A2
-    // (a 13-sigma detection in JPL 46) stays in the dynamics as
-    // shipped, g(r) constants and all.
-    // `refine` linearizes about a Cartesian state — carry the SBDB
-    // elements (and their covariance, through the element→Cartesian
-    // Jacobian) into Cartesian form before priming.
-    orbit.state = ctx.transform_coordinates_single(
-        &orbit.state,
-        empyrean::Representation::Cartesian,
-        orbit.state.frame,
-        orbit.state.origin,
-    )?;
+    // Hand the radial slot to AMRAT (A1 zeroed so the same force is never
+    // counted twice) while the transverse A2 (a 13-sigma detection in JPL 46)
+    // stays in the dynamics as shipped, g(r) constants and all. The force
+    // params are representation invariant — read them before the transform.
     let (a2, a3) = (orbit.a2, orbit.a3);
     let (alpha, r0, m, n, k) = (
         orbit.ng_alpha,
@@ -92,11 +79,34 @@ fn main() -> empyrean::Result<()> {
         orbit.ng_n,
         orbit.ng_k,
     );
-    let primed = orbit
+    let (frame, origin) = (orbit.state.frame, orbit.state.origin);
+    // `refine` linearizes about a Cartesian state and takes the seed orbit's
+    // packed joint as its Bayesian prior. transform_orbits transports the
+    // SBDB 6x6 through the element→Cartesian Jacobian (transform_coordinates
+    // now refuses a covariance-bearing input); the AMRAT prior then rides the
+    // joint's AMRAT axis (bit 4), widening the state 6x6 to a 7x7.
+    let cart = ctx
+        .transform_orbits(
+            std::slice::from_ref(&orbit),
+            empyrean::Representation::Cartesian,
+            frame,
+            origin,
+        )?
+        .orbits
+        .into_iter()
+        .next()
+        .expect("transform returned the orbit");
+    let state6 = cart
+        .covariance
+        .as_ref()
+        .expect("SBDB orbit carries a state covariance joint")
+        .state_block();
+    let amrat_prior = prior_joint(state6, &[AMRAT_PRIOR_VAR], 1 << 4);
+    let primed = cart
         .with_nongrav(0.0, a2, a3)
         .with_g_function(alpha, r0, m, n, k)
         .with_srp(sbdb_amrat, CR)
-        .with_srp_amrat_variance(Some(AMRAT_PRIOR_VAR));
+        .with_covariance(amrat_prior);
 
     // ── 3. 2009 BD optical astrometry + wide AMRAT refine ───────────
     let optical = query_observations(&["2009 BD"], None)?;
@@ -148,3 +158,40 @@ fn main() -> empyrean::Result<()> {
     Ok(())
 }
 // empyrean:snippet:end
+
+/// A block-diagonal refine prior: the state 6x6 plus one diagonal prior
+/// variance per parameter axis (zero cross terms). The AMRAT prior rides the
+/// orbit's one packed joint now (present bit 4 of the axis table) — the removed
+/// `with_srp_amrat_variance` builder is gone.
+fn prior_joint(
+    state6: [[f64; 6]; 6],
+    param_vars: &[f64],
+    present_bits: u32,
+) -> empyrean::PackedJoint {
+    let width = 6 + param_vars.len();
+    let mut full = vec![vec![0.0_f64; width]; width];
+    for (i, row) in state6.iter().enumerate() {
+        full[i][..6].copy_from_slice(row);
+    }
+    for (k, &v) in param_vars.iter().enumerate() {
+        full[6 + k][6 + k] = v;
+    }
+    let mut tri = Vec::with_capacity(width * (width + 1) / 2);
+    for (i, row) in full.iter().enumerate() {
+        tri.extend_from_slice(&row[..=i]);
+    }
+    empyrean::PackedJoint {
+        layout: empyrean::AxisLayout {
+            present: present_bits,
+            considered: 0,
+            marginalized: 0,
+        },
+        width: width as u8,
+        tri,
+        kind: empyrean::CovarianceKind::Linear,
+        quality: empyrean::JointQuality::PositiveDefinite,
+        functional: empyrean::JointFunctional::State,
+        provenance: empyrean::JointProvenance::Derived,
+        asserted_source: None,
+    }
+}
