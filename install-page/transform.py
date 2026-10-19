@@ -15,15 +15,18 @@ def main() -> None:
     orbits = empyrean.query_sbdb(["Apophis"])
 
     # empyrean:snippet:start
-    from empyrean import CartesianCoordinates, KeplerianCoordinates
+    from empyrean import CartesianOrbits, KeplerianOrbits
 
-    # Cometary -> Cartesian (same frame, same origin)
-    cart = empyrean.transform_coordinates(orbits.coordinates, CartesianCoordinates)
+    # Cometary -> Cartesian (same frame, same origin). transform_orbits moves
+    # the state AND its packed-joint covariance through the Jacobian;
+    # transform_coordinates handles bare states and refuses a
+    # covariance-bearing input (a queried orbit carries one).
+    cart = empyrean.transform_orbits(orbits, CartesianOrbits)
 
     # Full transform: representation + frame + origin
-    kep = empyrean.transform_coordinates(
-        orbits.coordinates,
-        KeplerianCoordinates,
+    kep = empyrean.transform_orbits(
+        orbits,
+        KeplerianOrbits,
         frame=Frame.ICRF,
         origin=Origin.EARTH,
     )

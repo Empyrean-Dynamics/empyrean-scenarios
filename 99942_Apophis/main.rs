@@ -23,7 +23,7 @@
 //!    with second-order STT uncertainty.
 //! 4. Prints close approaches (from the propagation event stream),
 //!    reads back the resolved-kind (second-order) covariance at the
-//!    flyby and contrasts it with the bare linear covariance, and
+//!    flyby alongside the bare linear covariance (the methods agree), and
 //!    reports the 2029 B-plane geometry (computed separately via
 //!    `Context::compute_b_planes`).
 //!
@@ -134,14 +134,14 @@ fn main() -> empyrean::Result<()> {
     println!("  Earth   MJD 62239.907    38,012 km    (2029-04-13 21:46 UT)");
 
     // ── 4b. Tagged-covariance readback at the 2029 flyby ────────────
-    // The bare `PropagatedState::covariance` is always the linear
-    // Φ Σ₀ Φᵀ mapping — it over-states the encounter ellipse because
-    // the 2029 flyby bends the linear map hard. The resolved-kind
-    // readback (`covariance_series_cartesian`) carries the *honest*
-    // covariance: inside the Auto close-approach window it is the
-    // Park–Scheeres second-order (Jet2 STT) ellipsoid we asked for
-    // via `UncertaintyMethod::SecondOrder`. Compare them at the grid
-    // epoch nearest the periapsis to see the nonlinear correction.
+    // The bare `PropagatedState::covariance` is the linear Φ Σ₀ Φᵀ
+    // mapping; the resolved-kind readback (`covariance_series_cartesian`)
+    // carries the second-order (Jet2 STT) ellipsoid we asked for via
+    // `UncertaintyMethod::SecondOrder`. Both are the correct marginal of
+    // the 9-wide fit, and through the 2029 flyby the methods agree —
+    // linear, second-order, sigma-point and Monte Carlo all land at
+    // ~25 km — so the second-order σ tracks the linear map here. Compare
+    // at the grid epoch nearest the periapsis.
     let ca_mjd = prop
         .events
         .iter()
@@ -191,8 +191,8 @@ fn main() -> empyrean::Result<()> {
         }
         println!(
             "  resolved {:<12?} σ_pos = {:>10.0} km",
-            resolved.kind,
-            pos_sigma_km(&resolved.matrix)
+            resolved.kind(),
+            pos_sigma_km(&resolved.matrix())
         );
         if let Some(shift) = resolved.mean_shift_prop {
             let shift_km =

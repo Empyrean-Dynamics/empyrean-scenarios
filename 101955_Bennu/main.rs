@@ -14,8 +14,9 @@
 
 // empyrean:snippet:start
 use empyrean::{
-    Context, Epoch, EventConfig, ODConfig, Observations, Origin, PropagationConfig, SolveForParams,
-    UncertaintyMethod, query_observations, query_radar,
+    Context, Epoch, EventConfig, ODConfig, Observations, Origin, ParamDisposition,
+    PropagationConfig, SolveFor, SolveForParams, UncertaintyMethod, query_observations,
+    query_radar,
 };
 
 fn main() -> empyrean::Result<()> {
@@ -66,28 +67,50 @@ fn main() -> empyrean::Result<()> {
 
     // ── 2b. Measure: joint state + A2 refine over the full 26-yr arc ─
     // Bennu's arc constrains the TRANSVERSE component only — the A-block
-    // is seeded at ZERO and opened by a Bayesian prior that pins A1/A3
-    // near zero and leaves A2 wide: the astrometry, not the prior,
-    // measures the drift. Zeroed g(r) constants select the exact
-    // inverse-square law (the Yarkovsky convention).
+    // is seeded at zero and opened by a Bayesian prior that pins A1/A3 near
+    // zero and leaves A2 wide: the astrometry, not the prior, measures the
+    // drift. The inverse-square g(r) is the Yarkovsky convention.
     let sigma_tight = 1e-15_f64; // AU/d^2 — A1/A3 pinned ~30x below the A2 signal
     let sigma_wide = 1e-12_f64; // AU/d^2 — A2 unconstrained (~20x above the signal)
+    // The 0.11.0-rc.0 engine estimates a zero-seeded non-grav axis, so A2
+    // starts at exactly zero; the wide A2 prior keeps the fit data-driven
+    // (a 0 and a -4.6e-14 seed converge to the same A2).
+    let a2_seed = 0.0_f64; // estimated from zero; the data drive the value
+    // The Marsden prior rides the orbit's one packed joint now (A1/A2/A3 on
+    // present bits 0/1/2), widening the anchor's fitted state 6x6 to 9 — the
+    // removed `with_nongrav_covariance` builder is gone.
+    let state6 = anchor
+        .orbit
+        .covariance
+        .as_ref()
+        .expect("anchor fit carries a state covariance joint")
+        .state_block();
+    let marsden_prior = prior_joint(
+        state6,
+        &[
+            sigma_tight * sigma_tight,
+            sigma_wide * sigma_wide,
+            sigma_tight * sigma_tight,
+        ],
+        0b111, // A1, A2, A3 axes present
+    );
     let primed = anchor
         .orbit
         .clone()
         .with_orbit_id("101955")
-        .with_nongrav(0.0, 0.0, 0.0)
-        .with_nongrav_covariance(Some([
-            [sigma_tight * sigma_tight, 0.0, 0.0],
-            [0.0, sigma_wide * sigma_wide, 0.0],
-            [0.0, 0.0, sigma_tight * sigma_tight],
-        ]));
+        .with_nongrav(0.0, a2_seed, 0.0)
+        .with_covariance(marsden_prior);
     let full_obs = Observations::from_arrays(&optical.iter().collect::<Vec<_>>(), &[])?;
     let result = ctx.refine(
         &primed,
         &full_obs,
         &ODConfig {
-            solve_for: SolveForParams::StateAndNonGrav,
+            // Open the Marsden solve explicitly from the packed-joint prior;
+            // the coarse StateAndNonGrav preset does not consume it.
+            solve_for: SolveForParams::Explicit(SolveFor {
+                marsden: ParamDisposition::Solved,
+                ..Default::default()
+            }),
             ..Default::default()
         },
     )?;
@@ -184,3 +207,41 @@ fn main() -> empyrean::Result<()> {
     Ok(())
 }
 // empyrean:snippet:end
+
+/// A block-diagonal refine prior: the fit's state 6x6 plus one diagonal prior
+/// variance per parameter axis (zero cross terms). The Marsden / DT / AMRAT
+/// prior rides the orbit's one packed joint now (present bit 0=A1, 1=A2, 2=A3,
+/// 3=DT, 4=AMRAT) — the removed `with_nongrav_covariance` /
+/// `with_srp_amrat_variance` / `with_non_grav_dt_variance` builders are gone.
+fn prior_joint(
+    state6: [[f64; 6]; 6],
+    param_vars: &[f64],
+    present_bits: u32,
+) -> empyrean::PackedJoint {
+    let width = 6 + param_vars.len();
+    let mut full = vec![vec![0.0_f64; width]; width];
+    for (i, row) in state6.iter().enumerate() {
+        full[i][..6].copy_from_slice(row);
+    }
+    for (k, &v) in param_vars.iter().enumerate() {
+        full[6 + k][6 + k] = v;
+    }
+    let mut tri = Vec::with_capacity(width * (width + 1) / 2);
+    for (i, row) in full.iter().enumerate() {
+        tri.extend_from_slice(&row[..=i]);
+    }
+    empyrean::PackedJoint {
+        layout: empyrean::AxisLayout {
+            present: present_bits,
+            considered: 0,
+            marginalized: 0,
+        },
+        width: width as u8,
+        tri,
+        kind: empyrean::CovarianceKind::Linear,
+        quality: empyrean::JointQuality::PositiveDefinite,
+        functional: empyrean::JointFunctional::State,
+        provenance: empyrean::JointProvenance::Derived,
+        asserted_source: None,
+    }
+}

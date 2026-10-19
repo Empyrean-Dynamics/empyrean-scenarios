@@ -32,14 +32,14 @@ from __future__ import annotations
 # empyrean:snippet:start
 import empyrean
 from empyrean import (
-    CartesianCoordinates,
+    CartesianOrbits,
     CometaryOrbits,
     Epochs,
     EventConfig,
     Origin,
     TimeScale,
     UncertaintyMethod,
-    transform_coordinates,
+    transform_orbits,
 )
 
 
@@ -125,10 +125,12 @@ def main() -> None:
         # propagated states instead: re-origin the daily states to
         # Earth and take the smallest position norm. (Coarser than an
         # event — the grid is 1-day — but it is the honest headline for
-        # a body that spends the episode *orbiting* Earth.)
-        geo = transform_coordinates(
-            prop.states.coordinates, CartesianCoordinates, origin=Origin.EARTH
-        )
+        # a body that spends the episode *orbiting* Earth.) transform_orbits
+        # re-origins the whole states table, transporting any packed joint
+        # (transform_coordinates now refuses a covariance-bearing input).
+        geo = transform_orbits(
+            prop.states, CartesianOrbits, origin=Origin.EARTH
+        ).coordinates
         xs = geo.x.to_numpy(zero_copy_only=False)
         ys = geo.y.to_numpy(zero_copy_only=False)
         zs = geo.z.to_numpy(zero_copy_only=False)

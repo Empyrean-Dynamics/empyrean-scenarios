@@ -33,6 +33,7 @@ Authoritative cross-checks (printed inline):
 
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 import empyrean
@@ -41,10 +42,16 @@ import empyrean
 import numpy as np
 from empyrean import (
     CartesianOrbits,
+    CovarianceKind,
     Epochs,
     EventConfig,
+    JointFunctional,
+    JointProvenance,
+    JointQuality,
     ODConfig,
     Origin,
+    PackedJoint,
+    PackedJoints,
     SolveFor,
     SRPParams,
     TimeScale,
@@ -57,6 +64,34 @@ from empyrean.od.result import (
 )
 
 HERE = Path(__file__).parent
+
+
+def _prior_joint(state6, param_vars, present_bits):
+    """Block-diagonal refine prior: the fit's state 6x6 plus one diagonal
+    prior variance per parameter axis. The AMRAT prior rides the orbit's one
+    packed joint now (bit 4 of the axis table) — the removed
+    ``SRPParams.amrat_variance`` column is gone."""
+    width = 6 + len(param_vars)
+    full = np.zeros((width, width), dtype=np.float64)
+    full[:6, :6] = np.asarray(state6, dtype=np.float64)
+    for k, v in enumerate(param_vars):
+        full[6 + k, 6 + k] = v
+    tri = [full[i, j] for i in range(width) for j in range(i + 1)]
+    return PackedJoint(
+        layout_present=present_bits,
+        layout_considered=0,
+        layout_marginalized=0,
+        width=width,
+        tri=np.asarray(tri, dtype=np.float64),
+        kind=CovarianceKind.LINEAR,
+        quality=JointQuality.POSITIVE_DEFINITE,
+        cov_rank=0,
+        cov_null_axes=0,
+        cov_min_eig_corr=float("nan"),
+        functional=JointFunctional.STATE,
+        provenance=JointProvenance.DERIVED,
+        asserted_source=None,
+    )
 
 
 def main() -> None:
@@ -98,12 +133,18 @@ def main() -> None:
     # AMRAT is a refine-path solve: prime the fitted orbit with an SRP
     # prior wide enough for the artsat regime (~1e-2 m²/kg, 100× any
     # asteroid) so the astrometry, not the prior, drives the fit.
-    srp = SRPParams.from_kwargs(amrat=[0.008], cr=[1.0], amrat_variance=[1.0e-4])
+    # The AMRAT prior rides the fitted orbit's packed joint (its AMRAT axis,
+    # bit 4), widening the state 6x6 to 7 — the removed `amrat_variance`
+    # column is gone.
+    srp = SRPParams.from_kwargs(amrat=[0.008], cr=[1.0])
+    state6 = fit.orbit.covariance.joint(0).state_block()
+    amrat_prior = _prior_joint(state6, [1.0e-4], present_bits=1 << 4)
     primed = CartesianOrbits.from_kwargs(
         orbit_id=fit.orbit.orbit_id.to_pylist(),
         object_id=fit.orbit.object_id.to_pylist(),
         coordinates=fit.orbit.coordinates,
         srp=srp,
+        covariance=PackedJoints.from_joints([amrat_prior]),
     )
     refined = empyrean.refine(
         primed,
@@ -154,7 +195,23 @@ def main() -> None:
     # encounters and a tumbling body whose effective area changed
     # between arcs (Gray 2026; Campbell et al. 2026) — consistent with
     # the per-arc solutions Project Pluto published.
-    ev = empyrean.evaluate(refined.orbit, obs)
+    # evaluate (unlike determine) runs no rejection pass, so it refuses an
+    # observation whose station the engine cannot resolve rather than
+    # deselecting it (0.11.0 removed the old silent fallback). Drop any such
+    # unregistered community station explicitly — named by the engine's own
+    # refusal — so the scoring runs over the resolvable public record.
+    scorable = obs
+    while True:
+        try:
+            ev = empyrean.evaluate(refined.orbit, scorable)
+            break
+        except RuntimeError as exc:
+            m = re.search(r'unknown observatory code "([^"]+)"', str(exc))
+            if m is None:
+                raise
+            bad = m.group(1)
+            scorable = scorable.apply_mask([s != bad for s in scorable.stn.to_pylist()])
+            print(f"(dropped unregistered community station {bad!r} from scoring)")
     r = ev.observations
     t_mjd = r.epoch_mjd_tdb.to_numpy(zero_copy_only=False)
     res_ra = r.ra_residual.to_numpy(zero_copy_only=False)

@@ -42,8 +42,8 @@ Authoritative cross-checks (printed inline):
       estimate.
 
 NOTE: AMRAT fitting is a refine-path solve -- it needs an AMRAT-primed
-orbit (``amrat_variance`` set), NOT a cold determine-from-scratch, which
-the engine refuses loudly.
+orbit (a wide AMRAT-axis variance on the orbit's packed joint), NOT a cold
+determine-from-scratch, which the engine refuses loudly.
 """
 
 from __future__ import annotations
@@ -52,14 +52,48 @@ from __future__ import annotations
 import empyrean
 import numpy as np
 from empyrean import (
-    CartesianCoordinates,
     CartesianOrbits,
+    CovarianceKind,
+    JointFunctional,
+    JointProvenance,
+    JointQuality,
     NonGravParams,
     ODConfig,
+    PackedJoint,
+    PackedJoints,
     SolveFor,
     SRPParams,
-    transform_coordinates,
+    transform_orbits,
 )
+
+
+def _prior_joint(state6, param_vars, present_bits):
+    """Block-diagonal refine prior: the state 6x6 plus one diagonal prior
+    variance per parameter axis. The AMRAT prior rides the orbit's one packed
+    joint now (bit 4 of the axis table) — the removed ``SRPParams.amrat_variance``
+    column is gone."""
+    width = 6 + len(param_vars)
+    full = np.zeros((width, width), dtype=np.float64)
+    full[:6, :6] = np.asarray(state6, dtype=np.float64)
+    for k, v in enumerate(param_vars):
+        full[6 + k, 6 + k] = v
+    tri = [full[i, j] for i in range(width) for j in range(i + 1)]
+    return PackedJoint(
+        layout_present=present_bits,
+        layout_considered=0,
+        layout_marginalized=0,
+        width=width,
+        tri=np.asarray(tri, dtype=np.float64),
+        kind=CovarianceKind.LINEAR,
+        quality=JointQuality.POSITIVE_DEFINITE,
+        cov_rank=0,
+        cov_null_axes=0,
+        cov_min_eig_corr=float("nan"),
+        functional=JointFunctional.STATE,
+        provenance=JointProvenance.DERIVED,
+        asserted_source=None,
+    )
+
 
 # Wide AMRAT prior (variance, (m^2/kg)^2): loose enough that the
 # astrometry, not the prior, drives the fitted AMRAT. ~ (1e-3 m^2/kg)^2.
@@ -111,11 +145,7 @@ def main() -> None:
     # transform the SBDB elements to Cartesian, carrying the 6x6
     # covariance through the element->Cartesian Jacobian; the force
     # params are representation invariant and re-attached unchanged.
-    srp = SRPParams.from_kwargs(
-        amrat=[sbdb_amrat],
-        cr=[CR],
-        amrat_variance=[AMRAT_PRIOR_VAR],  # v0.9.0: opens + priors the AMRAT column
-    )
+    srp = SRPParams.from_kwargs(amrat=[sbdb_amrat], cr=[CR])
     # Hand the radial slot to AMRAT: A1 zeroed so the same force is never
     # counted twice, while the transverse A2 (Yarkovsky-like drift, a
     # 13-sigma detection in JPL 46) stays in the dynamics as shipped.
@@ -130,13 +160,21 @@ def main() -> None:
         n=ng.n.to_pylist(),
         k=ng.k.to_pylist(),
     )
-    cartesian_coords = transform_coordinates(orbits.coordinates, CartesianCoordinates)
+    # refine linearizes about a Cartesian state and takes the seed orbit's
+    # packed joint as the Bayesian prior. transform_orbits transports the
+    # SBDB 6x6 through the element->Cartesian Jacobian (transform_coordinates
+    # now refuses a covariance-bearing input); the AMRAT prior then rides the
+    # joint's AMRAT axis (bit 4), widening the state 6x6 to a 7x7.
+    cart = transform_orbits(orbits, CartesianOrbits)
+    state6 = cart.covariance.joint(0).state_block()
+    amrat_prior = _prior_joint(state6, [AMRAT_PRIOR_VAR], present_bits=1 << 4)
     primed = CartesianOrbits.from_kwargs(
         orbit_id=orbits.orbit_id.to_pylist(),
         object_id=orbits.object_id.to_pylist(),
-        coordinates=cartesian_coords,
+        coordinates=cart.coordinates,
         non_grav=non_grav,
         srp=srp,
+        covariance=PackedJoints.from_joints([amrat_prior]),
     )
 
     # -- 3. 2009 BD optical astrometry + wide AMRAT refine -----------

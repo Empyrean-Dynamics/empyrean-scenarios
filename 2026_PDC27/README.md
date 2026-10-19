@@ -62,13 +62,13 @@ by how much (Park & Scheeres 2006).
 ![The 2038 impact probability, four ways](ip_evolution.png)
 
 One probability, four estimates. After the July 12 precovery jump the
-nonlinearity index κ sits between 13 and 50, and the analytic family
-spreads across two orders of magnitude: the linear estimate lies above
-the sampled value, the second-order estimate below it, and the
-adaptive Gaussian mixture closest among the analytic methods — the
-ordering expected at large κ (Park & Scheeres 2006; DeMars, Bishop &
-Jah 2013). The Monte Carlo band agrees with each published checkpoint
-(CNEOS / IAWN) within its 95% confidence interval.
+nonlinearity index κ sits between 11 and 39, and the four estimates
+converge to within ~0.002 of each other — linear, second-order and the
+adaptive Gaussian mixture all track the sampled value (0.160 at the
+jump, rising to 0.187–0.190 by Epoch 1), with only the faint ordering
+Park & Scheeres (2006) predict separating them. The Monte Carlo band
+agrees with each published checkpoint (CNEOS / IAWN) within its 95%
+confidence interval.
 
 ## The data
 
@@ -124,26 +124,26 @@ astrometry file, unmodified, with this attribution.
 52 synthetic observations (JPL CNEOS, Epoch 1)
 
 knowledge date  n_obs  kappa      linear   2nd-order      auto        MC (95% CI)     published (CNEOS/IAWN)
-2026-07-01      8     3.5    0.00010    0.00003    0.00003   0.000 ±0.000  
-2026-07-02     10     3.9    0.00018    0.00004    0.00004   0.000 ±0.000  
-2026-07-03     12     4.9    0.00027    0.00006    0.00006   0.000 ±0.000  
-2026-07-04     14     6.1    0.00039    0.00006    0.00006   0.000 ±0.000  
-2026-07-05     16    10.1    0.00051    0.00005    0.00005   0.000 ±0.000  
-2026-07-06     18     3.5    0.00075    0.00021    0.00021   0.006 ±0.007  
-2026-07-07     20     2.3    0.00092    0.00039    0.00039   0.000 ±0.000  
-2026-07-08     22    50.9    0.00116    0.00002    0.00032   0.001 ±0.003    ← 0.001 published
-2026-07-09     24    25.4    0.00137    0.00005    0.00043   0.001 ±0.003  
+2026-07-01      8     0.1    0.00010    0.00000    0.00010   0.000 ±0.000
+2026-07-02     10     0.0    0.00018    0.00000    0.00000   0.000 ±0.000
+2026-07-03     12     0.0    0.00029    0.00000    0.00000   0.000 ±0.000
+2026-07-04     14     0.0    0.00041    0.00001    0.00000   0.000 ±0.000
+2026-07-05     16     0.2    0.00055    0.00003    0.00001   0.000 ±0.000
+2026-07-06     18     0.0    0.00079    0.00009    0.00002   0.003 ±0.003
+2026-07-07     20     0.0    0.00097    0.00018    0.00005   0.000 ±0.000
+2026-07-08     22    11.2    0.00119    0.00011    0.00010   0.001 ±0.002    ← 0.001 published
+2026-07-09     24     4.3    0.00142    0.00027    0.00011   0.001 ±0.002
 2026-07-10      26   (no converged solution yet)
-2026-07-11     28     5.0    0.00181    0.00036    0.00036   0.000 ±0.000  
-2026-07-12     42    13.6    0.49777    0.04172    0.08505   0.160 ±0.023    ← 0.160 published
-2026-07-13     44    17.8    0.59705    0.04132    0.11234   0.165 ±0.023  
-2026-07-14     46    20.8    0.66693    0.04232    0.11580   0.169 ±0.023  
-2026-07-17     48    53.1    0.93359    0.04180    0.12866   0.175 ±0.024  
-2026-07-24     50    35.9    0.86094    0.04504    0.13212   0.183 ±0.024  
-2026-07-31     52    36.1    0.87715    0.04775    0.13638   0.190 ±0.024    ← 0.190 published
+2026-07-11     28     0.7    0.00191    0.00121    0.00035   0.000 ±0.000
+2026-07-12     42    11.5    0.16021    0.16022    0.16093   0.160 ±0.023    ← 0.160 published
+2026-07-13     44    14.5    0.16487    0.16488    0.16561   0.165 ±0.023
+2026-07-14     46    16.8    0.16953    0.16954    0.17061   0.169 ±0.023
+2026-07-17     48    38.6    0.17721    0.17722    0.17809   0.175 ±0.024
+2026-07-24     50    27.1    0.18157    0.18158    0.18237   0.183 ±0.024
+2026-07-31     52    27.7    0.18707    0.18707    0.18779   0.190 ±0.024    ← 0.190 published
 
 Epoch 1: MC 0.190 ± 0.024 vs 0.19 published (CNEOS / IAWN 2026-08-01);
-  linear 0.877, second-order 0.04775, auto 0.136 at κ ≈ 36 — the ordering expected for a strongly
+  linear 0.187, second-order 0.18707, auto 0.188 at κ ≈ 28 — the ordering expected for a strongly
   nonlinear mapping (Park & Scheeres 2006; DeMars+ 2013; Roa+ 2021).
 ```
 

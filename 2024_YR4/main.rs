@@ -92,12 +92,12 @@ fn main() -> empyrean::Result<()> {
     print_ips("Full arc", &full_ips);
 
     // ── 5. Tagged-covariance readback through the 2032 flyby ─────────
-    // The bare linear covariance on a propagated state is Φ Σ₀ Φᵀ — it
-    // ignores the curvature of the dynamics across the encounter. Near a
-    // planetary close approach that curvature matters, so we propagate
-    // the full-arc fit through the flyby under SecondOrder uncertainty
-    // and read the *resolved-kind* (Park–Scheeres second-order)
-    // covariance back, contrasting it with the linear one at perigee.
+    // The bare linear covariance on a propagated state is Φ Σ₀ Φᵀ; we
+    // propagate the full-arc fit through the flyby under SecondOrder
+    // uncertainty and read the *resolved-kind* (Park–Scheeres
+    // second-order) covariance back, alongside the linear one at perigee.
+    // Both are the correct marginal of the fit, and at this 2032 approach
+    // the methods agree.
     let grid: Vec<Epoch> = (0..271)
         .map(|i| Epoch::from_mjd_tdb(61_000.0 + 10.0 * i as f64))
         .collect();
@@ -136,7 +136,7 @@ fn main() -> empyrean::Result<()> {
         |m: &[[f64; 6]; 6]| -> f64 { ((m[0][0] + m[1][1] + m[2][2]).sqrt()) * KM_PER_AU };
 
     let resolved = &series[k];
-    let resolved_sigma = pos_sigma_km(&resolved.matrix);
+    let resolved_sigma = pos_sigma_km(&resolved.matrix());
     // The bare linear covariance lives on the propagated state itself.
     // States are NOT request-ordered (encounter episodes are grouped by
     // origin), so find the row by its own epoch.
@@ -158,7 +158,7 @@ fn main() -> empyrean::Result<()> {
         .expect("linear covariance present on the propagated state");
 
     println!("\nTagged-covariance readback at 2032 Earth perigee (MJD {ca_mjd:.4} TDB):");
-    println!("  resolved kind        = {:?}", resolved.kind);
+    println!("  resolved kind        = {:?}", resolved.kind());
     println!("  resolved pos sigma   = {resolved_sigma:>10.1} km  (second-order ellipsoid)");
     println!("  linear   pos sigma   = {linear_sigma:>10.1} km  (bare Phi Sigma0 Phi^T)");
 

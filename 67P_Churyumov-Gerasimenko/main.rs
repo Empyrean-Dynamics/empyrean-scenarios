@@ -18,24 +18,16 @@ fn main() -> empyrean::Result<()> {
 
     // ── 1. SBDB query — non-grav coefficients included ──────────────
     let batch = query_sbdb(&["67P"], None)?;
+    // SBDB ships 67P's outgassing time-delay DT (which shifts the g(r)
+    // evaluation) and its one packed-joint covariance. This walkthrough only
+    // propagates — the DT value is kept and the joint rides along; the removed
+    // `with_non_grav_dt_variance` builder (the old separate DT-sigma fit
+    // trigger) is gone.
     let orbit = batch
         .orbits
         .into_iter()
         .next()
-        .expect("SBDB returned no orbit for 67P")
-        // SBDB ships 67P's outgassing time-delay DT with its sigma. The
-        // sigma is a *fit prior* — it opens the DT solve column, which
-        // needs the Marsden A1/A2/A3 covariance alongside it. This
-        // walkthrough only propagates, so keep the DT value (it shifts
-        // the g(r) evaluation) and drop the fit trigger.
-        .with_non_grav_dt_variance(None);
-    // 0.10.0rc workaround (rc1 rebuilds the same engine, so it still applies): the Rust wrapper's query_sbdb populates the
-    // state<->non-grav cross-covariance without the 3x3 it conditions
-    // on, and the engine (correctly) refuses the half-attached joint.
-    // Clear the cross terms — this scenario reads nominal-trajectory
-    // numbers only. Remove once the wrapper attaches the full block.
-    let mut orbit = orbit;
-    orbit.state.non_grav_cross = None;
+        .expect("SBDB returned no orbit for 67P");
     println!("non-grav coefficients (SBDB):");
     println!("  A1 = {:.3e} AU/d^2", orbit.a1);
     println!("  A2 = {:.3e} AU/d^2", orbit.a2);
