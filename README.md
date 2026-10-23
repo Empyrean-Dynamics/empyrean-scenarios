@@ -101,6 +101,16 @@ The first run of any scenario downloads SPICE kernels (DE440, MPC
 observatory codes, Earth orientation BPCs) into the platform's XDG
 data directory; later runs reuse the cache.
 
+**Coding agents:** the `empyrean` skill tells Claude Code, Codex, Cursor,
+Copilot and Gemini CLI what the package does, how it is validated, and
+names these scenarios as the worked examples with reference values to
+check a result against. Install it with
+`claude plugin marketplace add Empyrean-Dynamics/empyrean` and
+`claude plugin install empyrean@empyrean-dynamics`, or with
+`npx skills add Empyrean-Dynamics/empyrean`; the plain-text index of the
+documentation is <https://docs.empyrean-dynamics.com/llms.txt>. See
+[Using empyrean with coding agents](https://docs.empyrean-dynamics.com/agents.html).
+
 ## Conventions
 
 Each scenario ships **three implementations** — `<dirname>/main.py`
