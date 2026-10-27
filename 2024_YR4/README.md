@@ -64,10 +64,10 @@ Discovery arc: chi2/dof = 0.081  RMS RA·cos(d) 0.183" Dec 0.234"  (170/171 obs)
 Full arc     : chi2/dof = 0.077  RMS RA·cos(d) 0.171" Dec 0.203"  (511/512 obs)
 
 2032 encounter — impact probability + miss geometry:
-  early arc  Earth   IP_linear =  0.160%  miss =   142356.1 km  sigma_d =  4036392.2 km
-  early arc  Moon    IP_linear =  0.027%  miss =   124378.7 km  sigma_d =  4485602.9 km
-  full arc   Earth   IP_linear =  0.000%  miss =   278877.3 km  sigma_d =    11812.6 km
-  full arc   Moon    IP_linear =  1.596%  miss =    23518.8 km  sigma_d =    12623.5 km
+  early arc  Earth   IP_linear =  0.160%  miss =   141206.1 km  sigma_d =  4036015.8 km
+  early arc  Moon    IP_linear =  0.027%  miss =   125657.2 km  sigma_d =  4488973.4 km
+  full arc   Earth   IP_linear =  0.000%  miss =   278877.4 km  sigma_d =    11812.6 km
+  full arc   Moon    IP_linear =  1.596%  miss =    23518.9 km  sigma_d =    12623.5 km
 
 Tagged-covariance readback at 2032 Earth perigee (MJD 63588.3481 TDB):
   resolved kind        = CovarianceKind.SECOND_ORDER

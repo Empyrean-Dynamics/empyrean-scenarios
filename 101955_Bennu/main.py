@@ -15,8 +15,8 @@ What it does:
     2. Anchors the epoch state on the 1999-2000 discovery apparition —
        optical plus its Arecibo/Goldstone radar ranging — then measures
        the drift: a joint (state + Marsden A-block) refine over the full
-       26-year optical arc, with the A-block seeded at zero (the 0.11.0-rc.0
-       engine estimates a zero-seeded non-grav axis) and opened by a Bayesian
+       26-year optical arc, with the A-block seeded at zero (the engine
+       estimates a zero-seeded non-grav axis) and opened by a Bayesian
        prior that pins the radial/normal components and leaves the transverse
        A2 wide. A2 IS the
        Yarkovsky measurement — recovered from the astrometry with an honest
@@ -24,7 +24,7 @@ What it does:
        (A real first-principles Vokrouhlický thermal model is on the engine
        roadmap.)
 
-    Verified run (empyrean 0.11.0-rc.0): A2 = -3.40e-14 ± 8.2e-15 AU/d² — a
+    Verified run (empyrean 0.11.0-rc.1): A2 = -3.39e-14 ± 8.2e-15 AU/d² — a
     4.1σ detection of the drift, consistent with JPL's radar-complete
     joint solution (-4.618e-14, Farnocchia 2021) at 1.5σ.
     3. Propagates the FITTED orbit ~72 years (2011-2083) at 5-day
@@ -136,7 +136,7 @@ def main() -> None:
     # fitted state 6x6 to 9 — the removed NonGravParams.covariance is gone.
     sigma_tight = 1e-15  # AU/d^2 — A1/A3 pinned ~30x below the A2 signal
     sigma_wide = 1e-12  # AU/d^2 — A2 unconstrained (~20x above the signal)
-    # The 0.11.0-rc.0 engine estimates a zero-seeded non-grav axis, so A2
+    # The engine estimates a zero-seeded non-grav axis, so A2
     # starts at exactly zero; the wide A2 prior keeps the fit data-driven
     # (a 0 and a -4.6e-14 seed converge to the same A2).
     a2_seed = 0.0  # AU/d^2 — estimated from zero; the data drive the value
@@ -157,7 +157,7 @@ def main() -> None:
     ).set_column("covariance", PackedJoints.from_joints([marsden_prior]))
     # Open the Marsden solve explicitly. The coarse STATE_AND_NONGRAV preset
     # reaches the same posterior from this prior; the explicit form names the
-    # axis being solved. The 0.11.0-rc.0 engine estimates the A2 axis from the
+    # axis being solved. The engine estimates the A2 axis from the
     # zero seed above (an earlier candidate left it silently at the seed); the
     # wide prior and the astrometry set the value.
     cfg = ODConfig(solve_for_flags=SolveFor(marsden="solved"))
@@ -202,7 +202,7 @@ def main() -> None:
     print("\nClose approaches (Empyrean):")
     p = prop.events.periapses
     bodies = p.body.to_pylist()
-    epochs_p = p.epoch.to_numpy(zero_copy_only=False)
+    epochs_p = p.epochs.mjd.to_numpy(zero_copy_only=False)
     dists = p.distance_km.to_numpy(zero_copy_only=False)
     for i in range(len(p)):
         print(f"  {bodies[i]:6s}  MJD {epochs_p[i]:.3f}  {dists[i]:>12.0f} km")

@@ -5,8 +5,8 @@ authors:
   - family-names: Moeyens
     given-names: Joachim
     orcid: "https://orcid.org/0000-0001-5820-3925"
-version: 0.8.1
-date-released: 2026-07-11
+version: 0.10.0
+date-released: 2026-08-23
 url: "https://github.com/Empyrean-Dynamics/empyrean-scenarios"
 repository-code: "https://github.com/Empyrean-Dynamics/empyrean-scenarios"
 license: BSD-3-Clause

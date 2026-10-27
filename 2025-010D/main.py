@@ -175,7 +175,7 @@ def main() -> None:
     for i in range(len(imp)):
         epoch_utc = (
             Epochs.from_mjd(
-                [imp.epoch.to_numpy(zero_copy_only=False)[i]],
+                [imp.epochs.mjd.to_numpy(zero_copy_only=False)[i]],
                 scale=TimeScale.TDB.value,
             )
             .to_utc()
@@ -213,7 +213,7 @@ def main() -> None:
             scorable = scorable.apply_mask([s != bad for s in scorable.stn.to_pylist()])
             print(f"(dropped unregistered community station {bad!r} from scoring)")
     r = ev.observations
-    t_mjd = r.epoch_mjd_tdb.to_numpy(zero_copy_only=False)
+    t_mjd = r.epochs.mjd_tdb()
     res_ra = r.ra_residual.to_numpy(zero_copy_only=False)
     res_dec = r.dec_residual.to_numpy(zero_copy_only=False)
     windows = [

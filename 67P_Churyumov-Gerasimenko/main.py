@@ -30,7 +30,7 @@ Authoritative cross-checks (printed inline):
     - SBDB DT reference: ~+46 d (outgassing lag past perihelion)
     - Marsden A1: ~1e-9 AU/d^2
 
-Verified run (empyrean 0.11.0-rc.0, 11,205 optical obs): fitted
+Verified run (empyrean 0.11.0-rc.1, 11,205 optical obs): fitted
 DT = 37.41 +/- 0.34 d, chi2/dof 1.342. That is ~8 d below JPL's
 published 45.69 d — far more than the formal sigma, and honestly so:
 the formal sigma conditions on the Marsden A-block held at its SBDB
