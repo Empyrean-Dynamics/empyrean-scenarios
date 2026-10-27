@@ -84,14 +84,14 @@ Converged:  True
 chi2/dof:   0.080
 RMS:        RA·cos(d) 0.514"  Dec 0.473"
 Selected:   9569/9577
-Fitted A1 = -4.103e-12  A2 = -2.849e-14
+Fitted A1 = -3.915e-12  A2 = -2.848e-14
 Reference  A1 = 5.000e-13     A2 = -2.902e-14   (JPL SBDB)
 Fitted H  = 18.39 +/- 0.20  (model PhotometryModel.HG12, chi2_r 1.81)
 Reference  H = 19.09   (JPL SBDB)
 
 Close approaches (Empyrean):
   Earth   MJD 62239.90709         38016 km
-  Moon    MJD 62240.60579         95942 km
+  Moon    MJD 62240.60579         95941 km
 Reference (JPL CAD):
   Earth   MJD 62239.907    38,012 km    (2029-04-13 21:46 UT)
 

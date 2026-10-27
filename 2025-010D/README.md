@@ -162,7 +162,7 @@ fit: chi2/dof 0.540  RMS RA·cos(d) 0.323" Dec 0.279"  (74/74 obs)
 Fitted AMR = 0.0029 ± 0.0011 m²/kg
 Gray (same 74-obs arc): 0.0079 ± 0.0017 m²/kg
 
-Predicted lunar impact (Empyrean): 2026-08-05T06:35:40.169292712Z
+Predicted lunar impact (Empyrean): 2026-08-05T06:35:40.168105834Z
   at 19.514°N 266.646°E (selenographic)
 Gray (74-obs arc):  2026-08-05T06:35:42.45Z at 19.577°N 266.630°E
 JPL #GA1A2/21:      2026-08-05T06:35:40Z ± 9 s at 19.507°N 266.7°E
@@ -170,9 +170,9 @@ Confirmed:          2026-08-05 ~06:35 UTC near crater Einstein
 
 Final-arc orbit scored against the full 402-obs record:
   own arc   (2026 Jul-Aug)   RMS         0.41"
-  Apr-May 2026               RMS       165.29"
-  Dec 2025                   RMS      1679.25"
-  Jan 2025 discovery         RMS    470474.39"
+  Apr-May 2026               RMS       165.31"
+  Dec 2025                   RMS      1679.32"
+  Jan 2025 discovery         RMS    471063.02"
 (Five orders of magnitude across two lunar encounters and a
  changing tumble — consistent with the per-arc solutions
  Project Pluto published; Gray 2026, Campbell et al. 2026.)

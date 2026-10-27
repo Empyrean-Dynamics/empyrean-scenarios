@@ -49,7 +49,7 @@ def main() -> None:
     # ── 1. SBDB query ──────────────────────────────────────────────
     orbits = empyrean.query_sbdb(["2020 CD3"])
     print(f"Object: {orbits.object_id.to_pylist()[0]}")
-    print(f"Epoch MJD TDB: {orbits.coordinates.epoch.to_numpy()[0]:.1f}")
+    print(f"Epoch MJD TDB: {orbits.coordinates.epochs.mjd.to_numpy()[0]:.1f}")
     ng = orbits.non_grav
     print(
         f"non-grav coefficients (SBDB):  A1 = {ng.a1.to_numpy()[0]:.3e}  "
@@ -105,7 +105,7 @@ def main() -> None:
         n_earth = sum(1 for b in bodies if b == "Earth")
         n_moon = sum(1 for b in bodies if b == "Moon")
         dist = p.distance_km.to_numpy()
-        ep = p.epoch.to_numpy()
+        ep = p.epochs.mjd.to_numpy()
         earth_cas = sorted(
             ((ep[i], dist[i]) for i in range(len(bodies)) if bodies[i] == "Earth"),
             key=lambda x: x[1],
@@ -134,7 +134,7 @@ def main() -> None:
         xs = geo.x.to_numpy(zero_copy_only=False)
         ys = geo.y.to_numpy(zero_copy_only=False)
         zs = geo.z.to_numpy(zero_copy_only=False)
-        eps = geo.epoch.to_numpy(zero_copy_only=False)
+        eps = geo.epochs.mjd.to_numpy(zero_copy_only=False)
         au_km = 149_597_870.7
         r_km = (xs**2 + ys**2 + zs**2) ** 0.5 * au_km
         k = int(r_km.argmin())

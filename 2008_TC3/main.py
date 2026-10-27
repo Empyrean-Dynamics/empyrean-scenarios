@@ -94,7 +94,7 @@ def main() -> None:
     ae = prop.events.atmospheric_entries
     au_per_day_to_km_per_s = 149_597_870.7 / 86_400.0
     for i in range(len(ae)):
-        epoch = ae.epoch.to_numpy(zero_copy_only=False)[i]
+        epoch = ae.epochs.mjd.to_numpy(zero_copy_only=False)[i]
         v_rel = ae.relative_velocity_au_day.to_numpy(zero_copy_only=False)[i]
         alt = ae.altitude_km.to_numpy(zero_copy_only=False)[i]
         # The entry event carries its planetodetic ground point — the

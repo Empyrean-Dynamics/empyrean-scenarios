@@ -9,13 +9,13 @@ fn main() -> empyrean::Result<()> {
     let _ctx = Context::from_data_dir(None)?;
 
     // empyrean:snippet:start
-    use empyrean::{query_horizons, query_observations, query_sbdb};
+    use empyrean::{Epoch, query_horizons, query_observations, query_sbdb};
 
     // SBDB: elements + covariance + non-grav + photometry
     let batch = query_sbdb(&["Apophis", "Eros"], None)?;
 
     // Horizons: reference ephemeris for validation (epochs in MJD TDB)
-    let eph_ref = query_horizons(&["Apophis"], "W84", &[60200.0], None)?;
+    let eph_ref = query_horizons(&["Apophis"], "W84", &[Epoch::from_mjd_tdb(60200.0)], None)?;
 
     // MPC: astrometric observations in ADES
     let obs = query_observations(&["Apophis"], None)?;

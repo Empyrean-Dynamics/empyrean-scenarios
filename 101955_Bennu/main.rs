@@ -72,7 +72,7 @@ fn main() -> empyrean::Result<()> {
     // drift. The inverse-square g(r) is the Yarkovsky convention.
     let sigma_tight = 1e-15_f64; // AU/d^2 — A1/A3 pinned ~30x below the A2 signal
     let sigma_wide = 1e-12_f64; // AU/d^2 — A2 unconstrained (~20x above the signal)
-    // The 0.11.0-rc.0 engine estimates a zero-seeded non-grav axis, so A2
+    // The engine estimates a zero-seeded non-grav axis, so A2
     // starts at exactly zero; the wide A2 prior keeps the fit data-driven
     // (a 0 and a -4.6e-14 seed converge to the same A2).
     let a2_seed = 0.0_f64; // estimated from zero; the data drive the value

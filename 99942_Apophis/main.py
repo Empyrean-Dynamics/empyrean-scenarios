@@ -123,7 +123,7 @@ def main() -> None:
     print("\nClose approaches (Empyrean):")
     p = prop.events.periapses
     bodies = p.body.to_pylist()
-    epochs_p = p.epoch.to_numpy(zero_copy_only=False)
+    epochs_p = p.epochs.mjd.to_numpy(zero_copy_only=False)
     dists = p.distance_km.to_numpy(zero_copy_only=False)
     for i in range(len(p)):
         print(f"  {bodies[i]:6s}  MJD {epochs_p[i]:.5f}  {dists[i]:>12.0f} km")
@@ -145,7 +145,7 @@ def main() -> None:
         # Output rows are NOT request-ordered (encounter episodes are
         # grouped by origin), so look every table up by ITS OWN epoch
         # column — never by request-grid position.
-        out_mjd = prop.states.coordinates.epoch.to_numpy(zero_copy_only=False)
+        out_mjd = prop.states.coordinates.epochs.mjd.to_numpy(zero_copy_only=False)
         k_state = int(np.argmin(np.abs(out_mjd - ca_mjd)))
 
         # σ_pos = sqrt(trace of the 3×3 position block), AU → km.
@@ -159,7 +159,7 @@ def main() -> None:
         print(f"  bare linear        sigma_pos = {pos_sigma_km(linear):>10.0f} km")
 
         series = prop.tagged_covariance_series(0)
-        series_mjd = np.array([tc.epoch_mjd_tdb for tc in series])
+        series_mjd = np.array([tc.epoch.mjd_tdb()[0] for tc in series])
         resolved = series[int(np.argmin(np.abs(series_mjd - ca_mjd)))]
         print(
             f"  resolved {resolved.kind.value:<12s} sigma_pos = "

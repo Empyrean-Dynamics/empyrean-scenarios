@@ -31,7 +31,7 @@ def main() -> None:
         print(
             f"{ev.event_type.to_pylist()[i]:25s} "
             f"{ev.body.to_pylist()[i]:8s} "
-            f"MJD {ev.epoch.to_numpy()[i]:.2f}"
+            f"MJD {ev.epochs.mjd.to_numpy()[i]:.2f}"
         )
 
     # Typed event tables for specific categories

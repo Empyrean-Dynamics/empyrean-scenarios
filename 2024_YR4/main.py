@@ -113,16 +113,16 @@ def main() -> None:
     # of the fit, and at this 2032 approach the methods agree.
     peri = full_prop.events.periapses
     bodies = peri.body.to_pylist()
-    peri_mjd = peri.epoch.to_numpy(zero_copy_only=False)
+    peri_mjd = peri.epochs.mjd.to_numpy(zero_copy_only=False)
     ca_mjd = next(peri_mjd[i] for i in range(len(bodies)) if bodies[i] == "Earth")
 
     # Resolved-kind covariance, one tag per output epoch. The states
     # table is NOT request-ordered (encounter episodes are grouped by
     # origin), so each table is looked up by its own epoch column.
     series = full_prop.tagged_covariance_series(0)
-    out_mjd = np.array([tc.epoch_mjd_tdb for tc in series])
+    out_mjd = np.array([tc.epoch.mjd_tdb()[0] for tc in series])
     k = int(np.argmin(np.abs(out_mjd - ca_mjd)))
-    state_mjd = full_prop.states.coordinates.epoch.to_numpy(zero_copy_only=False)
+    state_mjd = full_prop.states.coordinates.epochs.mjd.to_numpy(zero_copy_only=False)
     k_state = int(np.argmin(np.abs(state_mjd - ca_mjd)))
 
     def _pos_sigma_km(m) -> float:

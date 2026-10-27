@@ -84,25 +84,25 @@ Converged:  True
 chi2/dof:   0.315
 RMS:        RA·cos(d) 0.758"  Dec 0.348"
 Selected:   603/603
-Fitted A2 (≈ Yarkovsky) = -3.395e-14 +/- 8.2e-15 AU/d^2
+Fitted A2 (≈ Yarkovsky) = -3.391e-14 +/- 8.2e-15 AU/d^2
 Reference                 -4.618e-14 AU/d^2   (Farnocchia 2021,
                           radar-complete joint solution)
 
 Close approaches (Empyrean):
-  Earth   MJD 73725.025        749639 km
-  Earth   MJD 81029.167       2102437 km
+  Earth   MJD 73725.025        749640 km
+  Earth   MJD 81029.167       2101695 km
 Reference (JPL CAD nominal):
   Earth   MJD 73725 (2060-09-23)   ~750,000 km
 
 Earth B-plane geometry (Empyrean):
-  MJD 73725.025  |B| =     749639 km  3-sigma semi-major =    918.6 km
-  MJD 81029.167  |B| =    2102437 km  3-sigma semi-major = 414309.1 km
+  MJD 73725.025  |B| =     749640 km  3-sigma semi-major =    918.6 km
+  MJD 81029.167  |B| =    2101695 km  3-sigma semi-major = 414306.2 km
 (2060 B-plane uncertainty input to any downstream resonant-return analysis; 3-sigma ellipse grows 451x by 2080.)
 ```
 
 ## The measurement, in context
 
-The fitted A2 = −3.395×10⁻¹⁴ ± 8.2×10⁻¹⁵ AU/d² is a 4.1σ detection of
+The fitted A2 = −3.391×10⁻¹⁴ ± 8.2×10⁻¹⁵ AU/d² is a 4.1σ detection of
 the Yarkovsky drift, consistent (1.5σ) with Farnocchia 2021's
 −4.618×10⁻¹⁴. The published value's sub-1% precision comes from a
 radar-complete joint solution plus OSIRIS-REx spacecraft tracking —
