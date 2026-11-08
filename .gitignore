@@ -44,3 +44,4 @@ htmlcov/
 .env.local
 # per-run machine-readable dump from 2026_PDC27/main.py
 ip_evolution.npy
+.nasa_lro_cache/
