@@ -183,6 +183,88 @@ optical-only public astrometry — and a residual ladder spanning five
 orders of magnitude that shows exactly why every arc of a tumbling
 rocket body earns its own fit.
 
+## Ground truth: LRO imaged the crater
+
+NASA's Lunar Reconnaissance Orbiter photographed the impact site on
+2026-08-11/12 and located the fresh crater, about 60 ft across, at
+**19.4759°N, 266.7138°E** (511 m elevation), inside JPL's final
+impact-probability ellipse. Against that ground truth, the optical-only
+forecasts land as follows (great-circle offsets on a 1737.4 km sphere):
+
+| Prediction | Site | Offset from crater |
+|---|---|---|
+| CNEOS / JPL terrain-aware nominal (blue marker on NASA's map) | n/a (3σ ellipse 3.4 × 0.6 km) | 0.2 km, NNE |
+| CNEOS / JPL nominal without terrain (red marker) | n/a (3σ ellipse 3.4 × 0.6 km) | 1.1 km, NNW |
+| **This scenario** (optical, 74-obs public arc) | 19.514°N, 266.646°E (no site uncertainty is computed) | 2.3 km, WNW |
+| Gray / Project Pluto (same 74-obs arc) | 19.577°N, 266.630°E (no uncertainty stated in the pseudo-MPEC) | 3.9 km, NW |
+
+![LRO ground truth vs predicted impact sites](lro_impact_site.png)
+
+*Top left: Kaguya Terrain Camera ortho-mosaic wide field (JAXA/SELENE via
+USGS Astrogeology), with the predicted sites marked. Top right: NASA/JPL-Caltech
+impact-probability ellipses (both 2.1 mi × 0.4 mi per NASA's caption, JPL's 3σ
+ellipse; the blue one accounts for lunar terrain), georeferenced from the
+ellipse's own 3.4 km length (~5.5 m/px, north up) and anchored on the crater
+marker. The JPL offsets are measured from NASA's markers rather than from the
+Horizons coordinates, which are published only to 0.1° of longitude (~1.4 km).
+Bottom left and bottom right: LRO NAC frames before and after the impact, NASA
+Goddard/Intuitive Machines, ~400 m wide, north up; the arrows point toward each
+prediction, all of which lie outside these frames.* `lro_figure.py` builds the
+figure from the NASA release images and the Kaguya mosaic, which are public
+domain or freely available (credit as shown).
+
+### Why two kilometers, and what would have done better
+
+Decomposing each miss along the approach direction (the stage arrived
+travelling toward azimuth ~52°, 2.42 km/s) separates *when* from *where*:
+
+| Prediction | Along-track | Cross-track |
+|---|---|---|
+| This scenario (74-obs public arc) | −0.8 km (−0.4 s) | −2.1 km |
+| Gray / Project Pluto (74-obs public arc) | 0.0 km | −3.9 km |
+| Gray / Project Pluto (final, all data) | +0.1 km | −0.5 km |
+| CNEOS / JPL terrain-aware nominal | +0.2 km (+0.1 s) | −0.1 km |
+
+Timing was solved by everyone. The error is cross-track, and every
+solution sits on the same side of the ground track. Two comparisons
+matter here. First, on the *same* 74-observation public arc, this
+scenario's fit (2.3 km miss) and Gray's (3.9 km miss) agree on the impact
+time to 0.4 s and land on the same patch of ground, with ours the closer
+of the two. That is an independent reproduction of his public-arc result,
+not a mismatch. Second, Gray's *final* prediction (2026-08-01) landed
+0.49 km from the crater (19.461°N 266.707°E, "near Einstein" on his page).
+It uses his full observation record; Gray reports 1,053 observations as
+of 2026-02-26. Most of that record is not in the 74-observation public
+set shipped here, so his final solution cannot be reproduced from this
+directory. The gap between his 3.9 km public-arc fit and his 0.49 km
+final is the value of that additional astrometry, the same lever radar
+pulls. Gray states a
+formal precision of about 0.5 s and 0.01° (~0.3 km) but says he does not
+trust it to better than a few seconds and a few kilometers. CNEOS's
+no-terrain nominal sits at −1.1 km from the crater, and their
+terrain-aware solution pulls it to within 0.2 km (JPL 3σ ellipse
+3.4 × 0.6 km). [`amr_sensitivity.py`](./amr_sensitivity.py)
+shows where it comes from: holding the solar-radiation-pressure
+area-to-mass ratio at a ladder of values and refitting the same
+74-observation arc slides the impact site ~0.8 km cross-track per
+0.001 m²/kg while the fit quality barely moves (χ²/dof 0.477 at the
+solved 0.0029, 0.470 at 0.0050, where the miss collapses to 1.0 km,
+and 0.479 at 0.0060). Over nine nights of plane-of-sky astrometry, SRP
+is nearly degenerate with the gravitational signal, and the fit cannot
+tell 0.003 from 0.006.
+
+That is exactly the degeneracy radar breaks. JPL's #GA1A2/21 is a fit
+to 370 measurements spanning 2026-07-20 to 08-04 that includes three
+radar Doppler measurements (Horizons solution notes, S. Naidu): five
+times the data, an arc reaching the eve of impact, and range-rate
+pinning the axis optical astrometry constrains worst. It lands
+0.2 km from the crater once lunar terrain is included. Without radar,
+the honest improvements are a physically informed AMR prior from the
+stage's known mass and dimensions, or reporting the AMR-marginalized
+ellipse instead of a point. (A frame mismatch is ruled out: the engine
+rotates the DE440 principal-axis orientation into the Mean Earth frame
+that Gray, JPL, and LROC all report in.)
+
 ## References
 
 - Gray, B. 2026, "A Falcon 9 second stage will hit the moon", Project Pluto — <https://www.projectpluto.com/25010d.htm>; pseudo-MPECs 25010d and 25010d_new (the astrometry, orbit solutions, and impact predictions compared above).
