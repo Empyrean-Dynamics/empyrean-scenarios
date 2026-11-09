@@ -9,7 +9,7 @@
 //! ```
 //!
 //! Authoritative cross-checks (printed inline):
-//!   - A2 = -4.618e-14 AU/d² (~284 m/orbit)              (Farnocchia 2021)
+//!   - A2 = -4.618e-14 au/d² (~284 m/orbit)              (Farnocchia 2021)
 //!   - 2060-09-23, geocentric ~750,000 km                (JPL CAD)
 
 // empyrean:snippet:start
@@ -25,7 +25,7 @@ fn main() -> empyrean::Result<()> {
     // ── 1. Optical astrometry (MPC) + radar astrometry (JPL) ────────
     // Bennu's 29 delay/Doppler measurements from Arecibo and Goldstone
     // (1999, 2005, 2011) pin the line-of-sight distance at the ~100 m
-    // level — the ranging record behind the classic Yarkovsky
+    // level. That ranging record underlies the classic Yarkovsky
     // detection (Chesley et al. 2014).
     let optical = query_observations(&["101955"], None)?;
     let radar = query_radar(&["101955"], None)?;
@@ -39,7 +39,7 @@ fn main() -> empyrean::Result<()> {
     // A state-only fit over the FULL arc would silently absorb the
     // Yarkovsky drift into the epoch state (aliasing the very signal we
     // want to measure), so the anchor uses only the 1999-2000 discovery
-    // apparition — short enough that the drift is negligible — with its
+    // apparition (short enough that the drift is negligible) with its
     // radar ranging.
     let short = optical.filter_by_epoch(None, Some(Epoch::from_mjd_tdb(51910.0)))?;
     let radar_short: Vec<_> = radar
@@ -66,18 +66,18 @@ fn main() -> empyrean::Result<()> {
     );
 
     // ── 2b. Measure: joint state + A2 refine over the full 26-yr arc ─
-    // Bennu's arc constrains the TRANSVERSE component only — the A-block
+    // Bennu's arc constrains the TRANSVERSE component only: the A-block
     // is seeded at zero and opened by a Bayesian prior that pins A1/A3 near
     // zero and leaves A2 wide: the astrometry, not the prior, measures the
     // drift. The inverse-square g(r) is the Yarkovsky convention.
-    let sigma_tight = 1e-15_f64; // AU/d^2 — A1/A3 pinned ~30x below the A2 signal
-    let sigma_wide = 1e-12_f64; // AU/d^2 — A2 unconstrained (~20x above the signal)
+    let sigma_tight = 1e-15_f64; // au/d^2: A1/A3 pinned ~30x below the A2 signal
+    let sigma_wide = 1e-12_f64; // au/d^2: A2 unconstrained (~20x above the signal)
     // The engine estimates a zero-seeded non-grav axis, so A2
     // starts at exactly zero; the wide A2 prior keeps the fit data-driven
     // (a 0 and a -4.6e-14 seed converge to the same A2).
     let a2_seed = 0.0_f64; // estimated from zero; the data drive the value
     // The Marsden prior rides the orbit's one packed joint now (A1/A2/A3 on
-    // present bits 0/1/2), widening the anchor's fitted state 6x6 to 9 — the
+    // present bits 0/1/2), widening the anchor's fitted state 6x6 to 9. The
     // removed `with_nongrav_covariance` builder is gone.
     let state6 = anchor
         .orbit
@@ -122,18 +122,18 @@ fn main() -> empyrean::Result<()> {
         s.rms_ra_arcsec, s.rms_dec_arcsec
     );
 
-    // The tagged solved covariance names each fitted parameter's slot —
-    // read σ_A2 from the A2 row rather than guessing at column order.
+    // The tagged solved covariance names each fitted parameter's slot.
+    // Read σ_A2 from the A2 row rather than guessing at column order.
     let a2 = result.orbit.a2;
     match &result.solved_covariance {
         Some(sc) if sc.marsden_slot.is_some() => {
             let row = sc.marsden_slot.unwrap() + 1; // Marsden block is (A1, A2, A3)
             let sigma = sc.matrix[row][row].sqrt();
-            println!("Fitted A2 (≈ Yarkovsky) = {a2:.3e} +/- {sigma:.1e} AU/d^2");
+            println!("Fitted A2 (≈ Yarkovsky) = {a2:.3e} +/- {sigma:.1e} au/d^2");
         }
-        _ => println!("Fitted A2 (≈ Yarkovsky) = {a2:.3e} AU/d^2"),
+        _ => println!("Fitted A2 (≈ Yarkovsky) = {a2:.3e} au/d^2"),
     }
-    println!("Reference                 -4.618e-14 AU/d^2   (Farnocchia 2021,");
+    println!("Reference                 -4.618e-14 au/d^2   (Farnocchia 2021,");
     println!("                          radar-complete joint solution)");
 
     // ── 3. Propagate the fitted orbit ~72 years (2011 → 2083) ───────
@@ -155,12 +155,12 @@ fn main() -> empyrean::Result<()> {
     let prop = ctx.propagate(std::slice::from_ref(&orbit), &epochs, &prop_config)?;
 
     // ── 4. Close approaches ─────────────────────────────────────────
-    println!("\nClose approaches (Empyrean):");
+    println!("\nClose approaches (empyrean):");
     for ev in prop.events.iter().filter(|e| e.event_type == "periapsis") {
         let body = ev
             .body
             .map(|b| format!("{b:?}"))
-            .unwrap_or_else(|| "—".into());
+            .unwrap_or_else(|| "n/a".into());
         println!(
             "  {:6}  MJD {:.3}  {:>12.0} km",
             body,
@@ -173,8 +173,8 @@ fn main() -> empyrean::Result<()> {
 
     // ── 5. B-plane geometry at each Earth encounter ─────────────────
     // Gravitational covariance amplification at close approach made
-    // quantitative: the 2060 3σ ellipse — now traceable to the fitted
-    // covariance — inflates by orders of magnitude through the flyby.
+    // quantitative: the 2060 3σ ellipse (now traceable to the
+    // fitted covariance) inflates by orders of magnitude through the flyby.
     // The growth factor is computed live below.
     let b_planes = ctx.compute_b_planes(
         &[orbit],
@@ -182,7 +182,7 @@ fn main() -> empyrean::Result<()> {
         &[UncertaintyMethod::SecondOrder],
         &[Origin::Earth],
     )?;
-    println!("\nEarth B-plane geometry (Empyrean):");
+    println!("\nEarth B-plane geometry (empyrean):");
     let earth_sm: Vec<f64> = b_planes
         .iter()
         .filter(|b| b.body == Origin::Earth)
@@ -211,7 +211,7 @@ fn main() -> empyrean::Result<()> {
 /// A block-diagonal refine prior: the fit's state 6x6 plus one diagonal prior
 /// variance per parameter axis (zero cross terms). The Marsden / DT / AMRAT
 /// prior rides the orbit's one packed joint now (present bit 0=A1, 1=A2, 2=A3,
-/// 3=DT, 4=AMRAT) — the removed `with_nongrav_covariance` /
+/// 3=DT, 4=AMRAT). The removed `with_nongrav_covariance` /
 /// `with_srp_amrat_variance` / `with_non_grav_dt_variance` builders are gone.
 fn prior_joint(
     state6: [[f64; 6]; 6],

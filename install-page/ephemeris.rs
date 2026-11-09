@@ -27,12 +27,12 @@ fn main() -> empyrean::Result<()> {
 
     for row in eph.entries.iter() {
         println!(
-            "RA = {:.6}\u{00B0}  Dec = {:.6}\u{00B0}  range = {:.6} AU",
+            "RA = {:.6}\u{00B0}  Dec = {:.6}\u{00B0}  range = {:.6} au",
             row.ra_deg, row.dec_deg, row.rho_au
         );
     }
 
-    // Photometry — V-band magnitude with 1-sigma uncertainty
+    // Photometry: V-band magnitude with 1-sigma uncertainty
     for row in eph.entries.iter() {
         let (m, s) = (row.mag, row.mag_sigma);
         println!("V = {m:.2} \u{00B1} {s:.2}");

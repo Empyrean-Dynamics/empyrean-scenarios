@@ -14,8 +14,8 @@ executed outputs, or opens directly in Colab via the badge above.
 briefly held the highest impact probability ever recorded for an
 asteroid (~2.7% for 2029, before tracking pinned it down) and remains
 the most-observed potentially-hazardous asteroid in the catalogue. Its
-trajectory carries it inside the geosynchronous belt on 2029-04-13 —
-about 38,000 km geocentric, naked-eye visible from parts of Europe and
+trajectory carries it inside the geosynchronous belt on 2029-04-13, at about
+38,000 km geocentric and naked-eye visible from parts of Europe and
 Africa.
 
 The 2029 flyby is also a textbook resonant-return / keyhole problem:
@@ -40,11 +40,11 @@ risk list on 2021-02-21.
    consistent with Yarkovsky thermal recoil and is fit empirically with
    inverse-square g(r); a real first-principles Vokrouhlický thermal
    model is on the engine roadmap. (The radial A1 is weakly
-   constrained by astrometry and drifts with the arc — expect it to
+   constrained by astrometry and drifts with the arc, so expect it to
    disagree with SBDB's value by tens of percent; the transverse A2,
    which carries the Yarkovsky signal, is the one that should and
    does match.) The hyperdual integrator computes
-   the (O−C) Jacobian against all 9 parameters analytically — no
+   the (O−C) Jacobian against all 9 parameters analytically, with no
    finite-differencing of the 21-year arc.
 
 3. **Forward-propagates with second-order STT.** State Transition
@@ -64,8 +64,8 @@ risk list on 2021-02-21.
 |---|---|---|
 | 2029 Earth CA epoch | 2029-04-13 21:46 UT (MJD 62239.907) | JPL CAD |
 | 2029 Earth CA distance | 38,012 km (≈6 R⊕) | JPL CAD |
-| Marsden A1 | ≈ 5×10⁻¹³ AU/d² (radial) | JPL SBDB |
-| Marsden A2 (≈ Yarkovsky) | ≈ −2.9×10⁻¹⁴ AU/d² (transverse) | JPL SBDB |
+| Marsden A1 | ≈ 5×10⁻¹³ au/d² (radial) | JPL SBDB |
+| Marsden A2 (≈ Yarkovsky) | ≈ −2.9×10⁻¹⁴ au/d² (transverse) | JPL SBDB |
 | Sentry removal | 2021-02-21 | NASA / CNEOS |
 | Cleared through | 2121 (100-year horizon at removal) | NASA / CNEOS |
 
@@ -73,7 +73,7 @@ The 2029 flyby is the geometric event that any future-impact analysis
 is anchored on. The script's printed B-plane uncertainty (3σ semi-major
 ~47 km for the 9-parameter state + non-grav solve) is the
 input geometry that downstream resonant-return / keyhole analyses
-(Valsecchi-Rossi-Milani 2003) consume — Empyrean produces the input;
+(Valsecchi-Rossi-Milani 2003) consume, and empyrean produces the input;
 the keyhole catalog itself is a separate roadmap item.
 
 ## Expected output (rough)
@@ -84,23 +84,23 @@ Converged:  True
 chi2/dof:   0.080
 RMS:        RA·cos(d) 0.514"  Dec 0.473"
 Selected:   9569/9577
-Fitted A1 = -3.915e-12  A2 = -2.848e-14
+Fitted A1 = -3.916e-12  A2 = -2.848e-14
 Reference  A1 = 5.000e-13     A2 = -2.902e-14   (JPL SBDB)
 Fitted H  = 18.39 +/- 0.20  (model PhotometryModel.HG12, chi2_r 1.81)
 Reference  H = 19.09   (JPL SBDB)
 
-Close approaches (Empyrean):
+Close approaches (empyrean):
   Earth   MJD 62239.90709         38016 km
   Moon    MJD 62240.60579         95941 km
 Reference (JPL CAD):
   Earth   MJD 62239.907    38,012 km    (2029-04-13 21:46 UT)
 
-Flyby covariance readback (Empyrean, grid MJD 62240.000):
+Flyby covariance readback (empyrean, grid MJD 62240.000):
   bare linear        sigma_pos =         25 km
   resolved second_order sigma_pos =         25 km
   2nd-order mean shift |dmu_prop| =        0 km
 
-2029 Earth B-plane geometry (Empyrean):
+2029 Earth B-plane geometry (empyrean):
   B*T =     -37502 km
   B*R =      -6232 km
   3-sigma semi-major =     46.8 km

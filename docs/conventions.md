@@ -68,7 +68,7 @@ if __name__ == "__main__":
 
 5. **Reference values cited inline.** Every quantitative reference
    value appears next to the corresponding script output, prefixed by
-   `Reference (...)` plus the source — JPL CAD, JPL Sentry, JPL SBDB,
+   `Reference (...)` plus the source: JPL CAD, JPL Sentry, JPL SBDB,
    or a paper citation (Borovička+ 2010, Farnocchia 2021, etc.).
 
 6. **No platform / API references.** Scripts are reproducible from
@@ -84,7 +84,7 @@ if __name__ == "__main__":
 ## Adding a new scenario
 
 1. Match the corresponding explore-mode scenario on
-   empyrean-dynamics.com — the numbers should agree with what the
+   empyrean-dynamics.com. The numbers should agree with what the
    panel shows.
 2. Create a per-object directory at the repo root, named for the
    object's full canonical designation: `<number>_<Name>` for named
@@ -92,9 +92,9 @@ if __name__ == "__main__":
    `67P_Churyumov-Gerasimenko`), or the provisional designation
    alone for unnamed objects (e.g. `2024_YR4`). Put three files
    inside:
-   - `<dirname>/main.py` — Python implementation
-   - `<dirname>/main.rs` — Rust twin
-   - `<dirname>/README.md` — scientific background, data sources,
+   - `<dirname>/main.py`: Python implementation
+   - `<dirname>/main.rs`: Rust twin
+   - `<dirname>/README.md`: scientific background, data sources,
      expected output, comparison to authoritative reference values
 3. Add a `[[bin]]` entry in the top-level `Cargo.toml` pointing at
    `<dirname>/main.rs` with a short, CLI-friendly `name` (e.g.
@@ -116,7 +116,7 @@ if __name__ == "__main__":
 
 ## Version pinning
 
-Both manifests pin the published `empyrean` release **exactly** —
+Both manifests pin the published `empyrean` release **exactly**:
 `empyrean==X.Y.Z` in `pyproject.toml` and `empyrean = "=X.Y.Z"` in
 `Cargo.toml` (cargo's bare `"X.Y.Z"` is a caret range and would float
 across patch releases).
@@ -125,7 +125,7 @@ The pin, every scenario's "Expected output (rough)" block, and any
 version-coupled numbers in the READMEs form one atomic artifact:
 they are updated together, in a single commit, per release. Bumping
 the pin means re-running every scenario in both languages against the
-new release and regenerating the blocks — that re-run is the upgrade
+new release and regenerating the blocks. That re-run is the upgrade
 validation, and diffs in the blocks are the changelog of what the
 release changed for these objects. Never bump the pin without
 refreshing the blocks, and never use a version range: a fresh clone
@@ -133,12 +133,12 @@ must print the committed numbers (modulo live-astrometry drift, which
 the blocks are marked "rough" for).
 
 The `empyrean X.Y.Z` badge in the top-level README is part of the same
-atomic artifact — it displays the pinned version the committed outputs
+atomic artifact: it displays the pinned version the committed outputs
 were generated with, and is updated in the same pin-bump commit.
 
 The repo itself is versioned in lockstep: the manifests' own `version`
 matches the pinned empyrean release, and a `vX.Y.Z` tag marks each
-pin-bump commit — checking out scenarios `vX.Y.Z` gives the
+pin-bump commit, and checking out scenarios `vX.Y.Z` gives the
 walkthroughs-of-record for empyrean `X.Y.Z`. Content added between
 releases (new scenarios, prose) evolves on `main` untagged and is swept
 into the next pin-bump tag.

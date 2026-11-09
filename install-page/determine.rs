@@ -3,7 +3,7 @@
 //! Reproducer for the "Determine an Orbit" section of
 //! <https://empyrean-dynamics.com/install>. Reads ADES PSV from a sample
 //! file in this directory, fits an orbit, then inspects and refines that
-//! same fit — each step hands its `orbit` to the next.
+//! same fit. Each step hands its `orbit` to the next.
 
 use empyrean::Context;
 
@@ -33,7 +33,7 @@ fn main() -> empyrean::Result<()> {
     );
 
     // `fit.orbit` is a re-feedable Orbit (state + covariance + non-grav).
-    // Evaluate its own residuals against the arc — no fitting:
+    // Evaluate its own residuals against the arc (no fitting):
     let eval = ctx.evaluate(&fit.orbit, &obs, &cfg)?;
     println!("post-fit chi2 = {:.1}", eval.summary.chi2);
 

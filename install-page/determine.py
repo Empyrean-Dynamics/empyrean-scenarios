@@ -2,8 +2,8 @@
 
 Reproducer for the "Determine an Orbit" section of
 https://empyrean-dynamics.com/install. Reads ADES PSV from a sample file in
-this directory, fits an orbit, then inspects and refines that same fit —
-each step hands its ``orbit`` to the next.
+this directory, fits an orbit, then inspects and refines that same fit.
+Each step hands its ``orbit`` to the next.
 """
 
 from __future__ import annotations
@@ -20,7 +20,7 @@ def main() -> None:
 
     # empyrean:snippet:start
     # Read ADES PSV observations (file path or PSV string). ADES models
-    # radar as its own top-level table, so read_ades returns both —
+    # radar as its own top-level table, so read_ades returns both:
     # unpack the (optical, radar) tuple.
     obs, radar = empyrean.read_ades(PSV)
 
@@ -35,7 +35,7 @@ def main() -> None:
     )
 
     # `fit.orbit` is a re-feedable orbit (state + covariance + non-grav).
-    # Evaluate its own residuals against the arc — no fitting:
+    # Evaluate its own residuals against the arc (no fitting):
     ev = empyrean.evaluate(fit.orbit, obs)
     print(f"post-fit chi2 = {ev.summary.chi2:.1f}")
 

@@ -28,11 +28,11 @@ What it does:
 Authoritative cross-checks (printed inline):
     - Orbital period: 6.44 years
     - SBDB DT reference: ~+46 d (outgassing lag past perihelion)
-    - Marsden A1: ~1e-9 AU/d^2
+    - Marsden A1: ~1e-9 au/d^2
 
 Verified run (empyrean 0.11.0-rc.1, 11,205 optical obs): fitted
 DT = 37.41 +/- 0.34 d, chi2/dof 1.342. That is ~8 d below JPL's
-published 45.69 d — far more than the formal sigma, and honestly so:
+published 45.69 d, which is far more than the formal sigma, and honestly so:
 the formal sigma conditions on the Marsden A-block held at its SBDB
 prior, while JPL's DT comes from a joint solve of all four
 non-gravitational parameters over a different (radar-inclusive) data
@@ -70,7 +70,7 @@ from empyrean import (
 def _prior_joint(state6, param_vars, present_bits):
     """Block-diagonal refine prior: the state 6x6 plus one diagonal prior
     variance per parameter axis. The Marsden (bits 0/1/2) and DT (bit 3) priors
-    ride the orbit's one packed joint now — the removed ``NonGravParams``
+    ride the orbit's one packed joint now. The removed ``NonGravParams``
     ``covariance`` / ``dt_variance`` columns are gone."""
     width = 6 + len(param_vars)
     full = np.zeros((width, width), dtype=np.float64)
@@ -101,7 +101,7 @@ SBDB_DT_DAYS = 45.68888251286532
 # Wide DT prior (variance, days^2), ~ (20 d)^2: loose enough that the
 # astrometry, not the prior, drives the fitted DT.
 DT_PRIOR_VAR = 400.0
-# Wide Marsden prior: 1-sigma of 1e-9 AU/d^2 on each of A1/A2/A3 --
+# Wide Marsden prior: 1-sigma of 1e-9 au/d^2 on each of A1/A2/A3 --
 # the scale of A1 itself, so the astrometry drives the coefficients too.
 A_PRIOR_SIGMA = 1.0e-9
 
@@ -113,9 +113,9 @@ def main() -> None:
     orbits = empyrean.query_sbdb(["67P"])
     ng = orbits.non_grav
     print("non-grav coefficients (SBDB):")
-    print(f"  A1 = {ng.a1.to_numpy()[0]:.3e} AU/d^2")
-    print(f"  A2 = {ng.a2.to_numpy()[0]:.3e} AU/d^2")
-    print(f"  A3 = {ng.a3.to_numpy()[0]:.3e} AU/d^2")
+    print(f"  A1 = {ng.a1.to_numpy()[0]:.3e} au/d^2")
+    print(f"  A2 = {ng.a2.to_numpy()[0]:.3e} au/d^2")
+    print(f"  A3 = {ng.a3.to_numpy()[0]:.3e} au/d^2")
     print(f"  DT = {SBDB_DT_DAYS:.2f} d  (SBDB reference outgassing lag)")
 
     # -- 2. Prime the orbit with a DT prior ---------------------------

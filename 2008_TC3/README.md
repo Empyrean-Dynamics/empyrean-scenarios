@@ -6,7 +6,7 @@
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Empyrean-Dynamics/empyrean-scenarios/blob/main/2008_TC3/main.ipynb)
 
 Prefer a notebook? [`main.ipynb`](./main.ipynb) is the same walkthrough,
-rendered on GitHub with executed outputs — or open it in Colab with the
+rendered on GitHub with executed outputs, or open it in Colab with the
 badge above.
 
 ## The story
@@ -15,7 +15,7 @@ badge above.
 predicted from the discovery arc itself. Discovered by Catalina Sky
 Survey on 2008-10-06, it was tracked for ~19 hours by 27 observatories
 worldwide before disappearing into the Earth's shadow. The impact
-prediction — Nubian Desert, 02:45:40 UT on 2008-10-07 — was tight
+prediction (Nubian Desert, 02:45:40 UT on 2008-10-07) was tight
 enough to recover ~600 meteorite fragments on the desert floor several
 months later, classified as a rare ureilite achondrite.
 
@@ -68,7 +68,7 @@ RMS:         RA·cos(d) 1.546"  Dec 0.887"
 Photometry:  H = 31.15 +/- 0.46  (model PhotometryModel.HG12, chi2_r 1.07, 783 mags)
 Reference (JPL SBDB): H = 30.9  (a ~4 m ureilite)
 
-Predicted atmospheric entry (Empyrean):
+Predicted atmospheric entry (empyrean):
   MJD 54746.11568  v_rel = 12.79 km/s  alt = 100 km
   over 21.09°N 30.53°E
 Reference (Borovička+ 2010):
@@ -76,7 +76,7 @@ Reference (Borovička+ 2010):
 ```
 
 Sub-minute agreement in the entry epoch from a 19-hour discovery arc
-is genuinely impressive — it's the level of precision that lets a
+is genuinely impressive: it's the level of precision that lets a
 meteorite-recovery expedition find fragments on the desert floor.
 
 ## See also

@@ -29,8 +29,8 @@
 //!
 //! Authoritative cross-checks (printed inline):
 //!   - 2029-04-13 21:46 UT, geocentric 38,012 km    (JPL CAD)
-//!   - A1 ≈  5e-13 AU/d²  (radial)                  (JPL SBDB)
-//!   - A2 ≈ -2.9e-14 AU/d²  (transverse, ≈ Yarkovsky)  (JPL SBDB)
+//!   - A1 ≈  5e-13 au/d²  (radial)                  (JPL SBDB)
+//!   - A2 ≈ -2.9e-14 au/d²  (transverse, ≈ Yarkovsky)  (JPL SBDB)
 //!   - Removed from Sentry 2021-02-21               (NASA / CNEOS)
 
 // empyrean:snippet:start
@@ -63,8 +63,8 @@ fn main() -> empyrean::Result<()> {
 
     // ── 2. 9-parameter OD with non-grav ─────────────────────────────
     // Forces the (state + A1, A2, A3) solve. The hyperdual integrator
-    // computes the (O−C) Jacobian against all 9 parameters analytically
-    // — no finite differencing of the 21-year arc.
+    // computes the (O−C) Jacobian against all 9 parameters analytically,
+    // with no finite differencing of the 21-year arc.
     let od_config = ODConfig {
         solve_for: SolveForParams::StateAndNonGrav,
         // 0.10.0rc workaround (rc1 rebuilds the same engine, so it still applies): the radar+optical convergence criterion
@@ -95,7 +95,7 @@ fn main() -> empyrean::Result<()> {
     // ── 3. Forward propagation through the 2029 flyby ───────────────
     // The fitted orbit is already re-feedable: it carries the fitted 6×6
     // covariance (so `compute_b_planes` can project it onto the encounter
-    // plane) and the fitted non-grav model — no reconstruction needed.
+    // plane) and the fitted non-grav model, so no reconstruction is needed.
     let orbit = result.orbit.clone().with_orbit_id("99942");
 
     let epochs: Vec<Epoch> = (0..341)
@@ -114,15 +114,15 @@ fn main() -> empyrean::Result<()> {
 
     // ── 4. Headline numbers ─────────────────────────────────────────
     // The full encounter lifecycle is `close_approach_start → periapsis
-    // → close_approach_end` — the periapsis event is the actual
+    // → close_approach_end`. The periapsis event is the actual
     // closest geocentric distance. Filter for that, not the SOI-entry
     // event the start record represents.
-    println!("\nClose approaches (Empyrean):");
+    println!("\nClose approaches (empyrean):");
     for ev in prop.events.iter().filter(|e| e.event_type == "periapsis") {
         let body = ev
             .body
             .map(|b| format!("{b:?}"))
-            .unwrap_or_else(|| "—".into());
+            .unwrap_or_else(|| "n/a".into());
         println!(
             "  {:6}  MJD {:.5}  {:>12.0} km",
             body,
@@ -138,9 +138,8 @@ fn main() -> empyrean::Result<()> {
     // mapping; the resolved-kind readback (`covariance_series_cartesian`)
     // carries the second-order (Jet2 STT) ellipsoid we asked for via
     // `UncertaintyMethod::SecondOrder`. Both are the correct marginal of
-    // the 9-wide fit, and through the 2029 flyby the methods agree —
-    // linear, second-order, sigma-point and Monte Carlo all land at
-    // ~25 km — so the second-order σ tracks the linear map here. Compare
+    // the 9-wide fit, and through the 2029 flyby the methods agree (linear,
+    // second-order, sigma-point and Monte Carlo all land at ~25 km), so the second-order σ tracks the linear map here. Compare
     // at the grid epoch nearest the periapsis.
     let ca_mjd = prop
         .events
@@ -149,7 +148,7 @@ fn main() -> empyrean::Result<()> {
         .map(|e| e.epoch.mjd());
     if let Some(ca_mjd) = ca_mjd {
         // Output rows are NOT request-ordered (encounter episodes are
-        // grouped by origin), so find the state row by ITS OWN epoch —
+        // grouped by origin), so find the state row by ITS OWN epoch,
         // never by request-grid position.
         let k = prop
             .states
@@ -163,12 +162,12 @@ fn main() -> empyrean::Result<()> {
             .map(|(i, _)| i)
             .unwrap();
 
-        // σ_pos = sqrt(trace of the 3×3 position block), AU → km.
+        // σ_pos = sqrt(trace of the 3×3 position block), au → km.
         let au_km = 1.495_978_707e8;
         let pos_sigma_km =
             |cov: &[[f64; 6]; 6]| -> f64 { (cov[0][0] + cov[1][1] + cov[2][2]).sqrt() * au_km };
 
-        // The series is chain-ordered — look it up by its own epoch too.
+        // The series is chain-ordered, so look it up by its own epoch too.
         let series = prop.covariance_series_cartesian(0)?;
         let resolved = series
             .iter()
@@ -180,7 +179,7 @@ fn main() -> empyrean::Result<()> {
             .expect("non-empty covariance series");
 
         println!(
-            "\nFlyby covariance readback (Empyrean, grid MJD {:.3}):",
+            "\nFlyby covariance readback (empyrean, grid MJD {:.3}):",
             prop.states[k].epoch.mjd()
         );
         if let Some(linear) = prop.states[k].covariance {
@@ -201,7 +200,7 @@ fn main() -> empyrean::Result<()> {
         }
     }
 
-    // B-plane geometry is computed by a separate Context method —
+    // B-plane geometry is computed by a separate Context method:
     // dedicated propagation with the requested uncertainty method.
     let b_planes = ctx.compute_b_planes(
         &[orbit],
@@ -209,7 +208,7 @@ fn main() -> empyrean::Result<()> {
         &[UncertaintyMethod::SecondOrder],
         &[Origin::Earth],
     )?;
-    println!("\n2029 Earth B-plane geometry (Empyrean):");
+    println!("\n2029 Earth B-plane geometry (empyrean):");
     for bp in b_planes.iter().filter(|b| b.body == Origin::Earth) {
         println!("  B*T = {:>10.0} km", bp.b_dot_t_km);
         println!("  B*R = {:>10.0} km", bp.b_dot_r_km);

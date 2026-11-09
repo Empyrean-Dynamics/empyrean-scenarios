@@ -4,7 +4,7 @@
 //! explore-mode scenario from
 //! <https://empyrean-dynamics.com/explore/2026pdc27>.
 //!
-//! **2026 PDC27 is a fictional asteroid** — the hypothetical-impact
+//! **2026 PDC27 is a fictional asteroid**: the hypothetical-impact
 //! exercise object of the IAA 2027 Planetary Defense Conference.
 //! "This is only an exercise." (JPL CNEOS)
 //!
@@ -36,7 +36,7 @@ fn main() -> empyrean::Result<()> {
     println!("{} synthetic observations (JPL CNEOS, Epoch 1)", obs.len());
 
     // The file states per-observation sigmas (0.1"/0.2") and these are
-    // the exercise's truth model — honor them instead of survey floors.
+    // the exercise's truth model, so honor them instead of survey floors.
     let stated_sigmas = ODConfig {
         weighting: WeightingConfig {
             sigma_policy: Some(SigmaPolicy::DefaultOnly),
@@ -69,7 +69,7 @@ fn main() -> empyrean::Result<()> {
     println!("\nknowledge date  n_obs  kappa      linear   2nd-order      auto        MC (95% CI)");
     for night in apparition.iter().skip(3) {
         // Knowledge set: apparition nights through `night`, plus the
-        // precovery nights once they were found (2026-07-12) — exactly
+        // precovery nights once they were found (2026-07-12), exactly
         // as the exercise's astronomers received the data.
         let kept: Vec<empyrean::Observation> = all
             .iter()

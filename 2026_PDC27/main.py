@@ -3,7 +3,7 @@
 Reproduces the 2026pdc27 explore-mode scenario from
 https://empyrean-dynamics.com/explore/2026pdc27.
 
-**2026 PDC27 is a fictional asteroid** — the hypothetical-impact
+**2026 PDC27 is a fictional asteroid**: the hypothetical-impact
 exercise object of the IAA 2027 Planetary Defense Conference
 (Montreal, May 2027). "This is only an exercise." (JPL CNEOS)
 
@@ -16,10 +16,10 @@ What it does:
        observations released by JPL CNEOS, transcribed to ADES PSV).
     2. Replays the exercise's knowledge timeline: cumulative fits
        night by night, with the six Rubin/LSST precovery nights
-       entering all at once on 2026-07-12 — exactly as the exercise's
+       entering all at once on 2026-07-12, exactly as the exercise's
        astronomers received them.
     3. At every step, computes the 2038-07-10 impact probability four
-       ways — linear, second-order, AUTO (κ-laddered), Monte Carlo —
+       ways (linear, second-order, AUTO with the κ ladder, Monte Carlo)
        against the exercise's published checkpoints: 0.1% (Jul 8),
        16% (Jul 12, the precovery jump), 19% (Epoch 1).
     4. Prints the per-step method table; the notebook twin renders it
@@ -69,7 +69,7 @@ def main() -> None:
     print(f"{len(obs)} synthetic observations (JPL CNEOS, Epoch 1)")
 
     # The file states per-observation sigmas (0.1"/0.2") and these are
-    # the exercise's truth model — honor them instead of survey floors.
+    # the exercise's truth model, so honor them instead of survey floors.
     stated_sigmas = ODConfig(
         weighting=WeightingConfig(
             sigma_policy=SigmaPolicy.DEFAULT_ONLY, additional_layers=[]
@@ -158,7 +158,7 @@ def main() -> None:
     )
     print(
         f"  linear {final[3]:.3f}, second-order {final[4]:.5f}, "
-        f"auto {final[5]:.3f} at κ ≈ {final[2]:.0f} — the ordering expected "
+        f"auto {final[5]:.3f} at κ ≈ {final[2]:.0f}, the ordering expected "
         "for a strongly"
     )
     print("  nonlinear mapping (Park & Scheeres 2006; DeMars+ 2013; Roa+ 2021).")

@@ -6,13 +6,13 @@ on:
   pull_request:
     branches: [ "main" ]
   schedule:
-    # Weekly end-to-end walkthrough run (Mondays 08:00 UTC) — catches
+    # Weekly end-to-end walkthrough run (Mondays 08:00 UTC) that catches
     # upstream data drift (MPC / JPL / SBDB) between code changes.
     - cron: "0 8 * * 1"
   workflow_dispatch:
 
 jobs:
-  # Python lint — ruff format + check across every .py in the repo.
+  # Python lint: ruff format + check across every .py in the repo.
   lint-python:
     name: Lint (Python)
     runs-on: ubuntu-latest
@@ -22,14 +22,16 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      # Pinned so CI and local runs lint alike; keep in step with the
+      # `dev` extra in pyproject.toml and bump both deliberately.
       - name: Install ruff
-        run: pip install ruff
+        run: pip install "ruff==0.17.4"
       - name: ruff format --check
         run: ruff format --check .
       - name: ruff check
         run: ruff check .
 
-  # Rust lint + build — `cargo fmt --check` and `cargo build` for the
+  # Rust lint + build: `cargo fmt --check` and `cargo build` for the
   # full workspace (every scenario binary). Doesn't run the binaries
   # because they need network + SPICE kernels; the smoke job below
   # handles end-to-end verification once the kernel cache is wired
@@ -51,7 +53,7 @@ jobs:
       - name: cargo clippy
         run: cargo clippy --workspace --all-targets -- -D warnings
 
-  # Smoke-test pass — verifies the Python package installs cleanly,
+  # Smoke-test pass: verifies the Python package installs cleanly,
   # and that every scenario's `main.py` is syntactically valid +
   # imports resolve. Full end-to-end execution waits on SPICE kernel
   # caching being wired into CI; once that lands, this job will also
@@ -68,7 +70,7 @@ jobs:
     strategy:
       fail-fast: false
       # Scenarios target requires-python >= 3.10, so validate the runnable
-      # walkthroughs across the supported range — a 3.10-incompatible construct
+      # walkthroughs across the supported range. A 3.10-incompatible construct
       # in a scenario script would otherwise pass a single-version smoke.
       # `pip install -e .` pulls the published empyrean wheel, which covers 3.10+
       # via its abi3 build; this matrix is fully green once empyrean ships abi3
@@ -99,11 +101,11 @@ jobs:
             python -m py_compile "$f"
           done
 
-  # End-to-end execution — every install-page snippet and every scenario
+  # End-to-end execution: every install-page snippet and every scenario
   # walkthrough actually RUNS against the pinned release, in both
   # languages, with the kernel set cached between runs. Needs live
   # MPC / JPL / SBDB network access and ~40 minutes of propagation + OD,
-  # so it runs on main pushes, a weekly schedule, and manual dispatch —
+  # so it runs on main pushes, a weekly schedule, and manual dispatch, but
   # not on every pull request (PRs keep the lint / build / import gates).
   run-walkthroughs:
     name: Run (walkthroughs, end-to-end)

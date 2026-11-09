@@ -46,7 +46,7 @@ OUT_PSV = str(HERE / "astrometry.psv")
 
 
 def fetch(url: str) -> str:
-    """Fetch a source page (no caching — the run is the verification)."""
+    """Fetch a source page (no caching: the run is the verification)."""
     import urllib.request
 
     with urllib.request.urlopen(url, timeout=60) as resp:

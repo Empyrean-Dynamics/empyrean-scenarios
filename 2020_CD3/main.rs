@@ -1,4 +1,4 @@
-//! 2020 CD3: Earth's second known mini-moon — multi-year capture episode.
+//! 2020 CD3: Earth's second known mini-moon: multi-year capture episode.
 //!
 //! Rust twin of `2020_CD3/main.py`. Reproduces the 2020cd3 explore-mode scenario
 //! from <https://empyrean-dynamics.com/explore/2020cd3>.
@@ -29,7 +29,7 @@ fn main() -> empyrean::Result<()> {
     );
     println!("Epoch MJD TDB: {:.1}", orbit.state.epoch.mjd());
     println!(
-        "non-grav coefficients (SBDB):  A1 = {:.3e}  A2 = {:.3e}  A3 = {:.3e} AU/d^2",
+        "non-grav coefficients (SBDB):  A1 = {:.3e}  A2 = {:.3e}  A3 = {:.3e} au/d^2",
         orbit.a1, orbit.a2, orbit.a3
     );
 
@@ -40,7 +40,7 @@ fn main() -> empyrean::Result<()> {
     let epochs: Vec<Epoch> = (0..7001)
         .map(|i| Epoch::from_mjd_tdb(52000.0 + 1.0 * i as f64))
         .collect();
-    // FirstOrder is fast enough for this scenario — the headline
+    // FirstOrder is fast enough for this scenario: the headline
     // numbers (capture starts/ends, periapsis distances) are
     // covariance-free.
     let prop_config = PropagationConfig {
@@ -58,7 +58,7 @@ fn main() -> empyrean::Result<()> {
 
     // ── 3. Capture episodes + close approaches ──────────────────────
     // Capture is the energy-criterion event (two-body specific energy
-    // crossing zero relative to Earth) — emitted as `capture_start` /
+    // crossing zero relative to Earth), emitted as `capture_start` /
     // `capture_end`. SOI crossings (`soi_entry` / `soi_exit`) are a
     // different concept: they fire when the integrator switches
     // central body via the Laplace-SOI dominance test.
@@ -108,7 +108,7 @@ fn main() -> empyrean::Result<()> {
         println!(
             "Close-approach periapses: Earth {n_earth}, Moon {n_moon}  \
              (in-capture geocentric passes are orbital structure around \
-             the central body, not close approaches — no events emitted)"
+             the central body, not close approaches, so no events are emitted)"
         );
         if let Some(ev) = closest {
             println!(
@@ -136,7 +136,7 @@ fn main() -> empyrean::Result<()> {
 
 /// The geocentric minimum through the capture, from the propagated
 /// states: the daily samples minus Earth's position at the same epochs.
-/// (Coarser than an event — the grid is 1-day — but the honest headline
+/// (Coarser than an event, since the grid is 1-day, but the honest headline
 /// for a body that spends the episode *orbiting* Earth.)
 fn geocentric_minimum(
     ctx: &empyrean::Context,

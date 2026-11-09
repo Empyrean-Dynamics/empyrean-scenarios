@@ -15,7 +15,7 @@ What it does:
        impact probabilities. Early arc surfaces ~0.14% Earth IP with a
        ~12-lunar-distance miss sigma; the full arc collapses it to
        zero. Sentry's published peak was 3.1%
-       on 2025-02-18 — different arc cuts give different IPs, all
+       on 2025-02-18. Different arc cuts give different IPs, all
        legitimately within published uncertainty bounds.
 
 Authoritative cross-checks (printed inline):
@@ -65,14 +65,14 @@ def main() -> None:
     _summary("Full arc     ", full)
 
     # ── 4. Impact probabilities at the 2032 encounter for both fits ──
-    # The covariance-aware IP comes from compute_impact_probabilities —
+    # The covariance-aware IP comes from compute_impact_probabilities:
     # the fitted orbit carries its 6×6 covariance, which is mapped to
     # the encounter B-plane. (Reading sigma_d / IP off the propagation
     # event stream would not work: possible_impact events are purely
-    # geometric — they carry the nominal miss distance only.)
+    # geometric and carry the nominal miss distance only.)
     end_epoch = Epochs.from_mjd([63730.0], scale=TimeScale.TDB.value)  # ~2032-12-31
 
-    print("\n2032 encounter — impact probability + miss geometry:")
+    print("\n2032 encounter, impact probability + miss geometry:")
     for label, fit in [("early arc", early), ("full arc", full)]:
         ips = empyrean.compute_impact_probabilities(
             fit.orbit,

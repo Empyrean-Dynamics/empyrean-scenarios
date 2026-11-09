@@ -9,22 +9,22 @@ Run:
 
 What it does:
     1. Pulls Bennu's MPC optical astrometry plus the Arecibo/Goldstone
-       radar delay/Doppler record (1999, 2005, 2011 apparitions) — the
+       radar delay/Doppler record (1999, 2005, 2011 apparitions), the
        ranging data that anchored the classic Yarkovsky detection
        (Chesley et al. 2014).
-    2. Anchors the epoch state on the 1999-2000 discovery apparition —
-       optical plus its Arecibo/Goldstone radar ranging — then measures
+    2. Anchors the epoch state on the 1999-2000 discovery apparition (optical
+       plus its Arecibo/Goldstone radar ranging), then measures
        the drift: a joint (state + Marsden A-block) refine over the full
        26-year optical arc, with the A-block seeded at zero (the engine
        estimates a zero-seeded non-grav axis) and opened by a Bayesian
        prior that pins the radial/normal components and leaves the transverse
        A2 wide. A2 IS the
-       Yarkovsky measurement — recovered from the astrometry with an honest
+       Yarkovsky measurement: it is recovered from the astrometry with an honest
        1σ from the solved covariance, not patched in from a published value.
        (A real first-principles Vokrouhlický thermal model is on the engine
        roadmap.)
 
-    Verified run (empyrean 0.11.0-rc.1): A2 = -3.39e-14 ± 8.2e-15 AU/d² — a
+    Verified run (empyrean 0.11.0-rc.1): A2 = -3.39e-14 ± 8.2e-15 au/d², a
     4.1σ detection of the drift, consistent with JPL's radar-complete
     joint solution (-4.618e-14, Farnocchia 2021) at 1.5σ.
     3. Propagates the FITTED orbit ~72 years (2011-2083) at 5-day
@@ -33,7 +33,7 @@ What it does:
        3σ uncertainty at each Earth flyby.
 
 Authoritative cross-checks (printed inline):
-    - A2 = -4.618e-14 AU/d² (~284 m/orbit drift)        (Farnocchia 2021)
+    - A2 = -4.618e-14 au/d² (~284 m/orbit drift)        (Farnocchia 2021)
     - 2060-09-23, geocentric ~750,000 km                 (JPL CAD)
     - Cumulative 22nd-century IP: ~1/1750                (Farnocchia 2021)
 """
@@ -64,7 +64,7 @@ def _prior_joint(state6, param_vars, present_bits):
     """Block-diagonal refine prior: the fit's state 6x6 plus one diagonal
     prior variance per parameter axis (zero cross terms). The Marsden / DT /
     AMRAT prior rides the orbit's one packed joint now (bit 0=A1, 1=A2, 2=A3,
-    3=DT, 4=AMRAT) — the removed ``NonGravParams.covariance`` /
+    3=DT, 4=AMRAT). The removed ``NonGravParams.covariance`` /
     ``SRPParams.amrat_variance`` columns are gone."""
     width = 6 + len(param_vars)
     full = np.zeros((width, width), dtype=np.float64)
@@ -96,7 +96,7 @@ def main() -> None:
     # The MPC carries optical only; asteroid radar is a JPL SSD product,
     # queried separately and folded into the same fit. Bennu's 29
     # delay/Doppler measurements from Arecibo and Goldstone (1999, 2005,
-    # 2011) are what pinned its semimajor-axis drift — radar ranging
+    # 2011) are what pinned its semimajor-axis drift. Radar ranging
     # measures the line-of-sight distance at the ~100 m level, which two
     # decades of Yarkovsky drift dwarfs.
     obs = empyrean.query_observations(["101955"])
@@ -107,7 +107,7 @@ def main() -> None:
     # A state-only fit over the FULL arc would silently absorb the
     # Yarkovsky drift into the epoch state (aliasing the very signal we
     # want to measure), so the anchor uses only the 1999-2000 discovery
-    # apparition — short enough that the drift is negligible — with its
+    # apparition (short enough that the drift is negligible) with its
     # radar ranging pinning the line-of-sight distance at the ~100 m
     # level.
     years = [t[:4] for t in obs.table.column("obs_time").to_pylist()]
@@ -127,19 +127,19 @@ def main() -> None:
     )
 
     # ── 2b. Measure: joint state + A2 refine over the full 26-yr arc ─
-    # Bennu's arc constrains the TRANSVERSE component only — the A-block
+    # Bennu's arc constrains the TRANSVERSE component only: the A-block
     # is seeded at ZERO and opened by a Bayesian prior that pins A1/A3
     # near zero and leaves A2 wide: the astrometry, not the prior,
     # measures the drift. All-zero g(r) constants select the exact
     # inverse-square law (the Yarkovsky convention). The Marsden prior now
     # rides the orbit's one packed joint (bits 0/1/2), widening the anchor's
-    # fitted state 6x6 to 9 — the removed NonGravParams.covariance is gone.
-    sigma_tight = 1e-15  # AU/d^2 — A1/A3 pinned ~30x below the A2 signal
-    sigma_wide = 1e-12  # AU/d^2 — A2 unconstrained (~20x above the signal)
+    # fitted state 6x6 to 9. The removed NonGravParams.covariance is gone.
+    sigma_tight = 1e-15  # au/d^2: A1/A3 pinned ~30x below the A2 signal
+    sigma_wide = 1e-12  # au/d^2: A2 unconstrained (~20x above the signal)
     # The engine estimates a zero-seeded non-grav axis, so A2
     # starts at exactly zero; the wide A2 prior keeps the fit data-driven
     # (a 0 and a -4.6e-14 seed converge to the same A2).
-    a2_seed = 0.0  # AU/d^2 — estimated from zero; the data drive the value
+    a2_seed = 0.0  # au/d^2: estimated from zero; the data drive the value
     state6 = anchor.orbit.covariance.joint(0).state_block()
     marsden_prior = _prior_joint(
         state6,
@@ -170,16 +170,16 @@ def main() -> None:
 
     ng = result.orbit.non_grav
     a2 = ng.a2.to_numpy(zero_copy_only=False)[0]
-    # The tagged solved covariance names each fitted parameter's slot —
-    # read σ_A2 from the A2 row rather than guessing at column order.
+    # The tagged solved covariance names each fitted parameter's slot.
+    # Read σ_A2 from the A2 row rather than guessing at column order.
     sc = result.solved_covariance
     if sc is not None and sc.marsden_slot is not None:
         a2_row = sc.marsden_slot + 1  # Marsden block is (A1, A2, A3)
         a2_sigma = float(sc.matrix[a2_row, a2_row]) ** 0.5
-        print(f"Fitted A2 (≈ Yarkovsky) = {a2:.3e} +/- {a2_sigma:.1e} AU/d^2")
+        print(f"Fitted A2 (≈ Yarkovsky) = {a2:.3e} +/- {a2_sigma:.1e} au/d^2")
     else:
-        print(f"Fitted A2 (≈ Yarkovsky) = {a2:.3e} AU/d^2")
-    print("Reference                 -4.618e-14 AU/d^2   (Farnocchia 2021,")
+        print(f"Fitted A2 (≈ Yarkovsky) = {a2:.3e} au/d^2")
+    print("Reference                 -4.618e-14 au/d^2   (Farnocchia 2021,")
     print("                          radar-complete joint solution)")
 
     # ── 3. Propagate the fitted orbit ~72 years (2011 → 2083) ───────
@@ -199,7 +199,7 @@ def main() -> None:
     )
 
     # ── 4. Close approaches detected inline ─────────────────────────
-    print("\nClose approaches (Empyrean):")
+    print("\nClose approaches (empyrean):")
     p = prop.events.periapses
     bodies = p.body.to_pylist()
     epochs_p = p.epochs.mjd.to_numpy(zero_copy_only=False)
@@ -211,8 +211,8 @@ def main() -> None:
 
     # ── 5. B-plane geometry at each Earth encounter ─────────────────
     # Gravitational covariance amplification at close approach made
-    # quantitative: the 2060 3σ ellipse — now traceable to the fitted
-    # covariance — inflates by orders of magnitude through the flyby.
+    # quantitative: the 2060 3σ ellipse (now traceable to the
+    # fitted covariance) inflates by orders of magnitude through the flyby.
     # The growth factor is computed live below.
     b_planes = empyrean.compute_b_planes(
         result.orbit,
@@ -222,7 +222,7 @@ def main() -> None:
         methods=[UncertaintyMethod.SECOND_ORDER],
         body_filter=["Earth"],
     )
-    print("\nEarth B-plane geometry (Empyrean):")
+    print("\nEarth B-plane geometry (empyrean):")
     body = b_planes.body.to_pylist()
     bp_epochs = b_planes.epochs.mjd.to_numpy(zero_copy_only=False)
     bmag = b_planes.b_mag_km.to_numpy(zero_copy_only=False)

@@ -1,6 +1,6 @@
 # version=2022
 # comment
-! line SYNTHETIC EXERCISE DATA — this file describes a fictional asteroid
+! line SYNTHETIC EXERCISE DATA: this file describes a fictional asteroid
 ! line for the IAA PDC 2027 planetary-defense exercise; it is not a real
 ! line object. "This is only an exercise." (JPL CNEOS)
 ! line Source: https://cneos.jpl.nasa.gov/pd/cs/pdc27/2026pdc27.epoch1.xml

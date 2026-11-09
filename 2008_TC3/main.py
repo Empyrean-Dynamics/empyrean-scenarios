@@ -85,19 +85,19 @@ def main() -> None:
         uncertainty_method=UncertaintyMethod.SECOND_ORDER,
     )
 
-    # ── 4. Predicted entry — atmospheric_entry is the ~100 km
+    # ── 4. Predicted entry: atmospheric_entry is the ~100 km
     # Karman-line crossing, the apples-to-apples comparator for the
     # Borovička+ 2010 fireball coordinates (the surface-impact event
     # lands ~150 km downrange because the fireball exploded at ~37 km
     # altitude). ────────────────────────────────────────────────────
-    print("\nPredicted atmospheric entry (Empyrean):")
+    print("\nPredicted atmospheric entry (empyrean):")
     ae = prop.events.atmospheric_entries
     au_per_day_to_km_per_s = 149_597_870.7 / 86_400.0
     for i in range(len(ae)):
         epoch = ae.epochs.mjd.to_numpy(zero_copy_only=False)[i]
         v_rel = ae.relative_velocity_au_day.to_numpy(zero_copy_only=False)[i]
         alt = ae.altitude_km.to_numpy(zero_copy_only=False)[i]
-        # The entry event carries its planetodetic ground point — the
+        # The entry event carries its planetodetic ground point: the
         # 19-hour discovery arc pins WHERE over Sudan, not just when.
         lat = ae.latitude_deg.to_numpy(zero_copy_only=False)[i]
         lon = ae.longitude_deg.to_numpy(zero_copy_only=False)[i]

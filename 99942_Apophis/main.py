@@ -26,8 +26,8 @@ What it does:
 
 Authoritative cross-checks (printed inline):
     - 2029-04-13 21:46 UT, geocentric 38,012 km    (JPL CAD)
-    - A1 ≈  5e-13 AU/d²  (radial)                  (JPL SBDB)
-    - A2 ≈ -2.9e-14 AU/d²  (transverse, ≈ Yarkovsky)  (JPL SBDB)
+    - A1 ≈  5e-13 au/d²  (radial)                  (JPL SBDB)
+    - A2 ≈ -2.9e-14 au/d²  (transverse, ≈ Yarkovsky)  (JPL SBDB)
     - Removed from Sentry 2021-02-21               (NASA / CNEOS)
 """
 
@@ -61,8 +61,8 @@ def main() -> None:
 
     # ── 2. 9-parameter OD with non-grav ─────────────────────────────
     # Forces the (state + A1, A2, A3) solve. The hyperdual integrator
-    # computes the (O-C) Jacobian against all 9 parameters analytically
-    # — no finite differencing of the 21-year arc.
+    # computes the (O-C) Jacobian against all 9 parameters analytically,
+    # with no finite differencing of the 21-year arc.
     cfg = ODConfig(
         solve_for=SolveForParams.STATE_AND_NONGRAV,
         photometry=PhotometryConfig(),  # v0.9.0: fit H/G alongside the orbit
@@ -92,8 +92,8 @@ def main() -> None:
     # ── 2b. Absolute magnitude + phase function (v0.9.0) ────────────
     # The 21-year arc spans a wide phase-angle range, so the post-OD
     # photometric fit's model ladder admits the full three-parameter
-    # HG1G2 — H plus the two slopes G1, G2 that shape the opposition
-    # surge — with an honest 1-sigma on H from its 3x3 covariance.
+    # HG1G2 (H plus the two slopes G1, G2 that shape the
+    # opposition surge), with an honest 1-sigma on H from its 3x3 covariance.
     ph = result.photometry
     if ph is not None:
         h_sigma = (
@@ -120,7 +120,7 @@ def main() -> None:
     )
 
     # ── 4. Headline numbers ─────────────────────────────────────────
-    print("\nClose approaches (Empyrean):")
+    print("\nClose approaches (empyrean):")
     p = prop.events.periapses
     bodies = p.body.to_pylist()
     epochs_p = p.epochs.mjd.to_numpy(zero_copy_only=False)
@@ -134,8 +134,8 @@ def main() -> None:
     # The bare per-state covariance is the linear Φ Σ₀ Φᵀ map; the
     # resolved-kind readback carries the second-order (Jet2 STT) ellipsoid
     # we asked for via SECOND_ORDER. Both are the correct marginal of the
-    # 9-wide fit, and through the 2029 flyby the methods agree — linear,
-    # second-order, sigma-point and Monte Carlo all land at ~25 km — so the
+    # 9-wide fit, and through the 2029 flyby the methods agree (linear,
+    # second-order, sigma-point and Monte Carlo all land at ~25 km), so the
     # second-order σ tracks the linear map here. Compare at the grid epoch
     # nearest the periapsis.
     au_km = 1.495_978_707e8
@@ -144,16 +144,16 @@ def main() -> None:
         ca_mjd = epochs_p[earth[0]]
         # Output rows are NOT request-ordered (encounter episodes are
         # grouped by origin), so look every table up by ITS OWN epoch
-        # column — never by request-grid position.
+        # column, never by request-grid position.
         out_mjd = prop.states.coordinates.epochs.mjd.to_numpy(zero_copy_only=False)
         k_state = int(np.argmin(np.abs(out_mjd - ca_mjd)))
 
-        # σ_pos = sqrt(trace of the 3×3 position block), AU → km.
+        # σ_pos = sqrt(trace of the 3×3 position block), au → km.
         def pos_sigma_km(cov6x6: np.ndarray) -> float:
             return float(np.sqrt(cov6x6[:3, :3].trace())) * au_km
 
         print(
-            f"\nFlyby covariance readback (Empyrean, grid MJD {out_mjd[k_state]:.3f}):"
+            f"\nFlyby covariance readback (empyrean, grid MJD {out_mjd[k_state]:.3f}):"
         )
         linear = prop.states.coordinates.covariance.to_matrix()[k_state]
         print(f"  bare linear        sigma_pos = {pos_sigma_km(linear):>10.0f} km")
@@ -170,7 +170,7 @@ def main() -> None:
             shift_km = float(np.linalg.norm(shift[:3])) * au_km
             print(f"  2nd-order mean shift |dmu_prop| = {shift_km:>8.0f} km")
 
-    # B-plane geometry is computed by a separate call — dedicated
+    # B-plane geometry is computed by a separate call: dedicated
     # propagation with the requested uncertainty method per body.
     b_planes = empyrean.compute_b_planes(
         result.orbit,
@@ -180,7 +180,7 @@ def main() -> None:
         methods=[UncertaintyMethod.SECOND_ORDER],
         body_filter=["Earth"],
     )
-    print("\n2029 Earth B-plane geometry (Empyrean):")
+    print("\n2029 Earth B-plane geometry (empyrean):")
     body = b_planes.body.to_pylist()
     bt = b_planes.b_dot_t_km.to_numpy(zero_copy_only=False)
     br = b_planes.b_dot_r_km.to_numpy(zero_copy_only=False)
