@@ -28,7 +28,7 @@ def main() -> None:
 
     print(eph.coordinates.lon.to_numpy())  # RA (degrees)
     print(eph.coordinates.lat.to_numpy())  # Dec (degrees)
-    print(eph.coordinates.rho.to_numpy())  # range (AU)
+    print(eph.coordinates.rho.to_numpy())  # range (au)
 
     # Photometry
     print(eph.mag.to_numpy())  # apparent V-band magnitude

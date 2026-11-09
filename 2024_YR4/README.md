@@ -1,4 +1,4 @@
-# 2024 YR4: dual-fit OD — early-arc IP vs full-arc ruled-out
+# 2024 YR4: dual-fit OD, early-arc IP vs full-arc ruled-out
 
 [![Python](https://img.shields.io/badge/Python-main.py-3776AB?logo=python&logoColor=white&style=flat-square)](./main.py)
 [![Rust](https://img.shields.io/badge/Rust-main.rs-B7410E?logo=rust&logoColor=white&style=flat-square)](./main.rs)
@@ -6,7 +6,7 @@
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Empyrean-Dynamics/empyrean-scenarios/blob/main/2024_YR4/main.ipynb)
 
 Prefer a notebook? [`main.ipynb`](./main.ipynb) is the same walkthrough,
-rendered on GitHub with executed outputs — or open it in Colab with the
+rendered on GitHub with executed outputs, or open it in Colab with the
 badge above.
 
 ## The story
@@ -14,7 +14,7 @@ badge above.
 2024 YR4 was discovered on 2024-12-27 by ATLAS at Río Hurtado, Chile.
 Within weeks it had climbed to the highest near-term impact probability
 on JPL Sentry: 3.1% Earth IP for the 2032-12-22 encounter at peak on
-2025-02-18. It was a sky-survey response story — additional ground-
+2025-02-18. It was a sky-survey response story: additional ground-
 based astrometry kept arriving, the orbit kept improving, and by
 mid-March 2025 the Earth IP had collapsed to zero.
 
@@ -30,20 +30,20 @@ resolution is what this script demonstrates.
    spanning the discovery arc through the eventual full arc.
 
 2. **Slices the observations to the discovery arc** (≤ ~2025-01-05,
-   roughly 10 days of data) — the early, wide-open state of knowledge.
+   roughly 10 days of data), which is the early, wide-open state of knowledge.
    Sentry's published 3.1% peak came from a ~55-day arc around
    2025-02-18, a different cut.
 
-3. **Runs `empyrean.determine` twice** — once on the discovery arc,
+3. **Runs `empyrean.determine` twice**: once on the discovery arc,
    once on the full arc. Both converge with sub-arcsecond residuals;
    the difference is the *width* of the converged covariance.
 
 4. **Propagates both fits to 2032 and reads the impact
    probabilities.** The early-arc fit surfaces a nonzero Earth
    IP_linear ≈ 0.16% with a miss-distance σ of ~4.0 million km
-   (~10 lunar distances, 1σ) — the encounter is barely constrained at
+   (~10 lunar distances, 1σ). The encounter is barely constrained at
    all. The full-arc fit collapses the Earth IP to zero and the
-   miss-distance σ to ~12,000 km — a ~340× shrinkage from the
+   miss-distance σ to ~12,000 km, a ~340× shrinkage from the
    additional weeks of astrometry.
 
 ## Reference values
@@ -63,11 +63,11 @@ resolution is what this script demonstrates.
 Discovery arc: chi2/dof = 0.081  RMS RA·cos(d) 0.183" Dec 0.234"  (170/171 obs)
 Full arc     : chi2/dof = 0.077  RMS RA·cos(d) 0.171" Dec 0.203"  (511/512 obs)
 
-2032 encounter — impact probability + miss geometry:
-  early arc  Earth   IP_linear =  0.160%  miss =   141206.1 km  sigma_d =  4036015.8 km
-  early arc  Moon    IP_linear =  0.027%  miss =   125657.2 km  sigma_d =  4488973.4 km
-  full arc   Earth   IP_linear =  0.000%  miss =   278877.4 km  sigma_d =    11812.6 km
-  full arc   Moon    IP_linear =  1.596%  miss =    23518.9 km  sigma_d =    12623.5 km
+2032 encounter, impact probability + miss geometry:
+  early arc  Earth   IP_linear =  0.160%  miss =   137955.9 km  sigma_d =  4034949.4 km
+  early arc  Moon    IP_linear =  0.027%  miss =   129276.6 km  sigma_d =  4499005.0 km
+  full arc   Earth   IP_linear =  0.000%  miss =   278877.5 km  sigma_d =    11812.6 km
+  full arc   Moon    IP_linear =  1.596%  miss =    23519.0 km  sigma_d =    12623.5 km
 
 Tagged-covariance readback at 2032 Earth perigee (MJD 63588.3481 TDB):
   resolved kind        = CovarianceKind.SECOND_ORDER
@@ -83,7 +83,7 @@ Reference (Sentry, peak):
 
 ## The full-arc Moon number
 
-The full-arc run prints a Moon IP_linear of ~1.6% — next to a JPL
+The full-arc run prints a Moon IP_linear of ~1.6%, next to a JPL
 reference of "Moon IP = 0". That is a linear-Gaussian bookkeeping
 artifact, not a lunar-impact forecast: the nominal lunar miss
 (~23,500 km) sits within ~2σ of the full-arc miss-distance
@@ -96,9 +96,9 @@ the tools that resolve it.
 
 The two are not in conflict. The 3.1% peak Sentry published was the
 maximum IP across a *family* of observation cuts in the weeks after
-discovery — the precise arc cut that yielded that maximum was
+discovery. The precise arc cut that yielded that maximum was
 mid-February 2025, ~55 days into the observation window. The 0.16% in
-this script is what a ~10-day discovery arc gives — a much wider
+this script is what a ~10-day discovery arc gives, with a much wider
 uncertainty (σ ≈ 10 lunar distances) diluting the probability over a
 much larger region. Both are
 legitimately within the propagated uncertainty bounds for their
@@ -106,7 +106,7 @@ respective arcs; what matters scientifically is the rate at which the
 covariance shrinks once additional astrometry is added.
 
 The ~23,500 km Moon close approach in the full-arc fit is *inside*
-the Moon's Hill sphere — a genuinely deep gravitational interaction.
+the Moon's Hill sphere, a genuinely deep gravitational interaction.
 It's a non-trivial geometry that the propagator handles by switching
 the dominant body of the encounter test as 2024 YR4 transits the
 Earth-Moon system.

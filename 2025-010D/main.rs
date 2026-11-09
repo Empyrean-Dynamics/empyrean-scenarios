@@ -19,8 +19,7 @@ fn main() -> empyrean::Result<()> {
     let ctx = Context::from_data_dir(None)?;
 
     // ── 1. The committed public astrometry ──────────────────────────
-    // No MPC query: astrometry of recognized artificial satellites is
-    // removed from public MPC holdings. These 402 observations are the
+    // No MPC query: these 402 observations are the
     // public-domain record compiled by Project Pluto (see README).
     let obs = ctx.read_ades("2025-010D/astrometry.psv")?;
     println!(
@@ -59,7 +58,7 @@ fn main() -> empyrean::Result<()> {
     // prior wide enough for the artsat regime (~1e-2 m²/kg, 100× any
     // asteroid) so the astrometry, not the prior, drives the fit.
     // The AMRAT prior rides the fitted orbit's packed joint (its AMRAT axis,
-    // bit 4), widening the state 6x6 to 7 — the removed
+    // bit 4), widening the state 6x6 to 7. The removed
     // `with_srp_amrat_variance` builder is gone.
     let state6 = fit
         .orbit
@@ -107,7 +106,7 @@ fn main() -> empyrean::Result<()> {
     {
         let iso = mjd_to_iso(ev.epoch.mjd_utc()?, TimeScale::UTC)?;
         let lon = ev.impact_longitude_deg.rem_euclid(360.0);
-        println!("\nPredicted lunar impact (Empyrean): {iso}");
+        println!("\nPredicted lunar impact (empyrean): {iso}");
         println!(
             "  at {:.3}°N {:.3}°E (selenographic)",
             ev.impact_latitude_deg, lon
@@ -121,12 +120,12 @@ fn main() -> empyrean::Result<()> {
     // Score the final-arc orbit against the WHOLE public record: the
     // residual RMS grows through two lunar encounters and a tumbling
     // body whose effective area changed between arcs (Gray 2026;
-    // Campbell et al. 2026) — consistent with the per-arc solutions
+    // Campbell et al. 2026), consistent with the per-arc solutions
     // Project Pluto published.
     // evaluate (unlike determine) runs no rejection pass, so it refuses an
     // observation whose station the engine cannot resolve (0.11.0 removed the
     // old silent fallback). Drop any such unregistered community station
-    // explicitly — named by the engine's own refusal — before scoring.
+    // explicitly (named by the engine's own refusal) before scoring.
     let mut scorable: Vec<_> = obs.iter().collect();
     let full = loop {
         let subset = empyrean::Observations::from_array(&scorable)?;
@@ -151,7 +150,7 @@ fn main() -> empyrean::Result<()> {
     // Per-arc ladder, same statistic as the Python twin: total angular
     // RMS sqrt(mean(ra_res^2 + dec_res^2)) over each arc's rows,
     // NaN-skipped. (The engine summary's rms_combined is the per-axis
-    // quadratic mean over evaluable rows — a different convention.)
+    // quadratic mean over evaluable rows, a different convention.)
     println!("\nFinal-arc orbit scored against the full 402-obs record:");
     for (label, lo, hi) in [
         ("own arc   (2026 Jul-Aug)", 61244.0, 61300.0),
@@ -174,7 +173,7 @@ fn main() -> empyrean::Result<()> {
         }
     }
     println!("(Five orders of magnitude across two lunar encounters and a");
-    println!(" changing tumble — consistent with the per-arc solutions");
+    println!(" changing tumble, consistent with the per-arc solutions");
     println!(" Project Pluto published; Gray 2026, Campbell et al. 2026.)");
 
     Ok(())
@@ -183,7 +182,7 @@ fn main() -> empyrean::Result<()> {
 
 /// A block-diagonal refine prior: the fit's state 6x6 plus one diagonal prior
 /// variance per parameter axis (zero cross terms). The AMRAT prior rides the
-/// orbit's one packed joint now (present bit 4 of the axis table) — the removed
+/// orbit's one packed joint now (present bit 4 of the axis table). The removed
 /// `with_srp_amrat_variance` builder is gone.
 fn prior_joint(
     state6: [[f64; 6]; 6],

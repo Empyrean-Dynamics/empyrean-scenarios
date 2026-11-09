@@ -4,7 +4,7 @@
 [![Rust](https://img.shields.io/badge/Rust-main.rs-B7410E?logo=rust&logoColor=white&style=flat-square)](./main.rs)
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Empyrean-Dynamics/empyrean-scenarios/blob/main/101955_Bennu/main.ipynb)
 
-Notebook twin: [`main.ipynb`](./main.ipynb) — rendered on GitHub with
+Notebook twin: [`main.ipynb`](./main.ipynb), rendered on GitHub with
 executed outputs, or open it in Colab with the badge above.
 
 ## The story
@@ -12,13 +12,12 @@ executed outputs, or open it in Colab with the badge above.
 101955 Bennu is a ~490 m near-Earth asteroid and the target of NASA's
 OSIRIS-REx sample-return mission, which deposited its sample capsule
 in Utah on 2023-09-24. Bennu is the textbook transverse non-grav A2
-detection — radar astrometry from 1999, 2005, and 2011 plus OSIRIS-REx
-spacecraft-tracking residuals constrained A2 = −4.62×10⁻¹⁴ AU/d² with
+detection: radar astrometry from 1999, 2005, and 2011 plus OSIRIS-REx
+spacecraft-tracking residuals constrained A2 = −4.62×10⁻¹⁴ au/d² with
 sub-1% precision (Farnocchia et al. 2021). The physical interpretation
 is Yarkovsky thermal recoil from anisotropic re-radiation of absorbed
-sunlight; Empyrean fits the empirical Marsden A1/A2/A3 form with
-inverse-square g(r), capturing Yarkovsky's leading 1/r² scaling per
-Farnocchia et al. 2013 — and this scenario MEASURES A2 from the
+sunlight. The empirical Marsden A1/A2/A3 form with inverse-square g(r)
+captures Yarkovsky's leading 1/r² scaling (Farnocchia et al. 2013), and empyrean fits it here: this scenario MEASURES A2 from the
 astrometry rather than quoting it. That A2 implies an along-track drift of ~285 m
 per year (−284.6 ± 0.2 m/yr, Farnocchia et al. 2021), and over the
 50-year propagation arc to 2060 it accumulates into a ~14 km offset.
@@ -36,12 +35,12 @@ constrained to better than 1-in-1750 cumulative probability.
 1. **Pulls the astrometry: MPC optical + JPL radar.** ~600 optical
    observations spanning 1999–2025, plus the 29 Arecibo/Goldstone
    delay/Doppler measurements from the 1999, 2005, and 2011
-   apparitions — radar ranging pins the line-of-sight distance at the
+   apparitions. Radar ranging pins the line-of-sight distance at the
    ~100 m level.
 
 2. **Measures A2 with a two-stage fit.** A state-only fit over the full
-   arc would silently absorb the drift into the epoch state — aliasing
-   the very signal being measured — so the epoch state is first
+   arc would silently absorb the drift into the epoch state (aliasing
+   the very signal being measured), so the epoch state is first
    anchored on the 1999–2000 discovery apparition (optical + its radar
    ranging), then a joint state + Marsden refine runs over the full
    26-year optical arc with the A-block seeded at zero and opened by a
@@ -59,7 +58,7 @@ constrained to better than 1-in-1750 cumulative probability.
 
 4. **Reads close approaches + per-encounter B-plane geometry.** The
    3σ semi-major of the projected uncertainty ellipse at the 2060
-   encounter is now traceable end-to-end to the fit in step 2 — the
+   encounter is now traceable end-to-end to the fit in step 2: the
    ellipse is exactly what this scenario's own astrometry supports,
    not a quoted catalog covariance.
 
@@ -68,7 +67,7 @@ constrained to better than 1-in-1750 cumulative probability.
 | Quantity | Reference value | Source |
 |---|---|---|
 | Diameter | ~490 m | OSIRIS-REx in-situ |
-| Marsden A2 (≈ Yarkovsky) | −4.6178×10⁻¹⁴ AU/d² | Farnocchia et al. 2021 |
+| Marsden A2 (≈ Yarkovsky) | −4.6178×10⁻¹⁴ au/d² | Farnocchia et al. 2021 |
 | Implied along-track drift | −284.6 ± 0.2 m / year | Farnocchia et al. 2021 |
 | 2060 Earth CA epoch | 2060-09-23 (MJD ~73725) | JPL CAD |
 | 2060 Earth CA distance | ~750,000 km (~1.95 LD) | JPL CAD |
@@ -84,30 +83,29 @@ Converged:  True
 chi2/dof:   0.315
 RMS:        RA·cos(d) 0.758"  Dec 0.348"
 Selected:   603/603
-Fitted A2 (≈ Yarkovsky) = -3.391e-14 +/- 8.2e-15 AU/d^2
-Reference                 -4.618e-14 AU/d^2   (Farnocchia 2021,
+Fitted A2 (≈ Yarkovsky) = -3.391e-14 +/- 8.2e-15 au/d^2
+Reference                 -4.618e-14 au/d^2   (Farnocchia 2021,
                           radar-complete joint solution)
 
-Close approaches (Empyrean):
+Close approaches (empyrean):
   Earth   MJD 73725.025        749640 km
-  Earth   MJD 81029.167       2101695 km
+  Earth   MJD 81029.167       2101703 km
 Reference (JPL CAD nominal):
   Earth   MJD 73725 (2060-09-23)   ~750,000 km
 
-Earth B-plane geometry (Empyrean):
+Earth B-plane geometry (empyrean):
   MJD 73725.025  |B| =     749640 km  3-sigma semi-major =    918.6 km
-  MJD 81029.167  |B| =    2101695 km  3-sigma semi-major = 414306.2 km
+  MJD 81029.167  |B| =    2101704 km  3-sigma semi-major = 414306.3 km
 (2060 B-plane uncertainty input to any downstream resonant-return analysis; 3-sigma ellipse grows 451x by 2080.)
 ```
 
 ## The measurement, in context
 
-The fitted A2 = −3.391×10⁻¹⁴ ± 8.2×10⁻¹⁵ AU/d² is a 4.1σ detection of
+The fitted A2 = −3.391×10⁻¹⁴ ± 8.2×10⁻¹⁵ au/d² is a 4.1σ detection of
 the Yarkovsky drift, consistent (1.5σ) with Farnocchia 2021's
 −4.618×10⁻¹⁴. The published value's sub-1% precision comes from a
-radar-complete joint solution plus OSIRIS-REx spacecraft tracking —
-data this scenario's two-stage ladder doesn't fold into the joint
-solve — so the honest comparison is sign, magnitude, and consistency,
+radar-complete joint solution plus OSIRIS-REx spacecraft tracking (data
+this scenario's two-stage ladder doesn't fold into the joint solve), so the honest comparison is sign, magnitude, and consistency,
 not equality.
 
 The ~919 km 3σ semi-major at the 2060 encounter is what THIS fit's
@@ -115,14 +113,14 @@ covariance supports: positional knowledge of ~1 part in 10³, 35 years
 out, from ground-based astrometry alone. (JPL's OSIRIS-REx-era
 solution reaches ~20 km on the same encounter.) The ~414,000 km
 uncertainty at the 2080 follow-up is gravitational covariance
-amplification at close approach made quantitative — the 3σ ellipse
+amplification at close approach made quantitative: the 3σ ellipse
 grows ~451× through the 2060 close pass (the script prints the exact
 ratio). Where Bennu actually threads the 2060 B-plane controls almost
 everything about its 22nd-century trajectory.
 
 ## See also
 
-- [Chesley et al. 2014, "Orbit and bulk density of the OSIRIS-REx target asteroid (101955) Bennu"](https://ui.adsabs.harvard.edu/abs/2014Icar..235....5C/abstract) — the radar-anchored Yarkovsky detection this scenario retraces
+- [Chesley et al. 2014, "Orbit and bulk density of the OSIRIS-REx target asteroid (101955) Bennu"](https://ui.adsabs.harvard.edu/abs/2014Icar..235....5C/abstract): the radar-anchored Yarkovsky detection this scenario retraces
 - [Farnocchia et al. 2021, "Ephemeris and hazard assessment for near-Earth asteroid (101955) Bennu based on OSIRIS-REx data"](https://ui.adsabs.harvard.edu/abs/2021Icar..36914594F/abstract)
 - OSIRIS-REx mission: <https://www.nasa.gov/osiris-rex>
 - explore-mode scenario: <https://empyrean-dynamics.com/explore/bennu>

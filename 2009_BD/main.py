@@ -70,7 +70,7 @@ from empyrean import (
 def _prior_joint(state6, param_vars, present_bits):
     """Block-diagonal refine prior: the state 6x6 plus one diagonal prior
     variance per parameter axis. The AMRAT prior rides the orbit's one packed
-    joint now (bit 4 of the axis table) — the removed ``SRPParams.amrat_variance``
+    joint now (bit 4 of the axis table). The removed ``SRPParams.amrat_variance``
     column is gone."""
     width = 6 + len(param_vars)
     full = np.zeros((width, width), dtype=np.float64)

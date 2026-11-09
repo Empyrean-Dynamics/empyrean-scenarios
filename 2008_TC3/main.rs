@@ -57,12 +57,12 @@ fn main() -> empyrean::Result<()> {
 
     let prop = ctx.propagate(&[orbit], &epochs, &prop_config)?;
 
-    // ── 4. Predicted entry — atmospheric_entry is the ~100 km Karman-
+    // ── 4. Predicted entry: atmospheric_entry is the ~100 km Karman-
     //       line crossing, the apples-to-apples comparator for the
     //       Borovička+ 2010 fireball timing (the surface-impact event
     //       lands ~150 km downrange because the fireball exploded at
     //       ~37 km altitude). ─────────────────────────────────────────
-    println!("\nPredicted atmospheric entry (Empyrean):");
+    println!("\nPredicted atmospheric entry (empyrean):");
     for ev in prop
         .events
         .iter()
@@ -77,7 +77,7 @@ fn main() -> empyrean::Result<()> {
             ev.relative_velocity_au_day * 149_597_870.7 / 86_400.0,
             ev.impact_altitude_km,
         );
-        // The entry event carries its planetodetic ground point — the
+        // The entry event carries its planetodetic ground point: the
         // 19-hour discovery arc pins WHERE over Sudan, not just when.
         println!(
             "  over {:.2}°N {:.2}°E",

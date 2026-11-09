@@ -16,11 +16,11 @@ const KM_PER_AU: f64 = 149_597_870.7;
 fn main() -> empyrean::Result<()> {
     let ctx = Context::from_data_dir(None)?;
 
-    // ── 1. SBDB query — non-grav coefficients included ──────────────
+    // ── 1. SBDB query: non-grav coefficients included ──────────────
     let batch = query_sbdb(&["67P"], None)?;
     // SBDB ships 67P's outgassing time-delay DT (which shifts the g(r)
     // evaluation) and its one packed-joint covariance. This walkthrough only
-    // propagates — the DT value is kept and the joint rides along; the removed
+    // propagates. The DT value is kept and the joint rides along; the removed
     // `with_non_grav_dt_variance` builder (the old separate DT-sigma fit
     // trigger) is gone.
     let orbit = batch
@@ -29,9 +29,9 @@ fn main() -> empyrean::Result<()> {
         .next()
         .expect("SBDB returned no orbit for 67P");
     println!("non-grav coefficients (SBDB):");
-    println!("  A1 = {:.3e} AU/d^2", orbit.a1);
-    println!("  A2 = {:.3e} AU/d^2", orbit.a2);
-    println!("  A3 = {:.3e} AU/d^2", orbit.a3);
+    println!("  A1 = {:.3e} au/d^2", orbit.a1);
+    println!("  A2 = {:.3e} au/d^2", orbit.a2);
+    println!("  A3 = {:.3e} au/d^2", orbit.a3);
 
     // ── 2. Propagate 16 years at 10-day cadence from the orbit epoch ─
     // Anchor the grid to the orbit's own epoch (as the Python twin does)
@@ -47,7 +47,7 @@ fn main() -> empyrean::Result<()> {
 
     let full = ctx.propagate(std::slice::from_ref(&orbit), &epochs, &prop_config)?;
 
-    // ── 3. Control run — drop non-grav, propagate again ─────────────
+    // ── 3. Control run: drop non-grav, propagate again ─────────────
     let grav_only = orbit.with_nongrav(0.0, 0.0, 0.0);
     let control = ctx.propagate(&[grav_only], &epochs, &prop_config)?;
 
@@ -68,7 +68,7 @@ fn main() -> empyrean::Result<()> {
         max_delta_km
     );
     println!(
-        "(That's the cumulative effect of outgassing — what every cometary ephemeris pipeline has to model.)"
+        "(That's the cumulative effect of outgassing, which every cometary ephemeris pipeline has to model.)"
     );
 
     Ok(())

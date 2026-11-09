@@ -5,7 +5,7 @@
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Empyrean-Dynamics/empyrean-scenarios/blob/main/2009_BD/main.ipynb)
 
 Prefer a notebook? [`main.ipynb`](./main.ipynb) is the same walkthrough,
-rendered on GitHub with executed outputs — or run it in Colab with the
+rendered on GitHub with executed outputs, or run it in Colab with the
 badge above.
 
 ## The story
@@ -15,13 +15,13 @@ is one of the first asteroids for which **solar radiation pressure (SRP)
 was detected directly from ground-based astrometry** (Micheli, Tholen &
 Elliott 2012). Because the body is so small, the momentum carried by
 sunlight produces a transverse drift large enough to measure over a
-multi-year arc — the trajectory literally does not close under gravity
+multi-year arc: the trajectory literally does not close under gravity
 alone.
 
 That drift is a direct readout of the object's **area-to-mass ratio
 (AMRAT)**: a bigger cross-section per unit mass catches more photons per
 kilogram and drifts faster. Fitting AMRAT from the astrometry is
-therefore a way to *weigh* the object — to constrain its bulk density
+therefore a way to *weigh* the object: to constrain its bulk density
 and, with a size estimate, tell a solid rock from a rubble pile. The
 same physics underwrites solar-sail navigation and the SRP budget every
 precise NEO ephemeris has to carry.
@@ -30,13 +30,13 @@ precise NEO ephemeris has to carry.
 
 1. **Queries JPL SBDB for 2009 BD.** The current JPL solution (JPL 46)
    ships the fitted SRP not as an explicit AMRAT but as a **Marsden
-   radial non-grav A1** with an r⁻² law — physically the same force. The
+   radial non-grav A1** with an r⁻² law, which is physically the same force. The
    script converts A1 to the AMRAT seed (m²/kg) through the standard
    radiation-pressure constant P₀ = S/c at 1 au.
 
 2. **Attaches an AMRAT prior and converts to Cartesian.** AMRAT fitting
    is a *refine-path* solve: the input orbit must carry an
-   `amrat_variance` — both the trigger that opens the AMRAT column and
+   `amrat_variance`, which is both the trigger that opens the AMRAT column and
    the Bayesian prior. SBDB ships the A1-derived *value*; the script
    attaches a wide variance so the fit is data-driven. `refine` works in
    the Cartesian state, so the SBDB elements are transformed to Cartesian
@@ -67,7 +67,7 @@ precise NEO ephemeris has to carry.
 ## Why a refine, not a cold determine
 
 AMRAT (like the cometary time delay DT) is only identifiable when the
-orbit already carries a state and covariance to update — the SRP signal
+orbit already carries a state and covariance to update. The SRP signal
 is a small perturbation on top of the gravitational two-body motion. A
 cold determine-from-scratch has no AMRAT prior to open the column and
 the engine refuses it loudly rather than fitting an unconstrained

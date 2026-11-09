@@ -12,7 +12,7 @@
 //!   - SBDB A1-derived AMRAT reference (JPL's fitted radial non-grav,
 //!     converted through P0 = S/c)
 //!   - Micheli, Tholen & Elliott (2012), New Astronomy 17, 446:
-//!     AMR = (2.97 +/- 0.33)e-4 m^2/kg — the original SRP detection.
+//!     AMR = (2.97 +/- 0.33)e-4 m^2/kg, the original SRP detection.
 
 // empyrean:snippet:start
 use empyrean::{Context, ODConfig, SolveFor, SolveForParams, query_observations, query_sbdb};
@@ -20,7 +20,7 @@ use empyrean::{Context, ODConfig, SolveFor, SolveForParams, query_observations, 
 /// Wide AMRAT prior (variance, (m^2/kg)^2): loose enough that the
 /// astrometry, not the prior, drives the fitted AMRAT. ~ (1e-3 m^2/kg)^2.
 const AMRAT_PRIOR_VAR: f64 = 1.0e-6;
-/// Radiation-pressure coefficient. Fixed, never fitted — only Cr·AMRAT
+/// Radiation-pressure coefficient. Fixed, never fitted: only Cr·AMRAT
 /// enters the dynamics, so the fitted AMRAT absorbs Cr (the JPL AMR
 /// convention). 1.0 = total absorption.
 const CR: f64 = 1.0;
@@ -38,7 +38,7 @@ fn main() -> empyrean::Result<()> {
     // ── 1. SBDB query: fitted SRP as the Marsden radial A1 ──────────
     // The current JPL solution (JPL 46) ships 2009 BD's fitted SRP not
     // as an explicit AMRAT but as a Marsden radial non-grav A1 with an
-    // r^-2 law — physically the same force. Convert A1 to the AMRAT
+    // r^-2 law, which is physically the same force. Convert A1 to the AMRAT
     // seed (m^2/kg) through the standard radiation-pressure constant
     // P0 = S/c at 1 au.
     let batch = query_sbdb(&["2009 BD"], None)?;
@@ -50,14 +50,14 @@ fn main() -> empyrean::Result<()> {
     // 0.10.0rc workaround (rc1 rebuilds the same engine, so it still applies): the Rust wrapper's query_sbdb populates the
     // state<->non-grav cross-covariance without the 3x3 it conditions
     // on, and the engine (correctly) refuses the half-attached joint.
-    // Clear the cross terms — this scenario reads nominal-trajectory
+    // Clear the cross terms: this scenario reads nominal-trajectory
     // numbers only. Remove once the wrapper attaches the full block.
     let a1 = orbit.a1;
     // Loud, not silent: without JPL's fitted radial non-grav there is
     // no seed to fit from.
     assert!(
         a1.is_finite() && a1 != 0.0,
-        "SBDB returned no radial non-grav A1 for 2009 BD — cannot \
+        "SBDB returned no radial non-grav A1 for 2009 BD: cannot \
          seed the AMRAT fit without a starting value"
     );
     let sbdb_amrat = a1 * AU_M / (DAY_S * DAY_S) / P0;
@@ -70,7 +70,7 @@ fn main() -> empyrean::Result<()> {
     // Hand the radial slot to AMRAT (A1 zeroed so the same force is never
     // counted twice) while the transverse A2 (a 13-sigma detection in JPL 46)
     // stays in the dynamics as shipped, g(r) constants and all. The force
-    // params are representation invariant — read them before the transform.
+    // params are representation invariant, so read them before the transform.
     let (a2, a3) = (orbit.a2, orbit.a3);
     let (alpha, r0, m, n, k) = (
         orbit.ng_alpha,
@@ -131,7 +131,7 @@ fn main() -> empyrean::Result<()> {
     );
 
     // ── 4. Fitted AMRAT ± 1σ (the v0.9.0 measurement) ───────────────
-    // The tagged solved covariance names the AMRAT slot — read the
+    // The tagged solved covariance names the AMRAT slot, so read the
     // variance from it rather than guessing at column order.
     match (&result.solved_covariance, &result.orbit.srp) {
         (Some(sc), Some(srp)) if sc.amrat_slot.is_some() => {
@@ -161,7 +161,7 @@ fn main() -> empyrean::Result<()> {
 
 /// A block-diagonal refine prior: the state 6x6 plus one diagonal prior
 /// variance per parameter axis (zero cross terms). The AMRAT prior rides the
-/// orbit's one packed joint now (present bit 4 of the axis table) — the removed
+/// orbit's one packed joint now (present bit 4 of the axis table). The removed
 /// `with_srp_amrat_variance` builder is gone.
 fn prior_joint(
     state6: [[f64; 6]; 6],

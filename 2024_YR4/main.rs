@@ -55,13 +55,13 @@ fn main() -> empyrean::Result<()> {
     // ── 4. Compute impact probabilities to 2032 encounter for both fits ──
     let end_epoch = Epoch::from_mjd_tdb(63730.0); // ~2032-12-31
 
-    // The fitted orbit is already re-feedable — it carries its covariance
+    // The fitted orbit is already re-feedable: it carries its covariance
     // and the fitted non-grav model. Pass it straight to the IP call.
     let early_orbit = early.orbit.clone().with_orbit_id("2024 YR4 (discovery)");
     let full_orbit = full.orbit.clone().with_orbit_id("2024 YR4 (full)");
 
     let print_ips = |label: &str, ips: &[empyrean::ImpactProbability]| {
-        println!("\n{label} — 2032 encounter:");
+        println!("\n{label}, 2032 encounter:");
         for ip in ips {
             let miss_km = ip.miss_distance_au * KM_PER_AU;
             let sigma_km = ip.sigma_distance_au * KM_PER_AU;

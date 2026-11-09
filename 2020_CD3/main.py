@@ -1,4 +1,4 @@
-"""2020 CD3: Earth's second known mini-moon — multi-year capture episode.
+"""2020 CD3: Earth's second known mini-moon: multi-year capture episode.
 
 Reproduces the 2020cd3 explore-mode scenario from
 https://empyrean-dynamics.com/explore/2020cd3.
@@ -18,7 +18,7 @@ What it does:
        gravitational capture by the Earth-Moon system) and the Moon
        close-approach periapses along the way. In-capture geocentric
        passes are orbital structure around the central body, not close
-       approaches — the engine emits no CA events for them, so the
+       approaches (the engine emits no CA events for them), so the
        geocentric minimum is read off the propagated states instead.
 
 Authoritative cross-checks (printed inline):
@@ -53,7 +53,7 @@ def main() -> None:
     ng = orbits.non_grav
     print(
         f"non-grav coefficients (SBDB):  A1 = {ng.a1.to_numpy()[0]:.3e}  "
-        f"A2 = {ng.a2.to_numpy()[0]:.3e}  A3 = {ng.a3.to_numpy()[0]:.3e} AU/d^2"
+        f"A2 = {ng.a2.to_numpy()[0]:.3e}  A3 = {ng.a3.to_numpy()[0]:.3e} au/d^2"
     )
 
     # ── 2. Propagate through the capture episode ────────────────────
@@ -64,7 +64,7 @@ def main() -> None:
         mjd=[52000.0 + 1.0 * i for i in range(7001)],
         scale=TimeScale.TDB.value,
     )
-    # FirstOrder is fast enough for this scenario — the headline
+    # FirstOrder is fast enough for this scenario: the headline
     # numbers (capture starts/ends, periapsis distances) are
     # covariance-free.
     events = EventConfig(close_approaches=True)
@@ -91,7 +91,7 @@ def main() -> None:
 
     # ── 3. Capture episodes + close approaches ──────────────────────
     # Capture is the energy-criterion event (two-body specific energy
-    # crossing zero relative to Earth) — emitted as `capture_start` /
+    # crossing zero relative to Earth), emitted as `capture_start` /
     # `capture_end`. SOI crossings (`soi_entry` / `soi_exit`) are a
     # different concept: they fire when the integrator switches
     # central body via the Laplace-SOI dominance test.
@@ -116,7 +116,7 @@ def main() -> None:
         print(
             f"Close-approach periapses: Earth {n_earth}, Moon {n_moon}  "
             "(in-capture geocentric passes are orbital structure around "
-            "the central body, not close approaches — no events emitted)"
+            "the central body, not close approaches, so no events are emitted)"
         )
         if earth_cas:
             mjd, d = earth_cas[0]
@@ -124,7 +124,7 @@ def main() -> None:
         # The geocentric minimum through the capture falls out of the
         # propagated states instead: re-origin the daily states to
         # Earth and take the smallest position norm. (Coarser than an
-        # event — the grid is 1-day — but it is the honest headline for
+        # event, since the grid is 1-day, but it is the honest headline for
         # a body that spends the episode *orbiting* Earth.) transform_orbits
         # re-origins the whole states table, transporting any packed joint
         # (transform_coordinates now refuses a covariance-bearing input).

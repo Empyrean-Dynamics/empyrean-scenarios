@@ -20,13 +20,13 @@ Python scripts, and executed Jupyter notebooks that reproduce the
 planetary-science narratives from
 [empyrean-dynamics.com/explore](https://empyrean-dynamics.com/explore)
 end-to-end against the public `empyrean` toolkit. Each scenario tells
-one near-Earth-object or comet story in **both** languages — same
-propagator, same orbit-determination, same event-detection engine.
+one near-Earth-object or comet story in **both** languages, using the
+same propagator, orbit-determination, and event-detection engine.
 The two implementations cross-check each other: any divergence in
 headline numbers between `cargo run --bin apophis` and
 `python apophis.py` is a bug somewhere.
 
-No hosted endpoint, no proprietary data — just `cargo add empyrean`
+No hosted endpoint, no proprietary data: just `cargo add empyrean`
 or `pip install empyrean` against the publicly-available astrometry
 catalogues.
 
@@ -41,8 +41,8 @@ catalogues.
 | [2020 CD3](2020_CD3/) | Temporary lunar-distance capture ("mini-moon") event detection, with and without non-gravitational forces | [![py](https://img.shields.io/badge/py-3776AB?logo=python&logoColor=white&style=flat-square)](2020_CD3/main.py) [![rs](https://img.shields.io/badge/rs-B7410E?logo=rust&logoColor=white&style=flat-square)](2020_CD3/main.rs) [![ipynb](https://img.shields.io/badge/ipynb-F37626?logo=jupyter&logoColor=white&style=flat-square)](2020_CD3/main.ipynb) |
 | [2009 BD](2009_BD/) | Solar-radiation-pressure area-to-mass ratio measured directly from the astrometry of a metre-scale asteroid | [![py](https://img.shields.io/badge/py-3776AB?logo=python&logoColor=white&style=flat-square)](2009_BD/main.py) [![rs](https://img.shields.io/badge/rs-B7410E?logo=rust&logoColor=white&style=flat-square)](2009_BD/main.rs) [![ipynb](https://img.shields.io/badge/ipynb-F37626?logo=jupyter&logoColor=white&style=flat-square)](2009_BD/main.ipynb) |
 | [67P/Churyumov–Gerasimenko](67P_Churyumov-Gerasimenko/) | Cometary water-sublimation outgassing and its cumulative along-track displacement | [![py](https://img.shields.io/badge/py-3776AB?logo=python&logoColor=white&style=flat-square)](67P_Churyumov-Gerasimenko/main.py) [![rs](https://img.shields.io/badge/rs-B7410E?logo=rust&logoColor=white&style=flat-square)](67P_Churyumov-Gerasimenko/main.rs) [![ipynb](https://img.shields.io/badge/ipynb-F37626?logo=jupyter&logoColor=white&style=flat-square)](67P_Churyumov-Gerasimenko/main.ipynb) |
-| [2025-010D](2025-010D/) | A Falcon 9 second stage fit from public-domain community-driven astrometry — geocentric OD, a rocket-body area-to-mass ratio, and the 2026 lunar impact predicted to seconds | [![py](https://img.shields.io/badge/py-3776AB?logo=python&logoColor=white&style=flat-square)](2025-010D/main.py) [![rs](https://img.shields.io/badge/rs-B7410E?logo=rust&logoColor=white&style=flat-square)](2025-010D/main.rs) [![ipynb](https://img.shields.io/badge/ipynb-F37626?logo=jupyter&logoColor=white&style=flat-square)](2025-010D/main.ipynb) |
-| [2026 PDC27](2026_PDC27/) | The (fictional) IAA PDC 2027 exercise asteroid — the knowledge-timeline replay of its impact probability under four uncertainty methods | [![py](https://img.shields.io/badge/py-3776AB?logo=python&logoColor=white&style=flat-square)](2026_PDC27/main.py) [![rs](https://img.shields.io/badge/rs-B7410E?logo=rust&logoColor=white&style=flat-square)](2026_PDC27/main.rs) [![ipynb](https://img.shields.io/badge/ipynb-F37626?logo=jupyter&logoColor=white&style=flat-square)](2026_PDC27/main.ipynb) |
+| [2025-010D](2025-010D/) | A Falcon 9 second stage fit from public-domain community-driven astrometry: geocentric OD, a rocket-body area-to-mass ratio, and the 2026 lunar impact predicted to seconds | [![py](https://img.shields.io/badge/py-3776AB?logo=python&logoColor=white&style=flat-square)](2025-010D/main.py) [![rs](https://img.shields.io/badge/rs-B7410E?logo=rust&logoColor=white&style=flat-square)](2025-010D/main.rs) [![ipynb](https://img.shields.io/badge/ipynb-F37626?logo=jupyter&logoColor=white&style=flat-square)](2025-010D/main.ipynb) |
+| [2026 PDC27](2026_PDC27/) | The (fictional) IAA PDC 2027 exercise asteroid: the knowledge-timeline replay of its impact probability under four uncertainty methods | [![py](https://img.shields.io/badge/py-3776AB?logo=python&logoColor=white&style=flat-square)](2026_PDC27/main.py) [![rs](https://img.shields.io/badge/rs-B7410E?logo=rust&logoColor=white&style=flat-square)](2026_PDC27/main.rs) [![ipynb](https://img.shields.io/badge/ipynb-F37626?logo=jupyter&logoColor=white&style=flat-square)](2026_PDC27/main.ipynb) |
 
 ## Layout
 
@@ -72,7 +72,7 @@ names stay short (`apophis`, `bd2009`, `bennu`, `cd3`, `comet67p`,
 
 ## Quick start
 
-Pick a runtime — both reproduce the same headline numbers.
+Pick a runtime. Both reproduce the same headline numbers.
 
 **Rust:**
 ```bash
@@ -90,7 +90,7 @@ python 99942_Apophis/main.py             # or 101955_Bennu/main.py, 2008_TC3/mai
 ```
 
 **Notebooks:** every scenario's `main.ipynb` renders on GitHub with its
-executed outputs — no install needed to read the numbers — and carries
+executed outputs (no install needed to read the numbers) and carries
 an Open-in-Colab badge to run it in the browser (first run downloads
 the ~740 MB kernel set).
 ```bash
@@ -113,20 +113,20 @@ documentation is <https://docs.empyrean-dynamics.com/llms.txt>. See
 
 ## Conventions
 
-Each scenario ships **three implementations** — `<dirname>/main.py`
+Each scenario ships **three implementations**: `<dirname>/main.py`
 (Python), `<dirname>/main.rs` (Rust), and `<dirname>/main.ipynb` (the
 notebook twin, rendered on GitHub with executed outputs and runnable
-in Colab) — and each implementation:
+in Colab). Each implementation:
 
 - Imports only from the public `empyrean` package / crate surface.
 - Initializes once at the top (`empyrean.initialize()` in Python, `Context::default_data_dir()?` in Rust).
-- Pulls inputs from authoritative public sources — JPL SBDB, MPC, JPL CAD.
+- Pulls inputs from authoritative public sources: JPL SBDB, MPC, JPL CAD.
 - Prints a small banner of headline numbers (close-approach distances, IP, B-plane geometry) so the binary doubles as a smoke test.
 - Cites authoritative reference values inline in comments where they exist, so a reader can sanity-check what the toolkit produced against what JPL publishes.
 
 The numbers each implementation prints are the same numbers that
 appear in the narrative panel of
-`https://empyrean-dynamics.com/explore/{id}` — and the Rust and
+`https://empyrean-dynamics.com/explore/{id}`, and the Rust and
 Python prints should match each other to the precision of the
 underlying float arithmetic. Any discrepancy is a bug somewhere.
 
@@ -134,6 +134,6 @@ See [`docs/conventions.md`](docs/conventions.md) for the full spec.
 
 ## License
 
-[BSD-3-Clause](LICENSE) — permissive, attribution-required.
+[BSD-3-Clause](LICENSE): permissive, attribution-required.
 Compatible with the rest of the Empyrean Dynamics public-distribution
 chain.

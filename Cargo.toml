@@ -66,7 +66,7 @@ path = "2026_PDC27/main.rs"
 name = "comet67p"
 path = "67P_Churyumov-Gerasimenko/main.rs"
 
-# install-page/ — one runnable Rust example per section of the
+# install-page/: one runnable Rust example per section of the
 # https://empyrean-dynamics.com/install reference page. Each script
 # exists primarily as the source-of-truth for the website's snippet
 # extractor (the marked region between `empyrean:snippet:start` and
@@ -112,7 +112,7 @@ name = "install-epochs"
 path = "install-page/epochs.rs"
 
 [dependencies]
-# Sole physics dep — every scenario script imports only from the
+# Sole physics dep: every scenario script imports only from the
 # public `empyrean` crate surface. Resolved from the published crate
 # on crates.io.
 empyrean = "=0.11.0-rc.1"

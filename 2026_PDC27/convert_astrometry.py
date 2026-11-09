@@ -1,6 +1,6 @@
 """Convert the 2026 PDC27 Epoch-1 ADES XML to empyrean-readable ADES PSV.
 
-Field-for-field transcription — no value is rounded, reformatted, or
+Field-for-field transcription: no value is rounded, reformatted, or
 altered. The only change is structural (XML elements -> one PSV table)
 plus dropping <subFmt> (constant "A22"; not a column the reader knows).
 Self-verifies: after writing, re-parses both files and asserts every
@@ -34,7 +34,7 @@ COLUMNS = [
 ]
 
 HEADER_COMMENT = [
-    "SYNTHETIC EXERCISE DATA — this file describes a fictional asteroid",
+    "SYNTHETIC EXERCISE DATA: this file describes a fictional asteroid",
     "for the IAA PDC 2027 planetary-defense exercise; it is not a real",
     'object. "This is only an exercise." (JPL CNEOS)',
     "Source: https://cneos.jpl.nasa.gov/pd/cs/pdc27/2026pdc27.epoch1.xml",

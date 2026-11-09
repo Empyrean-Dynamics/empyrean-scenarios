@@ -11,7 +11,7 @@ authors = [
 keywords = ["astrodynamics", "planetary-science", "near-earth-objects", "examples", "ephemeris"]
 
 # These scripts are walkthroughs of the explore-mode scenarios on
-# empyrean-dynamics.com — they don't ship as a library, just as a
+# empyrean-dynamics.com. They don't ship as a library, just as a
 # collection of `python <script>.py` runnable demos. Each script
 # imports only from the public `empyrean` API surface.
 dependencies = [
@@ -25,8 +25,11 @@ dependencies = [
 #   pip install -e '.[notebooks]'
 [project.optional-dependencies]
 notebooks = ["nbformat>=5", "nbclient>=0.9", "ipykernel>=6", "matplotlib>=3.7"]
+# Lint with the exact ruff version CI uses (.github/workflows/ci.yml):
+#   pip install -e '.[dev]'
+dev = ["ruff==0.17.4"]
 
-# Not an importable package — installing this project just provisions
+# Not an importable package: installing this project just provisions
 # the dependency set above. Without this, setuptools' flat-layout
 # auto-discovery trips over local run artifacts (target/, downloaded
 # ephemeris directories) and refuses to build.
