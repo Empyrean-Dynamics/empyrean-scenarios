@@ -21,11 +21,12 @@ before Bill Gray (Project Pluto) identified it as the just-launched
 stage.
 
 In September 2025, Gray's orbit solutions began showing a lunar impact
-in August 2026. There was no radar tracking to lean on: at
-lunar distance, radar returns are ~10¹⁰ times fainter than for LEO objects,
-so the trajectory came almost entirely from telescopic astrometry: NEO
-surveys plus a hand-raised network of community observers on four continents who
-answered Gray's call for measurements. The final pre-impact prediction
+in August 2026. The community trajectory, Gray's solutions and the one
+fitted here, is optical only: at lunar distance radar returns are ~10¹⁰ times
+fainter than for LEO objects, so it came from telescopic astrometry, NEO surveys
+plus a hand-raised network of community observers on four continents who answered
+Gray's call for measurements. JPL's reference solution (#GA1A2/21) is the
+exception: it adds three radar Doppler measurements to the optical astrometry. The final pre-impact prediction
 put the stage on the Moon at **2026-08-05 06:35:37.5 UTC**, near the
 crater Einstein at the Moon's western limb, in terrain just past the
 90° W line that favorable libration happened to tilt into view from
@@ -48,14 +49,16 @@ into a hyperbolic selenocentric encounter.
 
 ## The data (not the usual MPC query)
 
-Every other scenario in this collection pulls its astrometry live from
+Most scenarios in this collection pull their astrometry live from
 the Minor Planet Center. This one does not: the observations come from
 Bill Gray's Project Pluto pages, which compile the astrometry for
 2025-010D (his page reports 1,053 observations as of 2026-02-26). This
 directory ships the public-domain part of that record, contributed by
 the observers named below, as a committed ADES PSV file:
 
-- [`astrometry.psv`](./astrometry.psv): all 402 public observations of
+- [`astrometry.psv`](./astrometry.psv) (raw file:
+  <https://raw.githubusercontent.com/Empyrean-Dynamics/empyrean-scenarios/main/2025-010D/astrometry.psv>;
+  save it as `astrometry.psv` next to where you run the code): all 402 public observations of
   2025-010D, normalized from the find_orb-extended MPC 80-column format
   of the source pages by [`convert_astrometry.py`](./convert_astrometry.py).
   Normalization means exactly: packed sub-second timestamps and decimal
@@ -116,13 +119,18 @@ use it).
    stage the AMR is not a small correction: it is the dominant model
    term, and Gray's fit recovers it at ~5σ from nine nights of data.
 
-3. **Propagates into the Moon.** The trajectory is hyperbolic with
-   respect to the Moon (e ≈ 1.055); the event detector reports the
-   surface impact with selenographic coordinates.
+3. **Propagates into the Moon** on a grid from MJD 61250 (TDB) in steps of
+   0.05 days. The trajectory is hyperbolic with respect to the Moon
+   (e ≈ 1.055); the event detector reports the surface impact with
+   selenographic coordinates.
 
-4. **Compares against the published record**: Gray's fit to this same
-   public arc, JPL's radar-informed solution #GA1A2/21, and the
-   confirmed impact.
+4. **Compares against the published record and scores the site**: Gray's fit
+   to this same public arc (the area-to-mass ratios differ by 2.45 combined
+   sigma), JPL's solution #GA1A2/21 (which includes three radar Doppler
+   measurements), and the confirmed impact. The script then prints the
+   great-circle separation, on a 1737.4 km Moon, of this fit's impact
+   (2.27 km) and of Gray's final prediction (0.49 km) from the crater LRO
+   imaged at 19.4759°N, 266.7138°E.
 
 ## Reference values
 
@@ -135,16 +143,21 @@ use it).
 | Impact site | 19.46° N, 266.71° E (near crater Einstein) | Project Pluto |
 | Impact site (public 74-obs arc) | 19.58° N, 266.63° E | Pseudo-MPEC 25010d_new |
 | 3σ surface ellipse | 3.4 × 0.6 km | JPL Horizons #GA1A2/21 |
-| Impact speed | 2.43 km/s | Project Pluto / Campbell+ 2026 |
+| Impact speed | 2.43 km/s (Gray); 2.36 km/s (Campbell et al.) | Fernando et al. 2026; Campbell et al. 2026 |
 | Area-to-mass ratio (74-obs arc) | 0.0079 ± 0.0017 m²/kg | Pseudo-MPEC 25010d_new |
-| Stage mass / size | ~4,000–4,900 kg, ~13 m × 3.7 m | JPL Horizons; Sky & Telescope |
+| Stage mass / size | ~4,000–4,900 kg, ~12–13 m × 3.7–4 m | JPL Horizons; Sky & Telescope; Fernando et al. 2026 |
 | Selenocentric e, q | 1.0549, 1303 km | Pseudo-MPEC 25010d_new |
 | Confirmation | Na/Li impact plume (VLT); before/after imaging (KASA Danuri) | ESO; KASA, 2026-08-06 |
 
-Notes for the careful reader: the two independent full-arc solutions
-(Gray; Campbell et al. 2026) differ by ~2 minutes in impact time with
-overlapping stated uncertainties. Solar radiation pressure on a
-tumbling hollow body is the dominant error term in both. The single
+Notes for the careful reader: the impact time differs between solutions
+by seconds. This fit (06:35:40.17 UTC) falls between Gray's 74-observation
+solution (06:35:42.45, pseudo-MPEC 25010d_new) and Campbell et al. 2026
+(06:35:36.0 ± 5.1 s at 19.497°N, 266.677°E), which differ by 6 s; Gray's final
+prediction from his full record is 06:35:37.5 (Project Pluto, 2026-08-01).
+Solar radiation pressure on a tumbling hollow body is the
+dominant error term in both: Campbell et al. note that standard 1 to 3
+parameter models fit well over short arcs and can break down over longer
+ones. The single
 `ScT` observation is from a private, non-MPC station code the engine
 cannot resolve to a site, so evaluation skips it. It appears as the
 one rejected row in the residual summary, and both language twins skip
@@ -159,18 +172,24 @@ page if you want to model it yourself).
 fit: chi2/dof 0.540  RMS RA·cos(d) 0.323" Dec 0.279"  (74/74 obs)
 Fitted AMR = 0.0029 ± 0.0011 m²/kg
 Gray (same 74-obs arc): 0.0079 ± 0.0017 m²/kg
+Ours - Gray = -0.0050 m²/kg, 2.45 combined sigma
 
-Predicted lunar impact (empyrean): 2026-08-05T06:35:40.169254364Z
+Predicted lunar impact (empyrean): 2026-08-05T06:35:40.17Z
   at 19.514°N 266.646°E (selenographic)
 Gray (74-obs arc):  2026-08-05T06:35:42.45Z at 19.577°N 266.630°E
 JPL #GA1A2/21:      2026-08-05T06:35:40Z ± 9 s at 19.507°N 266.7°E
 Confirmed:          2026-08-05 ~06:35 UTC near crater Einstein
 
+Scored against the crater LRO imaged (19.4759°N 266.7138°E), great circle on a 1737.4 km Moon:
+  empyrean (this fit, public 74-obs arc)  2.27 km
+  Gray's final prediction (all data)      0.49 km
+(dropped unregistered community station ScT from scoring)
+
 Final-arc orbit scored against the full 402-obs record:
   own arc   (2026 Jul-Aug)   RMS         0.41"
   Apr-May 2026               RMS       165.29"
   Dec 2025                   RMS      1679.24"
-  Jan 2025 discovery         RMS    470409.09"
+  Jan 2025 discovery         RMS    470390.33"
 (Five orders of magnitude across two lunar encounters and a
  changing tumble, consistent with the per-arc solutions
  Project Pluto published; Gray 2026, Campbell et al. 2026.)
@@ -193,7 +212,7 @@ forecasts land as follows (great-circle offsets on a 1737.4 km sphere):
 |---|---|---|
 | CNEOS / JPL terrain-aware nominal (blue marker on NASA's map) | n/a (3σ ellipse 3.4 × 0.6 km) | 0.2 km, NNE |
 | CNEOS / JPL nominal without terrain (red marker) | n/a (3σ ellipse 3.4 × 0.6 km) | 1.1 km, NNW |
-| **This scenario** (optical, 74-obs public arc) | 19.514°N, 266.646°E (no site uncertainty is computed) | 2.3 km, WNW |
+| **This scenario** (optical, 74-obs public arc) | 19.514°N, 266.646°E (no site uncertainty is computed) | 2.27 km, WNW |
 | Gray / Project Pluto (same 74-obs arc) | 19.577°N, 266.630°E (no uncertainty stated in the pseudo-MPEC) | 3.9 km, NW |
 
 ![LRO ground truth vs predicted impact sites](lro_impact_site.png)
@@ -226,8 +245,8 @@ travelling toward azimuth ~52°, 2.42 km/s) separates *when* from *where*:
 Timing was solved by everyone. The error is cross-track, and every
 solution sits on the same side of the ground track. Two comparisons
 matter here. First, on the *same* 74-observation public arc, this
-scenario's fit (2.3 km miss) and Gray's (3.9 km miss) agree on the impact
-time to 0.4 s and land on the same patch of ground, with ours the closer
+scenario's fit (2.27 km miss) and Gray's (3.9 km miss) agree on the impact
+time to 2.3 s and land on the same patch of ground, with ours the closer
 of the two. That is an independent reproduction of his public-arc result,
 not a mismatch. Second, Gray's *final* prediction (2026-08-01) landed
 0.49 km from the crater (19.461°N 266.707°E, "near Einstein" on his page).
