@@ -43,6 +43,7 @@ catalogues.
 | [67P/Churyumov–Gerasimenko](67P_Churyumov-Gerasimenko/) | Cometary water-sublimation outgassing and its cumulative along-track displacement | [![py](https://img.shields.io/badge/py-3776AB?logo=python&logoColor=white&style=flat-square)](67P_Churyumov-Gerasimenko/main.py) [![rs](https://img.shields.io/badge/rs-B7410E?logo=rust&logoColor=white&style=flat-square)](67P_Churyumov-Gerasimenko/main.rs) [![ipynb](https://img.shields.io/badge/ipynb-F37626?logo=jupyter&logoColor=white&style=flat-square)](67P_Churyumov-Gerasimenko/main.ipynb) |
 | [2025-010D](2025-010D/) | A Falcon 9 second stage fit from public-domain community-driven astrometry: geocentric OD, a rocket-body area-to-mass ratio, and the 2026 lunar impact predicted to seconds | [![py](https://img.shields.io/badge/py-3776AB?logo=python&logoColor=white&style=flat-square)](2025-010D/main.py) [![rs](https://img.shields.io/badge/rs-B7410E?logo=rust&logoColor=white&style=flat-square)](2025-010D/main.rs) [![ipynb](https://img.shields.io/badge/ipynb-F37626?logo=jupyter&logoColor=white&style=flat-square)](2025-010D/main.ipynb) |
 | [2026 PDC27](2026_PDC27/) | The (fictional) IAA PDC 2027 exercise asteroid: the knowledge-timeline replay of its impact probability under four uncertainty methods | [![py](https://img.shields.io/badge/py-3776AB?logo=python&logoColor=white&style=flat-square)](2026_PDC27/main.py) [![rs](https://img.shields.io/badge/rs-B7410E?logo=rust&logoColor=white&style=flat-square)](2026_PDC27/main.rs) [![ipynb](https://img.shields.io/badge/ipynb-F37626?logo=jupyter&logoColor=white&style=flat-square)](2026_PDC27/main.ipynb) |
+| [2026 QQ8](2026_QQ8/) | A few-meter asteroid first seen after a close Earth pass: the radiation-pressure push fitted from 39 observations with its sigma against JPL's, lower-bound densities, and a 226-day temporarily captured flyby classified by the standard test and its revolutions around Earth | [![py](https://img.shields.io/badge/py-3776AB?logo=python&logoColor=white&style=flat-square)](2026_QQ8/main.py) [![rs](https://img.shields.io/badge/rs-B7410E?logo=rust&logoColor=white&style=flat-square)](2026_QQ8/main.rs) [![ipynb](https://img.shields.io/badge/ipynb-F37626?logo=jupyter&logoColor=white&style=flat-square)](2026_QQ8/main.ipynb) |
 
 ## Layout
 
@@ -62,13 +63,14 @@ empyrean-scenarios/
 ├── 2008_TC3/
 ├── 2020_CD3/
 ├── 2024_YR4/
+├── 2026_QQ8/
 └── 67P_Churyumov-Gerasimenko/
 ```
 
 The directory name carries the full provenance; the script files
 inside are named `main.py` / `main.rs` for clarity. Rust binary
 names stay short (`apophis`, `bd2009`, `bennu`, `cd3`, `comet67p`,
-`falcon9`, `pdc27`, `tc3`, `yr4`) so they're cheap to type at the CLI.
+`falcon9`, `pdc27`, `qq8`, `tc3`, `yr4`) so they're cheap to type at the CLI.
 
 ## Quick start
 

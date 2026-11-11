@@ -15,6 +15,7 @@ include = [
     "2009_BD/**/*",
     "2020_CD3/**/*",
     "2024_YR4/**/*",
+    "2026_QQ8/**/*",
     "67P_Churyumov-Gerasimenko/**/*",
     "install-page/**/*",
     "Cargo.toml",
@@ -53,6 +54,10 @@ path = "2008_TC3/main.rs"
 [[bin]]
 name = "cd3"
 path = "2020_CD3/main.rs"
+
+[[bin]]
+name = "qq8"
+path = "2026_QQ8/main.rs"
 
 [[bin]]
 name = "falcon9"
