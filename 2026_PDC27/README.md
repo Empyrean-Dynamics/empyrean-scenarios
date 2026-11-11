@@ -35,39 +35,46 @@ notification threshold or march toward certainty.
 
 ## What the scripts do
 
-1. **Read the committed synthetic astrometry** (`empyrean.read_ades`): 52 geocentric observations with per-observation uncertainties.
-2. **Replay the knowledge timeline.** Observations are fitted
-   *cumulatively in the order the exercise's astronomers had them*:
-   the discovery arc night by night, then the Rubin precoveries
-   injected on July 12 (not at their chronological positions), then
-   the final tracking nights.
-3. **At each step, compute the 2038 impact probability with every
-   uncertainty method**: linear, second-order, AUTO-as-resolved, and
-   budgeted Monte Carlo. This produces one IP-evolution curve per method,
-   with the exercise's published checkpoints (0.1% → 16% → 19%)
-   overplotted as reference markers.
-4. **Compare the endgame** against the published record: impact
-   probability, encounter geometry, and the worst-case impact epoch
-   2038-07-10 05:29:35.52 UTC carried by JPL Horizons.
+1. **Read the committed synthetic astrometry** (`empyrean.read_ades`): 52
+   geocentric observations with per-observation uncertainties. The file is
+   <https://raw.githubusercontent.com/Empyrean-Dynamics/empyrean-scenarios/main/2026_PDC27/astrometry.psv>;
+   save it as `astrometry.psv` next to where you run the code.
+2. **Replay the knowledge timeline at five dates**: July 8 and July 10 (22 and
+   26 observations), July 11 (28), July 12 (42: the six Rubin precovery nights
+   enter all at once, as they did in the exercise) and July 31 (all 52). Each
+   date is a cold fit that honors the stated 0.1 and 0.2 arcsecond sigmas. On
+   July 10 the arc of 26 observations gives no converged solution.
+3. **At each date, compute the 2038 impact probability four ways**: linear,
+   second-order, AUTO (as resolved), and Monte Carlo (1000 samples, seeded),
+   reported as hits out of N with a 95% Wilson interval, beside the
+   exercise's published checkpoints (0.1%, 16%, 19%; CNEOS and the IAWN
+   notifications).
+4. **Print Epoch 1, one line per method.**
 
-The divergence (or agreement) of the uncertainty methods across a
-twelve-year propagation is the point of the scenario: where the
-estimates coincide, the linear mapping is adequate; where they
-separate, the mapping has become strongly nonlinear, and κ quantifies
-by how much (Park & Scheeres 2006).
+The five fits and their Monte Carlo take about nine minutes (the Python and
+Rust programs each took about 9 minutes, run side by side on one machine).
 
-## The figure
 
-![The 2038 impact probability, four ways](ip_evolution.png)
+## What the numbers show
 
-One probability, four estimates. After the July 12 precovery jump the
-nonlinearity index κ sits between 11 and 39, and the four estimates
-converge to within ~0.002 of each other: linear, second-order and the
-adaptive Gaussian mixture all track the sampled value (0.160 at the
-jump, rising to 0.187–0.190 by Epoch 1), with only the faint ordering
-Park & Scheeres (2006) predict separating them. The Monte Carlo band
-agrees with each published checkpoint (CNEOS / IAWN) within its 95%
-confidence interval.
+The analytic estimates are per-date fits. On July 8 the linear estimate is
+0.00119 and the second-order 0.00011; the Monte Carlo has 1 hit in 1000 (95%
+Wilson interval 0.0002 to 0.0056), against the published 0.1%. On July 11 the
+linear and second-order estimates are 0.00191 and 0.00121, with 0 of 1000
+hits (interval 0 to 0.0038). On July 8 the two analytic estimates are tail
+extrapolations ten times apart; the linear one lies inside the Monte Carlo
+interval and the second-order one just below it (0.00011 against a lower end
+of 0.0002), and a thousand samples cannot narrow the interval (that needs about
+a hundred thousand, or importance sampling). On July 11 the two analytic
+estimates differ by a factor of 1.6 and both lie inside the Monte Carlo
+interval, which a thousand samples cannot narrow. When the precoveries enter on July 12 the arc grows from 28 to 42
+observations and the probability jumps to 0.16021 (linear), 0.16022 (second
+order) and 0.16093 (AUTO), with 160 of 1000 Monte Carlo hits (0.1386 to
+0.1840) against the published 16%. At Epoch 1 (all 52 observations) the
+estimates are linear 0.18707, second order 0.18707 and AUTO 0.18779, with 190
+of 1000 hits (0.1669 to 0.2155) against the published 19%. Every Monte Carlo
+interval contains the published value, which on July 8 is nearly vacuous: an
+interval that wide contains almost any probability near one in a thousand.
 
 ## The data
 
@@ -117,33 +124,24 @@ astrometry file, unmodified, with this attribution.
 | Risk corridor | Pacific → N. America → Atlantic → S. Europe → Mediterranean | IAWN #2 |
 | Uncertainty region | >10 Earth diameters long, a few km wide | exercise page |
 
-## Expected output (rough; ~20 min because of per-step Monte Carlo)
+## Expected output
 
 ```
 52 synthetic observations (JPL CNEOS, Epoch 1)
 
-knowledge date  n_obs  kappa      linear   2nd-order      auto        MC (95% CI)     published (CNEOS/IAWN)
-2026-07-01      8     0.1    0.00010    0.00000    0.00010   0.000 ±0.000
-2026-07-02     10     0.0    0.00018    0.00000    0.00000   0.000 ±0.000
-2026-07-03     12     0.0    0.00029    0.00000    0.00000   0.000 ±0.000
-2026-07-04     14     0.0    0.00041    0.00001    0.00000   0.000 ±0.000
-2026-07-05     16     0.2    0.00055    0.00003    0.00001   0.000 ±0.000
-2026-07-06     18     0.0    0.00079    0.00009    0.00002   0.003 ±0.003
-2026-07-07     20     0.0    0.00097    0.00018    0.00005   0.000 ±0.000
-2026-07-08     22    11.2    0.00119    0.00011    0.00010   0.001 ±0.002    ← 0.001 published
-2026-07-09     24     4.3    0.00142    0.00027    0.00011   0.001 ±0.002
-2026-07-10      26   (no converged solution yet)
-2026-07-11     28     0.7    0.00191    0.00121    0.00035   0.000 ±0.000
-2026-07-12     42    11.5    0.16021    0.16022    0.16093   0.160 ±0.023    ← 0.160 published
-2026-07-13     44    14.5    0.16487    0.16488    0.16561   0.165 ±0.023
-2026-07-14     46    16.8    0.16953    0.16954    0.17061   0.169 ±0.023
-2026-07-17     48    38.6    0.17721    0.17722    0.17809   0.175 ±0.024
-2026-07-24     50    27.1    0.18157    0.18158    0.18237   0.183 ±0.024
-2026-07-31     52    27.7    0.18707    0.18707    0.18779   0.190 ±0.024    ← 0.190 published
+knowledge date  n_obs     linear  2nd-order       auto  Monte Carlo hits/N  95% Wilson interval   published (CNEOS/IAWN)
+2026-07-08     22    0.00119    0.00011    0.00010      1/1000       [0.0002, 0.0056]   0.001
+2026-07-10     26   (no converged solution)
+2026-07-11     28    0.00191    0.00121    0.00035      0/1000       [0.0000, 0.0038]
+2026-07-12     42    0.16021    0.16022    0.16093    160/1000       [0.1386, 0.1840]   0.160
+2026-07-31     52    0.18707    0.18707    0.18779    190/1000       [0.1669, 0.2155]   0.190
 
-Epoch 1: MC 0.190 ± 0.024 vs 0.19 published (CNEOS / IAWN 2026-08-01);
-  linear 0.187, second-order 0.18707, auto 0.188 at κ ≈ 28, the ordering expected for a strongly
-  nonlinear mapping (Park & Scheeres 2006; DeMars+ 2013; Roa+ 2021).
+Epoch 1 (2026-07-31, 52 observations), impact probability for 2038-07-10 by method:
+  linear        0.18707
+  second order  0.18707
+  auto          0.18779
+  Monte Carlo   190/1000 = 0.1900, 95% Wilson interval [0.1669, 0.2155]
+  published     0.190 (CNEOS / IAWN 2026-08-01)
 ```
 
 ## References

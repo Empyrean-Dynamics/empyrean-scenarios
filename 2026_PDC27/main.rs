@@ -8,17 +8,34 @@
 //! exercise object of the IAA 2027 Planetary Defense Conference.
 //! "This is only an exercise." (JPL CNEOS)
 //!
-//! Run (~20 min: per-step Monte Carlo):
+//! Run (five fits, each with a 1000-sample Monte Carlo):
 //! ```bash
 //! cargo run --release --bin pdc27
 //! ```
 
 // empyrean:snippet:start
-use empyrean::{
-    Context, Epoch, ODConfig, Origin, SigmaPolicy, TimeScale, UncertaintyMethod, WeightingConfig,
-    iso_to_mjd,
-};
+use empyrean::{Context, Epoch, ODConfig, Origin, SigmaPolicy, UncertaintyMethod, WeightingConfig};
 
+// The exercise's 52 synthetic observations, transcribed field for field from
+// the ADES XML that NASA/JPL CNEOS released on 2026-08-01 (Epoch 1). Download
+// https://raw.githubusercontent.com/Empyrean-Dynamics/empyrean-scenarios/main/2026_PDC27/astrometry.psv
+// and save it as astrometry.psv in the directory you run from.
+const ASTROMETRY: [&str; 2] = ["astrometry.psv", "2026_PDC27/astrometry.psv"];
+
+// The exercise's published impact-probability checkpoints for 2038-07-10, from
+// the NASA/JPL CNEOS PDC27 exercise timeline (https://cneos.jpl.nasa.gov/pd/cs/pdc27/)
+// and the IAWN potential impact notifications of 2026-07-15 and 2026-08-01:
+// 0.1% on July 8, 16% on July 12 (after the precoveries), 19% at Epoch 1.
+// Reference values only; nothing here is fitted to them.
+const PUBLISHED: [(&str, f64); 3] = [
+    ("2026-07-08", 0.001),
+    ("2026-07-12", 0.16),
+    ("2026-07-31", 0.19),
+];
+// The six nights of Rubin Observatory precovery images in the exercise's
+// timeline (CNEOS PDC27 Epoch-1 data). The exercise's astronomers found them
+// in the Rubin archive on PRECOVERY_KNOWN, so they join the fit on that date
+// and not on the nights they were taken.
 const PRECOVERY_NIGHTS: [&str; 6] = [
     "2026-05-11",
     "2026-05-17",
@@ -27,12 +44,37 @@ const PRECOVERY_NIGHTS: [&str; 6] = [
     "2026-06-10",
     "2026-06-16",
 ];
-const PRECOVERY_KNOWN: &str = "2026-07-12"; // found in Rubin archives this day
+const PRECOVERY_KNOWN: &str = "2026-07-12";
+// The knowledge dates replayed: the arcs of July 8, 10, 11 and 12 and the
+// last night of Epoch 1.
+const KNOWLEDGE_DATES: [&str; 5] = [
+    "2026-07-08",
+    "2026-07-10",
+    "2026-07-11",
+    "2026-07-12",
+    "2026-07-31",
+];
+const N_SAMPLES: usize = 1000;
+const Z95: f64 = 1.96;
+
+/// The 95% Wilson score interval for hits out of n samples.
+fn wilson(hits: u64, n: u64) -> (f64, f64) {
+    let n = n as f64;
+    let p = hits as f64 / n;
+    let denom = 1.0 + Z95 * Z95 / n;
+    let centre = (p + Z95 * Z95 / (2.0 * n)) / denom;
+    let half = Z95 * (p * (1.0 - p) / n + Z95 * Z95 / (4.0 * n * n)).sqrt() / denom;
+    (centre - half, centre + half)
+}
 
 fn main() -> empyrean::Result<()> {
     let ctx = Context::from_data_dir(None)?;
 
-    let obs = ctx.read_ades("2026_PDC27/astrometry.psv")?;
+    let path = ASTROMETRY
+        .iter()
+        .find(|p| std::path::Path::new(p).exists())
+        .expect("astrometry.psv not found");
+    let obs = ctx.read_ades(path)?;
     println!("{} synthetic observations (JPL CNEOS, Epoch 1)", obs.len());
 
     // The file states per-observation sigmas (0.1"/0.2") and these are
@@ -50,24 +92,19 @@ fn main() -> empyrean::Result<()> {
     let mut nights: Vec<String> = all.iter().map(|o| o.obs_time[..10].to_string()).collect();
     nights.sort();
     nights.dedup();
-    let apparition: Vec<&String> = nights
-        .iter()
-        .filter(|n| !PRECOVERY_NIGHTS.contains(&n.as_str()))
-        .collect();
+    assert!(
+        KNOWLEDGE_DATES
+            .iter()
+            .all(|d| nights.iter().any(|n| n == d)),
+        "a knowledge date has no observations"
+    );
     let end_epoch = Epoch::from_mjd_tdb(65625.0); // 2038-07-20
 
-    // The exercise's published IP checkpoints (CNEOS / IAWN).
-    let published = |night: &str| -> Option<f64> {
-        match night {
-            "2026-07-08" => Some(0.001),
-            "2026-07-12" => Some(0.16),
-            "2026-07-31" => Some(0.19),
-            _ => None,
-        }
-    };
-
-    println!("\nknowledge date  n_obs  kappa      linear   2nd-order      auto        MC (95% CI)");
-    for night in apparition.iter().skip(3) {
+    println!(
+        "\nknowledge date  n_obs     linear  2nd-order       auto  Monte Carlo hits/N  95% Wilson interval   published (CNEOS/IAWN)"
+    );
+    let mut last = None;
+    for night in KNOWLEDGE_DATES {
         // Knowledge set: apparition nights through `night`, plus the
         // precovery nights once they were found (2026-07-12), exactly
         // as the exercise's astronomers received the data.
@@ -76,9 +113,9 @@ fn main() -> empyrean::Result<()> {
             .filter(|o| {
                 let n = &o.obs_time[..10];
                 if PRECOVERY_NIGHTS.contains(&n) {
-                    night.as_str() >= PRECOVERY_KNOWN
+                    night >= PRECOVERY_KNOWN
                 } else {
-                    n <= night.as_str()
+                    n <= night
                 }
             })
             .cloned()
@@ -88,12 +125,12 @@ fn main() -> empyrean::Result<()> {
             Ok(results) => match results.into_single() {
                 Ok(fit) => fit,
                 Err(_) => {
-                    println!("{night}     {:3}   (no converged solution yet)", kept.len());
+                    println!("{night}    {:3}   (no converged solution)", kept.len());
                     continue;
                 }
             },
             Err(_) => {
-                println!("{night}     {:3}   (no converged solution yet)", kept.len());
+                println!("{night}    {:3}   (no converged solution)", kept.len());
                 continue;
             }
         };
@@ -105,7 +142,7 @@ fn main() -> empyrean::Result<()> {
                 UncertaintyMethod::SecondOrder,
                 UncertaintyMethod::auto(),
                 UncertaintyMethod::MonteCarlo {
-                    n_samples: 1000,
+                    n_samples: N_SAMPLES,
                     seed: Some(42),
                 },
             ],
@@ -126,27 +163,57 @@ fn main() -> empyrean::Result<()> {
             } else {
                 auto.ip_linear
             };
-            let pub_note = published(night)
-                .map(|p| format!("  ← {p:.3} published"))
+            assert!(
+                mc.mc_n_samples > 0,
+                "the Monte Carlo row carries no samples"
+            );
+            assert!((mc.ip_mc - mc.mc_n_impacts as f64 / mc.mc_n_samples as f64).abs() < 1e-12);
+            let (lo, hi) = wilson(mc.mc_n_impacts, mc.mc_n_samples);
+            let pub_note = PUBLISHED
+                .iter()
+                .find(|(d, _)| *d == night)
+                .map(|(_, p)| format!("   {p:.3}"))
                 .unwrap_or_default();
             println!(
-                "{night}    {:3}  {:6.1}  {:9.5}  {:9.5}  {ip_auto:9.5}  {:6.3} ±{:5.3}{pub_note}",
+                "{night}    {:3}  {:9.5}  {:9.5}  {ip_auto:9.5}  {:5}/{}       [{lo:.4}, {hi:.4}]{pub_note}",
                 kept.len(),
-                snd.nonlinearity,
                 lin.ip_linear,
                 snd.ip_second_order,
-                mc.ip_mc,
-                mc.mc_confidence_interval,
+                mc.mc_n_impacts,
+                mc.mc_n_samples,
             );
+            last = Some((
+                night,
+                kept.len(),
+                lin.ip_linear,
+                snd.ip_second_order,
+                ip_auto,
+                mc.mc_n_impacts,
+                mc.mc_n_samples,
+                lo,
+                hi,
+            ));
         }
-        // keep `iso_to_mjd` linked for parity with the notebook helper
-        let _ = iso_to_mjd("2026-08-01T00:00:00Z", TimeScale::UTC);
     }
 
-    println!("\nThe Monte Carlo estimates agree with the published values (0.001 → 0.16 → 0.19;");
-    println!("CNEOS / IAWN 2026) within their 95% confidence intervals at every checkpoint;");
-    println!("the analytic estimates bracket them in the ordering expected at large κ");
-    println!("(Park & Scheeres 2006; DeMars, Bishop & Jah 2013; Roa, Farnocchia & Chesley 2021).");
+    let (night, n_obs, ip_lin, ip_2nd, ip_auto, hits, n_mc, lo, hi) =
+        last.expect("at least one converged fit");
+    println!(
+        "\nEpoch 1 ({night}, {n_obs} observations), impact probability for 2038-07-10 by method:"
+    );
+    println!("  linear        {ip_lin:.5}");
+    println!("  second order  {ip_2nd:.5}");
+    println!("  auto          {ip_auto:.5}");
+    println!(
+        "  Monte Carlo   {hits}/{n_mc} = {:.4}, 95% Wilson interval [{lo:.4}, {hi:.4}]",
+        hits as f64 / n_mc as f64
+    );
+    let published = PUBLISHED
+        .iter()
+        .find(|(d, _)| *d == night)
+        .map(|(_, p)| *p)
+        .expect("a published checkpoint");
+    println!("  published     {published:.3} (CNEOS / IAWN 2026-08-01)");
 
     Ok(())
 }
