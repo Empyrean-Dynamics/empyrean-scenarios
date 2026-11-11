@@ -7,7 +7,7 @@ use the package itself.
 
 ## What this repository is
 
-- Nine scenarios, one directory per object, each shipping three
+- Ten scenarios, one directory per object, each shipping three
   implementations that must agree: `main.py`, `main.rs` and the executed
   notebook `main.ipynb`. Any discrepancy in the headline numbers between the
   Python and Rust twins is a bug somewhere.
