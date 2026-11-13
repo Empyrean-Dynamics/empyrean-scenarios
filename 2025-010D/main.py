@@ -1,7 +1,7 @@
 """2025-010D: a Falcon 9 second stage → community-driven astrometry → lunar impact.
 
-Reproduces the 25010d explore-mode scenario from
-https://empyrean-dynamics.com/explore/25010d.
+Reproduces the 2025010d explore-mode scenario from
+https://empyrean-dynamics.com/explore/2025010d.
 
 Run:
     pip install empyrean
@@ -17,28 +17,31 @@ What it does:
        hollow 4-tonne cylinder AMR is the dominant model term.
     3. Propagates into the Moon and reads the impact epoch and
        selenographic coordinates off the Impact event.
-    4. Scores the final-arc orbit against all 402 observations. The
-       residual growth through two lunar encounters shows why the
-       public record is fit per arc, consistent with the per-arc
-       solutions Project Pluto published (Gray 2026).
+    4. Scores the impact site against the crater NASA's Lunar
+       Reconnaissance Orbiter imaged, and the final-arc orbit against
+       all 402 observations. The residual growth through two lunar
+       encounters shows why the public record is fit per arc,
+       consistent with the per-arc solutions Project Pluto published
+       (Gray 2026).
 
 Authoritative cross-checks (printed inline):
     - Gray, fit to this same 74-obs arc: impact 2026-08-05
       06:35:42.45 UTC at 19.577°N 266.630°E, AMR 0.0079 ± 0.0017 m²/kg
-    - JPL #GA1A2/21 (radar-informed): 06:35:40 UTC ± 9 s, 19.507°N
-      266.7°E, 3σ ellipse 3.4 × 0.6 km
+    - JPL #GA1A2/21 (a solution that includes three radar Doppler
+      measurements; the community solutions are optical only):
+      06:35:40 UTC ± 9 s, 19.507°N 266.7°E, 3σ ellipse 3.4 × 0.6 km
+    - The crater LRO imaged, 19.4759°N 266.7138°E (NASA, 2026-08-11/12)
     - Impact confirmed 2026-08-05 by VLT (Na/Li plume) and KASA Danuri
       before/after imaging near crater Einstein.
 """
 
 from __future__ import annotations
 
+# empyrean:snippet:start
 import re
 from pathlib import Path
 
 import empyrean
-
-# empyrean:snippet:start
 import numpy as np
 from empyrean import (
     CartesianOrbits,
@@ -63,7 +66,30 @@ from empyrean.od.result import (
     WeightingPreset,
 )
 
-HERE = Path(__file__).parent
+# The 402 public observations, in ADES PSV, from Bill Gray's Project Pluto pages
+# (public domain; the MPC does not distribute this object's astrometry). Download
+# https://raw.githubusercontent.com/Empyrean-Dynamics/empyrean-scenarios/main/2025-010D/astrometry.psv
+# and save it as astrometry.psv in the directory you run from.
+ASTROMETRY = next(
+    p for p in (Path("astrometry.psv"), Path("2025-010D/astrometry.psv")) if p.exists()
+)
+# Gray's fit to the same 74 public observations (Project Pluto pseudo-MPEC 25010d_new).
+GRAY_AMR, GRAY_AMR_SIGMA = 0.0079, 0.0017  # m^2/kg
+# The crater NASA's Lunar Reconnaissance Orbiter imaged on 2026-08-11/12 (NASA,
+# "NASA's LRO Images Falcon 9 Crater on Moon", science.nasa.gov), and Gray's final
+# prediction of 2026-08-01 from his full record, which is not public (Project Pluto,
+# https://www.projectpluto.com/25010d.htm). Selenographic degrees north and east.
+CRATER = (19.4759, 266.7138)
+GRAY_FINAL = (19.461, 266.707)
+MOON_RADIUS_KM = 1737.4  # the Moon's mean radius
+
+
+def separation_km(a, b):
+    """Great-circle distance between two (lat, lon) points in degrees, on the Moon."""
+    p1, p2 = np.radians(a[0]), np.radians(b[0])
+    dl = np.radians(b[1] - a[1])
+    h = np.sin((p2 - p1) / 2.0) ** 2 + np.cos(p1) * np.cos(p2) * np.sin(dl / 2.0) ** 2
+    return 2.0 * MOON_RADIUS_KM * np.arcsin(np.sqrt(h))
 
 
 def _prior_joint(state6, param_vars, present_bits):
@@ -94,13 +120,13 @@ def _prior_joint(state6, param_vars, present_bits):
     )
 
 
-def main() -> None:
+def main():
     empyrean.initialize()
 
     # ── 1. The committed public astrometry ──────────────────────────
     # No MPC query: these 402 observations are the
     # public-domain record compiled by Project Pluto (see README).
-    obs, _ = empyrean.read_ades(str(HERE / "astrometry.psv"))
+    obs, _ = empyrean.read_ades(str(ASTROMETRY))
     print(f"{len(obs)} public observations (Project Pluto, public domain)")
 
     # Final pre-impact arc: nine nights, five stations, four continents.
@@ -160,17 +186,23 @@ def main() -> None:
     amrat = refined.orbit.srp.amrat.to_numpy(zero_copy_only=False)[0]
     amrat_sigma = float(np.sqrt(sc.matrix[sc.amrat_slot, sc.amrat_slot]))
     print(f"Fitted AMR = {amrat:.4f} ± {amrat_sigma:.4f} m²/kg")
-    print("Gray (same 74-obs arc): 0.0079 ± 0.0017 m²/kg")
+    print(f"Gray (same 74-obs arc): {GRAY_AMR} ± {GRAY_AMR_SIGMA} m²/kg")
+    gap = amrat - GRAY_AMR
+    print(
+        f"Ours - Gray = {gap:+.4f} m²/kg, "
+        f"{abs(gap) / np.hypot(amrat_sigma, GRAY_AMR_SIGMA):.2f} combined sigma"
+    )
 
     # ── 3. Into the Moon ────────────────────────────────────────────
     epochs = Epochs.from_kwargs(
-        mjd=[65610.0 + 0.05 * i for i in range(120)],
+        mjd=[61250.0 + 0.05 * i for i in range(200)],
         scale=TimeScale.TDB.value,
     )
     prop = empyrean.propagate(
         refined.orbit, epochs, events=EventConfig(body_filter=[Origin.MOON])
     )
     imp = prop.events.impacts
+    assert len(imp) == 1, "expected one lunar impact"
     for i in range(len(imp)):
         epoch_utc = (
             Epochs.from_mjd(
@@ -180,13 +212,29 @@ def main() -> None:
             .to_utc()
             .to_iso()[0]
         )
+        # To 0.01 s: the fit's timing is no better than that.
+        head, frac = epoch_utc.rstrip("Z").split(".")
+        centis = round(float("0." + frac) * 100)
+        assert centis < 100
+        epoch_utc = f"{head}.{centis:02d}Z"
         lat = imp.latitude_deg.to_numpy(zero_copy_only=False)[i]
         lon = imp.longitude_deg.to_numpy(zero_copy_only=False)[i] % 360.0
         print(f"\nPredicted lunar impact (empyrean): {epoch_utc}")
         print(f"  at {lat:.3f}°N {lon:.3f}°E (selenographic)")
+    ours = (lat, lon)
     print("Gray (74-obs arc):  2026-08-05T06:35:42.45Z at 19.577°N 266.630°E")
     print("JPL #GA1A2/21:      2026-08-05T06:35:40Z ± 9 s at 19.507°N 266.7°E")
     print("Confirmed:          2026-08-05 ~06:35 UTC near crater Einstein")
+    print(
+        f"\nScored against the crater LRO imaged ({CRATER[0]}°N {CRATER[1]}°E), "
+        f"great circle on a {MOON_RADIUS_KM} km Moon:"
+    )
+    print(
+        f"  empyrean (this fit, public 74-obs arc)  {separation_km(ours, CRATER):.2f} km"
+    )
+    print(
+        f"  Gray's final prediction (all data)      {separation_km(GRAY_FINAL, CRATER):.2f} km"
+    )
 
     # ── 4. Why the record is fit per arc ────────────────────────────
     # Score the final-arc orbit against the WHOLE public record. The
@@ -210,7 +258,7 @@ def main() -> None:
                 raise
             bad = m.group(1)
             scorable = scorable.apply_mask([s != bad for s in scorable.stn.to_pylist()])
-            print(f"(dropped unregistered community station {bad!r} from scoring)")
+            print(f"(dropped unregistered community station {bad} from scoring)")
     r = ev.observations
     t_mjd = r.epochs.mjd_tdb()
     res_ra = r.ra_residual.to_numpy(zero_copy_only=False)
@@ -232,8 +280,5 @@ def main() -> None:
     print(" Project Pluto published; Gray 2026, Campbell et al. 2026.)")
 
 
+main()
 # empyrean:snippet:end
-
-
-if __name__ == "__main__":
-    main()

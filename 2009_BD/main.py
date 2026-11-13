@@ -1,52 +1,43 @@
-"""2009 BD: fitting the SRP area-to-mass ratio AMRAT.
+"""2009 BD: measuring solar radiation pressure on a few-meter asteroid.
 
-2009 BD is a ~4 m near-Earth asteroid on an Earth-like orbit and one of
-the first asteroids for which solar radiation pressure (SRP) was
-detected directly from ground-based astrometry (Micheli, Tholen &
-Elliott 2012, *New Astronomy* 17, 446). Because it is so small, the
-Sun's radiation pressure produces a measurable transverse drift over a
-multi-year arc -- the same physics that a mission would exploit, run in
-reverse to *weigh* the object as an area-to-mass ratio.
+2009 BD is a few-meter near-Earth asteroid on an Earth-like orbit (2.9 to 4 m
+across, depending on the albedo solution; Mommert et al. 2014) and one of the
+first asteroids for which solar radiation pressure (SRP) was detected directly
+from ground-based astrometry (Micheli, Tholen & Elliott 2012, *New Astronomy*
+17, 446). Because it is so small, sunlight pushes it measurably over a
+multi-year arc -- the same physics a mission would exploit, run in reverse to
+*weigh* the object as an area-to-mass ratio.
 
 Run:
-    pip install "empyrean>=0.9"
+    pip install empyrean
     python 2009_BD/main.py
 
 What it does:
-    1. Queries JPL SBDB for 2009 BD. The current JPL solution (JPL 46)
-       ships the fitted SRP not as an explicit AMRAT but as a Marsden
-       radial non-grav A1 with an r^-2 law -- physically the same force.
-       We convert A1 to the AMRAT seed (m^2/kg) through the standard
-       radiation-pressure constant P0 = S/c at 1 au.
-    2. Attaches an AMRAT prior (a wide variance) to the SBDB orbit and
-       converts it to the Cartesian state ``refine`` solves in, carrying
-       the SBDB covariance through the element->Cartesian Jacobian as the
-       Bayesian prior. The radial slot is handed to AMRAT (A1 zeroed so
-       the same force is never counted twice); the transverse A2 stays
-       in the dynamics exactly as shipped -- nothing is dropped.
-    3. Refines against 2009 BD's optical astrometry with the wide
-       ``SolveFor(amrat)`` solve, so AMRAT is fit as a free parameter
-       jointly with the state, with an honest 1-sigma from the solved
-       covariance. This is the v0.9.0 fitting surface: the area-to-mass
-       ratio is a *measured* quantity, not a fixed input.
-    4. Reports the fitted AMRAT +/- sigma against the SBDB A1-derived
-       reference and the published Micheli et al. measurement.
+    1. Queries the Minor Planet Center (MPC) for 2009 BD's optical
+       astrometry and keeps the observations between two named filters,
+       JPL's first and last night, so later or earlier rows cannot move
+       the numbers. A cold state-only fit (no JPL solution) gives the seed
+       orbit.
+    2. Refines that orbit with the radial and transverse Marsden
+       non-gravitational terms A1 and A2 as free parameters, the set JPL
+       solves, from wide priors on the state and on A1 and A2 and not from
+       JPL's solution. A3 is held at zero by a tight prior.
+    3. Reports the fitted A1 in JPL's own units (au/d^2) beside the
+       area-to-mass ratio it implies under the engine's radiation-pressure
+       constant, with their sigmas, against JPL's published solution and
+       the 2012 detection.
 
-Authoritative cross-checks (printed inline):
-    - SBDB A1-derived AMRAT reference: read from the query (JPL's fitted
-      radial non-grav, converted through P0 = S/c)
-    - Micheli, Tholen & Elliott (2012), *New Astronomy* 17, 446: the
-      original SRP detection, AMR = (2.97 +/- 0.33)e-4 m^2/kg.
-    - The fitted AMRAT should land within a few sigma of both; the point
-      of the scenario is the *measured uncertainty*, not a bare point
-      estimate.
-
-NOTE: AMRAT fitting is a refine-path solve -- it needs an AMRAT-primed
-orbit (a wide AMRAT-axis variance on the orbit's packed joint), NOT a cold
-determine-from-scratch, which the engine refuses loudly.
+Authoritative cross-checks (printed inline, labeled, never fitted to):
+    - JPL SBDB solution of 2022-12-20 (180 observations, 2009-01-16 to
+      2011-06-20): A1 and A2 with their 1 sigma
+    - Micheli, Tholen & Elliott (2012): AMR = (2.97 +/- 0.33)e-4 m^2/kg,
+      from a radiation-pressure-only fit to 108 observations
 """
 
 from __future__ import annotations
+
+import hashlib
+import sys
 
 # empyrean:snippet:start
 import empyrean
@@ -62,27 +53,93 @@ from empyrean import (
     PackedJoint,
     PackedJoints,
     SolveFor,
-    SRPParams,
-    transform_orbits,
+    SolveForParams,
 )
 
+# Two named filters on the MPC record, which is queried live below. Each keeps
+# the observations at or after / at or before a UTC time: JPL's first and last
+# night, so a row the MPC adds outside the arc cannot move the numbers.
+FIRST_NIGHT = "2009-01-16"
+LAST_NIGHT = "2011-06-20T23:59"
+# The engine's radiation-pressure constant: 4.56e-6 N/m^2 at 1 au (about 1367
+# W/m^2 / c). One m^2/kg of area-to-mass ratio is this many au/d^2 of radial
+# acceleration at 1 au under the r^-2 law, JPL's A1 convention.
+K_SRP = 4.56e-6 * 86400.0**2 / 1.495978707e11  # au/d^2 per m^2/kg
+# JPL SBDB solution of 2022-12-20 (SBDB-published values, nothing derived by
+# empyrean; 180 observations, 2009-01-16 to 2011-06-20): the Marsden radial and
+# transverse terms with their 1 sigma, au/d^2. The law is r^-2: ALN = 1,
+# R0 = 1 au, m = 2, n = 0, k = 0.
+JPL_A1, JPL_A1_SIGMA = 5.604736985528152e-11, 8.508e-12
+JPL_A2, JPL_A2_SIGMA = -1.14638955920583e-12, 8.37e-14
+# Micheli, Tholen and Elliott 2012 (108 observations, radiation pressure only).
+MICHELI_AMR, MICHELI_SIGMA = 2.97e-4, 0.33e-4  # m^2/kg
+# Priors, wide on every axis and not JPL's solution: 1e-2 au and 1e-4 au/d on the
+# state, 1e-9 and 1e-11 au/d^2 on A1 and A2 (about 20 and 10 times JPL's values).
+# A3 is held at zero by a tight prior, as in JPL's solved set (A1 and A2): the
+# engine's refine has no per-axis fixed/solved switch today, so its posterior
+# is the prior and contributes nothing.
+STATE_SIGMA = (1e-2, 1e-2, 1e-2, 1e-4, 1e-4, 1e-4)
+A_SIGMA = (1e-9, 1e-11, 1e-14)  # A1, A2, A3
 
-def _prior_joint(state6, param_vars, present_bits):
-    """Block-diagonal refine prior: the state 6x6 plus one diagonal prior
-    variance per parameter axis. The AMRAT prior rides the orbit's one packed
-    joint now (bit 4 of the axis table). The removed ``SRPParams.amrat_variance``
-    column is gone."""
-    width = 6 + len(param_vars)
-    full = np.zeros((width, width), dtype=np.float64)
-    full[:6, :6] = np.asarray(state6, dtype=np.float64)
-    for k, v in enumerate(param_vars):
-        full[6 + k, 6 + k] = v
-    tri = [full[i, j] for i in range(width) for j in range(i + 1)]
-    return PackedJoint(
-        layout_present=present_bits,
+
+def sci(x, digits):
+    return f"{x:.{digits}e}"
+
+
+def main():
+    empyrean.initialize()
+
+    # -- 1. The record and a cold state-only fit -----------------------
+    obs = empyrean.query_observations(["2009 BD"])
+    obs = obs.apply_mask(
+        [FIRST_NIGHT <= t <= LAST_NIGHT for t in obs.obs_time.to_pylist()]
+    )
+    times = obs.obs_time.to_pylist()
+    print(
+        f"{len(obs)} optical observations from {len(set(obs.stn.to_pylist()))} "
+        f"stations, {min(times)[:10]} to {max(times)[:10]}"
+    )
+    config = ODConfig(solve_for=SolveForParams.STATE_ONLY)
+    weighting = config.weighting
+    print(
+        f"Weighting: the engine default, preset {weighting.preset.name} (station "
+        f"floors) with nightly de-weighting within "
+        f"{weighting.additional_layers[0].max_gap_days:.1f} d"
+    )
+    base = empyrean.determine(obs, config=config).single()
+    s0 = base.summary
+    print(
+        f"State-only fit (the seed): rejected {s0.num_rejected} of the {s0.num_obs} "
+        f"observations; chi2/dof {s0.reduced_chi2:.3f}  "
+        f'RMS RA.cos(d) {s0.rms_ra_arcsec:.3f}" Dec {s0.rms_dec_arcsec:.3f}"  '
+        f"on the {s0.num_selected} kept"
+    )
+
+    # -- 2. JPL's solution, in its own units and as an area-to-mass ratio
+    print(
+        f"\nRadiation-pressure constant: K = {K_SRP:.5e} au/d^2 per m^2/kg "
+        "(4.56e-6 N/m^2 at 1 au, the engine's)"
+    )
+    print(
+        f"JPL A1 = {sci(JPL_A1, 4)} +/- {sci(JPL_A1_SIGMA, 2)} au/d^2 "
+        f"= {sci(JPL_A1 / K_SRP, 4)} +/- {sci(JPL_A1_SIGMA / K_SRP, 2)} m^2/kg "
+        "(SBDB solution 2022-12-20)"
+    )
+    print(
+        f"JPL A2 = {sci(JPL_A2, 4)} +/- {sci(JPL_A2_SIGMA, 2)} au/d^2 "
+        "(transverse, the Yarkovsky drift)"
+    )
+
+    # -- 3. Fit A1 and A2 with the state --------------------------------
+    var = np.zeros((9, 9))
+    var[:6, :6] = np.diag(np.square(STATE_SIGMA))
+    var[6:, 6:] = np.diag(np.square(A_SIGMA))
+    tri = [var[i, j] for i in range(9) for j in range(i + 1)]
+    prior = PackedJoint(
+        layout_present=0b111,  # the Marsden A1, A2, A3 axes
         layout_considered=0,
         layout_marginalized=0,
-        width=width,
+        width=9,
         tri=np.asarray(tri, dtype=np.float64),
         kind=CovarianceKind.LINEAR,
         quality=JointQuality.POSITIVE_DEFINITE,
@@ -93,125 +150,95 @@ def _prior_joint(state6, param_vars, present_bits):
         provenance=JointProvenance.DERIVED,
         asserted_source=None,
     )
-
-
-# Wide AMRAT prior (variance, (m^2/kg)^2): loose enough that the
-# astrometry, not the prior, drives the fitted AMRAT. ~ (1e-3 m^2/kg)^2.
-AMRAT_PRIOR_VAR = 1.0e-6
-# Radiation-pressure coefficient. Fixed, never fitted -- only Cr*AMRAT
-# enters the dynamics, so the fitted AMRAT absorbs Cr (the JPL AMR
-# convention). 1.0 = total absorption.
-CR = 1.0
-# JPL ships 2009 BD's SRP as a Marsden radial A1 (au/d^2) with an r^-2
-# law (ALN=1, k=0, m=2, R0=1 au) -- the same physics as SRP. Converting
-# to an area-to-mass ratio: a = Cr*(A/m)*P0/r^2 with P0 = S/c the
-# radiation pressure at 1 au.
-AU_M = 1.495978707e11  # au in m
-DAY_S = 86400.0  # day in s
-P0 = 1361.0 / 2.99792458e8  # N/m^2: solar constant / c at 1 au
-# The original detection: Micheli, Tholen & Elliott (2012).
-MICHELI_AMRAT = 2.97e-4  # m^2/kg
-MICHELI_SIGMA = 0.33e-4  # m^2/kg
-
-
-def main() -> None:
-    empyrean.initialize()
-
-    # -- 1. SBDB query: fitted SRP as the Marsden radial A1 -----------
-    orbits = empyrean.query_sbdb(["2009 BD"])
-    ng = orbits.non_grav
-    a1 = None if ng is None else float(ng.a1.to_numpy(zero_copy_only=False)[0])
-    if a1 is None or not np.isfinite(a1) or a1 == 0.0:
-        # Loud, not silent: without JPL's fitted radial non-grav there is
-        # no seed to fit from. (JPL currently ships 2009 BD's SRP as the
-        # Marsden A1; if this changes, seed AMRAT explicitly rather than
-        # fabricating a value.)
-        raise SystemExit(
-            "SBDB returned no radial non-grav A1 for 2009 BD -- cannot "
-            "seed the AMRAT fit without a starting value."
-        )
-    sbdb_amrat = a1 * AU_M / DAY_S**2 / P0
-    print("SRP parameters (SBDB):")
-    print(f"  A1    = {a1:.4e} au/d^2  (JPL's fitted radial non-grav, r^-2 law)")
-    print(f"  AMRAT = {sbdb_amrat:.4e} m^2/kg  (A1 converted through P0 = S/c)")
-    print(f"  Cr    = {CR:.2f}  (fixed; only Cr*AMRAT enters the dynamics)")
-
-    # -- 2. Prime the orbit with an AMRAT prior + go Cartesian --------
-    # AMRAT fitting is a refine-path solve: the input orbit must carry
-    # amrat_variance -- both the trigger that opens the AMRAT column and
-    # the Bayesian prior. SBDB ships the A1-derived *value*; we attach a
-    # wide variance so the fit is data-driven. ``refine`` works in the
-    # Cartesian state and needs the covariance as its prior, so we
-    # transform the SBDB elements to Cartesian, carrying the 6x6
-    # covariance through the element->Cartesian Jacobian; the force
-    # params are representation invariant and re-attached unchanged.
-    srp = SRPParams.from_kwargs(amrat=[sbdb_amrat], cr=[CR])
-    # Hand the radial slot to AMRAT: A1 zeroed so the same force is never
-    # counted twice, while the transverse A2 (Yarkovsky-like drift, a
-    # 13-sigma detection in JPL 46) stays in the dynamics as shipped.
-    non_grav = NonGravParams.from_kwargs(
-        a1=[0.0],
-        a2=ng.a2.to_pylist(),
-        a3=ng.a3.to_pylist(),
-        model=["marsden"],
-        alpha=ng.alpha.to_pylist(),
-        r0=ng.r0.to_pylist(),
-        m=ng.m.to_pylist(),
-        n=ng.n.to_pylist(),
-        k=ng.k.to_pylist(),
-    )
-    # refine linearizes about a Cartesian state and takes the seed orbit's
-    # packed joint as the Bayesian prior. transform_orbits transports the
-    # SBDB 6x6 through the element->Cartesian Jacobian (transform_coordinates
-    # now refuses a covariance-bearing input); the AMRAT prior then rides the
-    # joint's AMRAT axis (bit 4), widening the state 6x6 to a 7x7.
-    cart = transform_orbits(orbits, CartesianOrbits)
-    state6 = cart.covariance.joint(0).state_block()
-    amrat_prior = _prior_joint(state6, [AMRAT_PRIOR_VAR], present_bits=1 << 4)
     primed = CartesianOrbits.from_kwargs(
-        orbit_id=orbits.orbit_id.to_pylist(),
-        object_id=orbits.object_id.to_pylist(),
-        coordinates=cart.coordinates,
-        non_grav=non_grav,
-        srp=srp,
-        covariance=PackedJoints.from_joints([amrat_prior]),
+        orbit_id=base.orbit.orbit_id.to_pylist(),
+        object_id=base.orbit.object_id.to_pylist(),
+        coordinates=base.orbit.coordinates,
+        non_grav=NonGravParams.from_kwargs(
+            a1=[0.0],
+            a2=[0.0],
+            a3=[0.0],
+            model=["marsden"],
+            alpha=[1.0],
+            r0=[1.0],
+            m=[2.0],
+            n=[0.0],
+            k=[0.0],
+        ),
+        covariance=PackedJoints.from_joints([prior]),
     )
-
-    # -- 3. 2009 BD optical astrometry + wide AMRAT refine -----------
-    obs = empyrean.query_observations(["2009 BD"])
-    print(f"\n{len(obs)} optical observations")
-
-    cfg = ODConfig(solve_for_flags=SolveFor(amrat="solved"))
-    result = empyrean.refine(primed, obs, config=cfg)
-
-    s = result.summary
-    print(f"Converged:  {result.converged}")
-    print(f"chi2/dof:   {s.reduced_chi2:.3f}")
-    print(f'RMS:        RA.cos(d) {s.rms_ra_arcsec:.3f}"  Dec {s.rms_dec_arcsec:.3f}"')
-
-    # -- 4. Fitted AMRAT +/- 1 sigma (the v0.9.0 measurement) --------
-    sc = result.solved_covariance
-    if sc is None or sc.amrat_slot is None:
-        # Loud failure, not a silent zero: the AMRAT column did not open.
-        print("\nAMRAT was not recovered (no AMRAT slot in the solved covariance).")
-        return
-    fitted_amrat = result.orbit.srp.amrat.to_numpy(zero_copy_only=False)[0]
-    amrat_sigma = float(np.sqrt(sc.matrix[sc.amrat_slot, sc.amrat_slot]))
-    print(f"\nFitted AMRAT  = {fitted_amrat:.4e} +/- {amrat_sigma:.4e} m^2/kg")
-    print(f"SBDB (A1)     = {sbdb_amrat:.4e} m^2/kg  (JPL's fitted A1, converted)")
+    fit = empyrean.refine(
+        primed, obs, config=ODConfig(solve_for_flags=SolveFor(marsden="solved"))
+    )
+    sc = fit.solved_covariance
+    ng = fit.orbit.non_grav
+    a1 = float(ng.a1.to_numpy(zero_copy_only=False)[0])
+    a2 = float(ng.a2.to_numpy(zero_copy_only=False)[0])
+    a3 = float(ng.a3.to_numpy(zero_copy_only=False)[0])
+    slot = sc.marsden_slot
+    a1_sigma = float(np.sqrt(sc.matrix[slot, slot]))
+    a2_sigma = float(np.sqrt(sc.matrix[slot + 1, slot + 1]))
+    a3_sigma = float(np.sqrt(sc.matrix[slot + 2, slot + 2]))
+    s = fit.summary
     print(
-        f"Micheli 2012  = {MICHELI_AMRAT:.4e} +/- {MICHELI_SIGMA:.4e} m^2/kg"
-        "  (the original detection)"
+        f"\nFit with A1 and A2: converged {fit.converged}  "
+        f"chi2/dof {s.reduced_chi2:.3f}  "
+        f'RMS RA.cos(d) {s.rms_ra_arcsec:.3f}" Dec {s.rms_dec_arcsec:.3f}"  '
+        f"({s.num_selected}/{s.num_obs} obs)"
     )
     print(
-        "(The fit measures the area-to-mass ratio directly from the "
-        "astrometry via solar radiation pressure, with an honest sigma "
-        "from the solved covariance.)"
+        f"Priors: A1 +/- {sci(A_SIGMA[0], 0)}, A2 +/- {sci(A_SIGMA[1], 0)}, "
+        f"A3 +/- {sci(A_SIGMA[2], 0)} (the hold on A3) au/d^2; "
+        f"the fit keeps {100 * (a1_sigma / A_SIGMA[0]) ** 2:.2f}% and "
+        f"{100 * (a2_sigma / A_SIGMA[1]) ** 2:.2f}% of those priors' information"
+    )
+    amr, amr_sigma = a1 / K_SRP, a1_sigma / K_SRP
+    print(f"A1 = {sci(a1, 4)} +/- {sci(a1_sigma, 2)} au/d^2")
+    print(
+        f"  = area-to-mass ratio {sci(amr, 4)} +/- {sci(amr_sigma, 2)} m^2/kg "
+        f"({amr / amr_sigma:.1f} sigma), A1 / K"
+    )
+    print(f"A2 = {sci(a2, 4)} +/- {sci(a2_sigma, 2)} au/d^2")
+    print(
+        f"A3 = {sci(a3, 2)} +/- {sci(a3_sigma, 2)} au/d^2 (its prior, not a fit: the "
+        "engine's refine has no per-axis fixed switch)"
+    )
+    scale = np.sqrt(s.reduced_chi2)
+    print(
+        f"  scaled by the residuals (x sqrt(chi2/dof)): A1 +/- {sci(a1_sigma * scale, 2)}"
+        f", A2 +/- {sci(a2_sigma * scale, 2)} au/d^2"
     )
 
+    # -- 4. Against JPL's solution and the 2012 detection ---------------
+    for name, v, sg, j, js in (
+        ("A1", a1, a1_sigma, JPL_A1, JPL_A1_SIGMA),
+        ("A2", a2, a2_sigma, JPL_A2, JPL_A2_SIGMA),
+    ):
+        print(
+            f"{name}: ours - JPL = {(v - j) / np.hypot(sg, js):+.2f} combined sigma; "
+            f"JPL sigma {sci(js, 2)}, ours/JPL {sg / js:.1f}"
+        )
+    print(
+        f"Area-to-mass ratio: ours - Micheli 2012 ({sci(MICHELI_AMR, 2)} +/- "
+        f"{sci(MICHELI_SIGMA, 2)} m^2/kg, radiation pressure only) = "
+        f"{(amr - MICHELI_AMR) / np.hypot(amr_sigma, MICHELI_SIGMA):+.2f} combined sigma"
+    )
+    return obs
 
+
+obs = main()
 # empyrean:snippet:end
 
-
-if __name__ == "__main__":
-    main()
+# Drift check, outside the snippet: the published numbers are for exactly these
+# observations. If the MPC re-measures, deletes or adds a row between the two
+# filters, stop instead of printing numbers for a different arc.
+EXPECTED_COUNT = 190
+EXPECTED_SHA256 = "26e63fb96eb8b34e2fdb7afacb0ce8c260bfbfa5f1ef79d88bf45c535ee5e523"
+found_ids = "\n".join(sorted(obs.obs_id.to_pylist()))
+found_sha256 = hashlib.sha256(found_ids.encode()).hexdigest()
+if len(obs) != EXPECTED_COUNT or found_sha256 != EXPECTED_SHA256:
+    sys.exit(
+        f"The MPC record changed between the filters: expected {EXPECTED_COUNT} "
+        f"observations with sha256 {EXPECTED_SHA256} of the sorted obsIDs, found "
+        f"{len(obs)} with {found_sha256}. The numbers above are for a different arc."
+    )

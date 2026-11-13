@@ -1,7 +1,7 @@
 //! 2025-010D: a Falcon 9 second stage → community-driven astrometry → lunar impact.
 //!
-//! Rust twin of `2025-010D/main.py`. Reproduces the 25010d explore-mode
-//! scenario from <https://empyrean-dynamics.com/explore/25010d>.
+//! Rust twin of `2025-010D/main.py`. Reproduces the 2025010d explore-mode
+//! scenario from <https://empyrean-dynamics.com/explore/2025010d>.
 //!
 //! Run:
 //! ```bash
@@ -15,13 +15,42 @@ use empyrean::{
 };
 use empyrean::{OriginPolicy, WeightingConfig, WeightingPreset};
 
+// The 402 public observations, in ADES PSV, from Bill Gray's Project Pluto pages
+// (public domain; the MPC does not distribute this object's astrometry). Download
+// https://raw.githubusercontent.com/Empyrean-Dynamics/empyrean-scenarios/main/2025-010D/astrometry.psv
+// and save it as astrometry.psv in the directory you run from.
+const ASTROMETRY: [&str; 2] = ["astrometry.psv", "2025-010D/astrometry.psv"];
+// Gray's fit to the same 74 public observations (Project Pluto pseudo-MPEC 25010d_new).
+const GRAY_AMR: f64 = 0.0079; // m^2/kg
+const GRAY_AMR_SIGMA: f64 = 0.0017;
+// The crater NASA's Lunar Reconnaissance Orbiter imaged on 2026-08-11/12 (NASA,
+// "NASA's LRO Images Falcon 9 Crater on Moon", science.nasa.gov), and Gray's final
+// prediction of 2026-08-01 from his full record, which is not public (Project Pluto,
+// https://www.projectpluto.com/25010d.htm). Selenographic degrees north and east.
+const CRATER: (f64, f64) = (19.4759, 266.7138);
+const GRAY_FINAL: (f64, f64) = (19.461, 266.707);
+const MOON_RADIUS_KM: f64 = 1737.4; // the Moon's mean radius
+
+/// Great-circle distance between two (lat, lon) points in degrees, on the Moon.
+fn separation_km(a: (f64, f64), b: (f64, f64)) -> f64 {
+    let (p1, p2) = (a.0.to_radians(), b.0.to_radians());
+    let dl = (b.1 - a.1).to_radians();
+    let h = ((p2 - p1) / 2.0).sin().powi(2) + p1.cos() * p2.cos() * (dl / 2.0).sin().powi(2);
+    2.0 * MOON_RADIUS_KM * h.sqrt().asin()
+}
+
 fn main() -> empyrean::Result<()> {
     let ctx = Context::from_data_dir(None)?;
 
     // ── 1. The committed public astrometry ──────────────────────────
     // No MPC query: these 402 observations are the
     // public-domain record compiled by Project Pluto (see README).
-    let obs = ctx.read_ades("2025-010D/astrometry.psv")?;
+    let obs = ctx.read_ades(
+        ASTROMETRY
+            .iter()
+            .find(|p| std::path::Path::new(p).exists())
+            .expect("astrometry.psv not found"),
+    )?;
     println!(
         "{} public observations (Project Pluto, public domain)",
         obs.len()
@@ -88,33 +117,66 @@ fn main() -> empyrean::Result<()> {
         let sigma = sc.matrix[slot][slot].sqrt();
         println!("Fitted AMR = {:.4} ± {:.4} m²/kg", srp.amrat, sigma);
     }
-    println!("Gray (same 74-obs arc): 0.0079 ± 0.0017 m²/kg");
+    println!("Gray (same 74-obs arc): {GRAY_AMR} ± {GRAY_AMR_SIGMA} m²/kg");
+    if let (Some(sc), Some(srp)) = (&refined.solved_covariance, &refined.orbit.srp) {
+        let slot = sc.amrat_slot.expect("AMRAT slot opened by the solve");
+        let sigma = sc.matrix[slot][slot].sqrt();
+        let gap = srp.amrat - GRAY_AMR;
+        println!(
+            "Ours - Gray = {gap:+.4} m²/kg, {:.2} combined sigma",
+            gap.abs() / sigma.hypot(GRAY_AMR_SIGMA)
+        );
+    }
 
     // ── 3. Into the Moon ────────────────────────────────────────────
-    let epochs: Vec<Epoch> = (0..120)
-        .map(|i| Epoch::from_mjd_tdb(65610.0 + 0.05 * i as f64))
+    let epochs: Vec<Epoch> = (0..200)
+        .map(|i| Epoch::from_mjd_tdb(61250.0 + 0.05 * i as f64))
         .collect();
     let prop = ctx.propagate(
         std::slice::from_ref(&refined.orbit),
         &epochs,
         &empyrean::PropagationConfig::default(),
     )?;
-    for ev in prop
+    let impacts: Vec<_> = prop
         .events
         .iter()
         .filter(|e| e.event_type == "impact" && e.body == Some(Origin::Moon))
-    {
+        .collect();
+    assert!(impacts.len() == 1, "expected one lunar impact");
+    let mut ours = (0.0, 0.0);
+    for ev in impacts {
         let iso = mjd_to_iso(ev.epoch.mjd_utc()?, TimeScale::UTC)?;
+        // To 0.01 s: the fit's timing is no better than that.
+        let (head, frac) = iso
+            .trim_end_matches('Z')
+            .split_once('.')
+            .expect("fractional seconds");
+        let centis = (format!("0.{frac}").parse::<f64>().expect("fraction") * 100.0).round() as u32;
+        assert!(centis < 100);
+        let iso = format!("{head}.{centis:02}Z");
         let lon = ev.impact_longitude_deg.rem_euclid(360.0);
         println!("\nPredicted lunar impact (empyrean): {iso}");
         println!(
             "  at {:.3}°N {:.3}°E (selenographic)",
             ev.impact_latitude_deg, lon
         );
+        ours = (ev.impact_latitude_deg, lon);
     }
     println!("Gray (74-obs arc):  2026-08-05T06:35:42.45Z at 19.577°N 266.630°E");
     println!("JPL #GA1A2/21:      2026-08-05T06:35:40Z ± 9 s at 19.507°N 266.7°E");
     println!("Confirmed:          2026-08-05 ~06:35 UTC near crater Einstein");
+    println!(
+        "\nScored against the crater LRO imaged ({}°N {}°E), great circle on a {} km Moon:",
+        CRATER.0, CRATER.1, MOON_RADIUS_KM
+    );
+    println!(
+        "  empyrean (this fit, public 74-obs arc)  {:.2} km",
+        separation_km(ours, CRATER)
+    );
+    println!(
+        "  Gray's final prediction (all data)      {:.2} km",
+        separation_km(GRAY_FINAL, CRATER)
+    );
 
     // ── 4. Why the record is fit per arc ────────────────────────────
     // Score the final-arc orbit against the WHOLE public record: the
@@ -140,7 +202,7 @@ fn main() -> empyrean::Result<()> {
                 match code {
                     Some(c) => {
                         scorable.retain(|o| o.obs_code != c);
-                        println!("(dropped unregistered community station {c:?} from scoring)");
+                        println!("(dropped unregistered community station {c} from scoring)");
                     }
                     None => return Err(e),
                 }
@@ -178,7 +240,6 @@ fn main() -> empyrean::Result<()> {
 
     Ok(())
 }
-// empyrean:snippet:end
 
 /// A block-diagonal refine prior: the fit's state 6x6 plus one diagonal prior
 /// variance per parameter axis (zero cross terms). The AMRAT prior rides the
@@ -216,3 +277,4 @@ fn prior_joint(
         asserted_source: None,
     }
 }
+// empyrean:snippet:end
